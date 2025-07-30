@@ -10,6 +10,7 @@ import { Search, RotateCcw } from "lucide-react"
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible"
 import { ChevronDown } from "lucide-react"
 import { useState } from "react"
+import { Slider } from "@/components/ui/slider"
 
 interface FilterState {
   search_param: string
@@ -203,7 +204,7 @@ export function SearchFilters({ filters, onFiltersChange, onSearch, loading }: S
             <div className="space-y-2">
               {[
                 { key: "ethnic_studies", label: "Ethnic Studies", value: "ETHNIC ST" },
-                { key: "social_science", label: "Social Science", value: "S"},
+                { key: "social_science", label: "Social Science", value: "S" },
                 { key: "humanities", label: "Humanities", value: "H" },
                 { key: "biological_science", label: "Biological Science", value: "BO" },
                 { key: "physical_science", label: "Physical Science", value: "P" },
@@ -224,27 +225,29 @@ export function SearchFilters({ filters, onFiltersChange, onSearch, loading }: S
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-2">
-            <div className="space-y-2">
-              <Label htmlFor="min_cum_gpa">Min Avg GPA</Label>
-              <Input
+          <div className="grid grid-cols-1 gap-4">
+            <div className="space-y-3">
+              <Label htmlFor="min_cum_gpa">Min Avg GPA: {filters.min_cumulative_gpa || "0.0"}</Label>
+              <Slider
                 id="min_cum_gpa"
-                type="number"
-                step="0.1"
-                placeholder="0.0"
-                value={filters.min_cumulative_gpa}
-                onChange={(e) => updateFilter("min_cumulative_gpa", e.target.value)}
+                min={0}
+                max={4}
+                step={0.1}
+                value={[Number.parseFloat(filters.min_cumulative_gpa) || 0]}
+                onValueChange={(value) => updateFilter("min_cumulative_gpa", value[0].toString())}
+                className="w-full"
               />
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="min_recent_gpa">Min Recent GPA</Label>
-              <Input
+            <div className="space-y-3">
+              <Label htmlFor="min_recent_gpa">Min Recent GPA: {filters.min_most_recent_gpa || "0.0"}</Label>
+              <Slider
                 id="min_recent_gpa"
-                type="number"
-                step="0.1"
-                placeholder="0.0"
-                value={filters.min_most_recent_gpa}
-                onChange={(e) => updateFilter("min_most_recent_gpa", e.target.value)}
+                min={0}
+                max={4}
+                step={0.1}
+                value={[Number.parseFloat(filters.min_most_recent_gpa) || 0]}
+                onValueChange={(value) => updateFilter("min_most_recent_gpa", value[0].toString())}
+                className="w-full"
               />
             </div>
           </div>
