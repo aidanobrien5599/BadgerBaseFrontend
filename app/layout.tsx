@@ -7,8 +7,8 @@ import { Navigation } from "@/components/navigation"
 const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
-  title: "SconnieGrades",
-  description: "Search and filter UW courses with live course data, historical grades, and instructor ratings",
+  title: "Course Search App",
+  description: "Search and filter university courses with instructor ratings",
     generator: 'v0.dev'
 }
 
