@@ -7,12 +7,11 @@ export default function AboutPage() {
     <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <div className="text-center mb-12">
         <div className="flex items-center justify-center mb-4">
-          <GraduationCap className="h-12 w-12 text-blue-600" />
+          <GraduationCap className="h-12 w-12 text-red-600" />
         </div>
-        <h1 className="text-4xl font-bold text-gray-900 mb-4">About CourseSearch</h1>
+        <h1 className="text-4xl font-bold text-gray-900 mb-4">About SconnieGrades</h1>
         <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-          A comprehensive course search platform that helps students find the perfect classes with detailed instructor
-          ratings and availability information.
+          A comprehensive data aggregator designed to help UW-Madison students find the best courses to fit their needs. Sourcing data from UW-Madison's live course catalog, Rate My Professor, and Madgrades for an all-in-one course search experience.
         </p>
       </div>
 
@@ -20,7 +19,7 @@ export default function AboutPage() {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Search className="h-5 w-5 text-blue-600" />
+              <Search className="h-5 w-5 text-red-600" />
               Smart Search
             </CardTitle>
           </CardHeader>
@@ -35,7 +34,7 @@ export default function AboutPage() {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Filter className="h-5 w-5 text-green-600" />
+              <Filter className="h-5 w-5 text-red-600" />
               Advanced Filtering
             </CardTitle>
           </CardHeader>
@@ -50,7 +49,7 @@ export default function AboutPage() {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Star className="h-5 w-5 text-yellow-600" />
+              <Star className="h-5 w-5 text-red-600" />
               Instructor Ratings
             </CardTitle>
           </CardHeader>
@@ -65,7 +64,7 @@ export default function AboutPage() {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <BarChart3 className="h-5 w-5 text-purple-600" />
+              <BarChart3 className="h-5 w-5 text-red-600" />
               Real-time Data
             </CardTitle>
           </CardHeader>
@@ -117,40 +116,16 @@ export default function AboutPage() {
         </CardContent>
       </Card>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Subject Areas</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="flex flex-wrap gap-2">
-            {[
-              "Ethnic Studies",
-              "Social Science",
-              "Humanities",
-              "Biological Science",
-              "Physical Science",
-              "Natural Science",
-              "Literature",
-            ].map((subject) => (
-              <Badge key={subject} variant="outline">
-                {subject}
-              </Badge>
-            ))}
-          </div>
-          <p className="text-sm text-gray-600 mt-4">
-            Filter courses by specific subject area requirements to find classes that fulfill your degree requirements.
-          </p>
-        </CardContent>
-      </Card>
+      
 
-      <div className="text-center mt-12 p-6 bg-blue-50 rounded-lg">
-        <h3 className="text-lg font-semibold text-blue-900 mb-2">Ready to find your perfect courses?</h3>
-        <p className="text-blue-700 mb-4">
+        <div className="text-center mt-12 p-6 bg-red-50 rounded-lg">
+        <h3 className="text-lg font-semibold text-red-900 mb-2">Ready to find your perfect courses?</h3>
+        <p className="text-red-700 mb-4">
           Start searching with our comprehensive course database and filtering system.
         </p>
         <a
           href="/"
-          className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+          className="inline-flex items-center px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors"
         >
           <Search className="h-4 w-4 mr-2" />
           Start Searching

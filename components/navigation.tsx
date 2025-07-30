@@ -14,8 +14,8 @@ export function Navigation() {
         <div className="flex justify-between h-16">
           <div className="flex items-center">
             <Link href="/" className="flex items-center space-x-2">
-              <GraduationCap className="h-8 w-8 text-blue-600" />
-              <span className="text-xl font-bold text-gray-900">CourseSearch</span>
+              <GraduationCap className="h-8 w-8 text-red-600" />
+              <span className="text-xl font-bold text-gray-900">SconnieGrades</span>
             </Link>
           </div>
 
@@ -23,8 +23,8 @@ export function Navigation() {
             <Link
               href="/"
               className={cn(
-                "text-sm font-medium transition-colors hover:text-blue-600",
-                pathname === "/" ? "text-blue-600" : "text-gray-700",
+                "text-sm font-medium transition-colors hover:text-red-600",
+                pathname === "/" ? "text-red-600" : "text-gray-700",
               )}
             >
               Search Courses
@@ -32,8 +32,8 @@ export function Navigation() {
             <Link
               href="/about"
               className={cn(
-                "text-sm font-medium transition-colors hover:text-blue-600",
-                pathname === "/about" ? "text-blue-600" : "text-gray-700",
+                "text-sm font-medium transition-colors hover:text-red-600",
+                pathname === "/about" ? "text-red-600" : "text-gray-700",
               )}
             >
               About

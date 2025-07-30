@@ -66,7 +66,7 @@ export function PaginationControls({
   const pageNumbers = getPageNumbers()
 
   return (
-    <div className="flex flex-col sm:flex-row items-center justify-between gap-4 py-4">
+    <div className="flex flex-col sm:flex-row items-center justify-between ">
       {/* Results info */}
       <div className="text-sm text-gray-700">
         Showing {startResult.toLocaleString()} to {endResult.toLocaleString()} of {totalCount.toLocaleString()} results

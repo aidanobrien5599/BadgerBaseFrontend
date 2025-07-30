@@ -64,13 +64,13 @@ interface FilterState {
   min_credits: string
   max_credits: string
   level: string
-  ethnic_studies: boolean
-  social_science: boolean
-  humanities: boolean
-  biological_science: boolean
-  physical_science: boolean
-  natural_science: boolean
-  literature: boolean
+  ethnic_studies: string
+  social_science: string
+  humanities: string
+  biological_science: string
+  physical_science: string
+  natural_science: string
+  literature: string
   min_cumulative_gpa: string
   min_most_recent_gpa: string
   min_section_avg_rating: string
@@ -95,13 +95,13 @@ export default function HomePage() {
     min_credits: "",
     max_credits: "",
     level: "",
-    ethnic_studies: false,
-    social_science: false,
-    humanities: false,
-    biological_science: false,
-    physical_science: false,
-    natural_science: false,
-    literature: false,
+    ethnic_studies: "",
+    social_science: "",
+    humanities: "",
+    biological_science: "",
+    physical_science: "",
+    natural_science: "",
+    literature: "",
     min_cumulative_gpa: "",
     min_most_recent_gpa: "",
     min_section_avg_rating: "",
@@ -206,18 +206,8 @@ export default function HomePage() {
             </Card>
           ) : (
             <div className="space-y-6">
-              <CourseTable courses={courses} />
-
-              {!loading && courses.length > 0 && (
-                <PaginationControls
-                  currentPage={currentPage}
-                  totalPages={totalPages}
-                  totalCount={totalCount}
-                  hasMore={hasMore}
-                  onPageChange={handlePageChange}
-                  resultsPerPage={Number.parseInt(filters.limit)}
-                />
-              )}
+                
+              <CourseTable courses={courses} currentPage={currentPage} totalPages={totalPages} totalCount={totalCount} hasMore={hasMore} onPageChange={handlePageChange} resultsPerPage={Number.parseInt(filters.limit)} />
             </div>
           )}
         </div>

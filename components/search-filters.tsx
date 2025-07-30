@@ -20,13 +20,13 @@ interface FilterState {
   min_credits: string
   max_credits: string
   level: string
-  ethnic_studies: boolean
-  social_science: boolean
-  humanities: boolean
-  biological_science: boolean
-  physical_science: boolean
-  natural_science: boolean
-  literature: boolean
+  ethnic_studies: string
+  social_science: string
+  humanities: string
+  biological_science: string
+  physical_science: string
+  natural_science: string
+  literature: string
   min_cumulative_gpa: string
   min_most_recent_gpa: string
   min_section_avg_rating: string
@@ -60,13 +60,13 @@ export function SearchFilters({ filters, onFiltersChange, onSearch, loading }: S
       min_credits: "",
       max_credits: "",
       level: "",
-      ethnic_studies: false,
-      social_science: false,
-      humanities: false,
-      biological_science: false,
-      physical_science: false,
-      natural_science: false,
-      literature: false,
+      ethnic_studies: "",
+      social_science: "",
+      humanities: "",
+      biological_science: "",
+      physical_science: "",
+      natural_science: "",
+      literature: "",
       min_cumulative_gpa: "",
       min_most_recent_gpa: "",
       min_section_avg_rating: "",
@@ -83,7 +83,7 @@ export function SearchFilters({ filters, onFiltersChange, onSearch, loading }: S
         <Label htmlFor="search">Search Courses</Label>
         <Input
           id="search"
-          placeholder="Course code, name, or instructor..."
+          placeholder="COMP SCI 400, John Doe, etc."
           value={filters.search_param}
           onChange={(e) => updateFilter("search_param", e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && onSearch()}
@@ -115,9 +115,9 @@ export function SearchFilters({ filters, onFiltersChange, onSearch, loading }: S
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="any">Any mode</SelectItem>
-              <SelectItem value="In Person">In Person</SelectItem>
-              <SelectItem value="Online">Online</SelectItem>
-              <SelectItem value="Hybrid">Hybrid</SelectItem>
+              <SelectItem value="Classroom Instruction">In Person</SelectItem>
+              <SelectItem value="Online Only">Online</SelectItem>
+              <SelectItem value="Online (some classroom)">Hybrid</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -191,8 +191,9 @@ export function SearchFilters({ filters, onFiltersChange, onSearch, loading }: S
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="any">Any level</SelectItem>
-                <SelectItem value="Undergraduate">Undergraduate</SelectItem>
-                <SelectItem value="Graduate">Graduate</SelectItem>
+                <SelectItem value="E">Elementary</SelectItem>
+                <SelectItem value="I">Intermediate</SelectItem>
+                <SelectItem value="A">Advanced</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -201,19 +202,19 @@ export function SearchFilters({ filters, onFiltersChange, onSearch, loading }: S
             <Label>Subject Areas</Label>
             <div className="space-y-2">
               {[
-                { key: "ethnic_studies", label: "Ethnic Studies" },
-                { key: "social_science", label: "Social Science" },
-                { key: "humanities", label: "Humanities" },
-                { key: "biological_science", label: "Biological Science" },
-                { key: "physical_science", label: "Physical Science" },
-                { key: "natural_science", label: "Natural Science" },
-                { key: "literature", label: "Literature" },
-              ].map(({ key, label }) => (
+                { key: "ethnic_studies", label: "Ethnic Studies", value: "ETHNIC ST" },
+                { key: "social_science", label: "Social Science", value: "S"},
+                { key: "humanities", label: "Humanities", value: "H" },
+                { key: "biological_science", label: "Biological Science", value: "BO" },
+                { key: "physical_science", label: "Physical Science", value: "P" },
+                { key: "natural_science", label: "Natural Science", value: "N" },
+                { key: "literature", label: "Literature", value: "L" },
+              ].map(({ key, label, value }) => (
                 <div key={key} className="flex items-center space-x-2">
                   <Checkbox
                     id={key}
-                    checked={filters[key as keyof FilterState] as boolean}
-                    onCheckedChange={(checked) => updateFilter(key as keyof FilterState, checked as boolean)}
+                    checked={filters[key as keyof FilterState] != ""}
+                    onCheckedChange={(checked) => updateFilter(key as keyof FilterState, checked ? value : "")}
                   />
                   <Label htmlFor={key} className="text-sm">
                     {label}
@@ -225,7 +226,7 @@ export function SearchFilters({ filters, onFiltersChange, onSearch, loading }: S
 
           <div className="grid grid-cols-2 gap-2">
             <div className="space-y-2">
-              <Label htmlFor="min_cum_gpa">Min Cumulative GPA</Label>
+              <Label htmlFor="min_cum_gpa">Min Avg GPA</Label>
               <Input
                 id="min_cum_gpa"
                 type="number"

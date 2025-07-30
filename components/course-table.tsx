@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge"
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible"
 import { ChevronDown, Users, Clock, MapPin, Star, TrendingUp } from "lucide-react"
 import { useState } from "react"
+import { PaginationControls } from "./pagination-controls"
 
 interface Course {
   course_id: number
@@ -47,9 +48,15 @@ interface Instructor {
 
 interface CourseTableProps {
   courses: Course[]
+  currentPage: number
+  totalPages: number
+  totalCount: number
+  hasMore: boolean
+  onPageChange: (page: number) => void
+  resultsPerPage: number
 }
 
-export function CourseTable({ courses }: CourseTableProps) {
+export function CourseTable({ courses, currentPage, totalPages, totalCount, hasMore, onPageChange, resultsPerPage }: CourseTableProps) {
   const [expandedCourses, setExpandedCourses] = useState<Set<number>>(new Set())
 
   const toggleCourse = (courseId: number) => {
@@ -91,10 +98,21 @@ export function CourseTable({ courses }: CourseTableProps) {
 
   return (
     <div className="space-y-4">
+
+    
       <div className="flex items-center justify-between">
-        <h2 className="text-xl font-semibold">Search Results</h2>
-        <Badge variant="secondary">{courses.length} courses found</Badge>
+        <h2 className="text-2xl font-semibold">Search Results</h2>
       </div>
+      {courses.length > 0 && (
+                <PaginationControls
+                  currentPage={currentPage}
+                  totalPages={totalPages}
+                  totalCount={totalCount}
+                  hasMore={hasMore}
+                  onPageChange={onPageChange}
+                  resultsPerPage={resultsPerPage}
+                />
+              )}
 
       {courses.map((course) => (
         <Card key={course.course_id}>
