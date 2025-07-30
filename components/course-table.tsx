@@ -126,7 +126,7 @@ export function CourseTable({ courses, currentPage, totalPages, totalCount, hasM
                     </CardTitle>
                     <div className="flex items-center gap-4 mt-2 text-sm text-gray-600">
                       <span>
-                        {course.minimum_credits}-{course.maximum_credits} credits
+                        {course.minimum_credits == course.maximum_credits ? course.minimum_credits == 1 ? `${course.minimum_credits} credit` : `${course.minimum_credits} credits` : `${course.minimum_credits}-${course.maximum_credits} credits`}
                       </span>
                       <Badge variant="outline">{course.level}</Badge>
                       <span>GPA: {course.cumulative_gpa?.toFixed(2) || "N/A"}</span>

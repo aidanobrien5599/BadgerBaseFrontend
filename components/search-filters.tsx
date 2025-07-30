@@ -232,7 +232,7 @@ export function SearchFilters({ filters, onFiltersChange, onSearch, loading }: S
                 id="min_cum_gpa"
                 min={0}
                 max={4}
-                step={0.1}
+                step={0.01}
                 value={[Number.parseFloat(filters.min_cumulative_gpa) || 0]}
                 onValueChange={(value) => updateFilter("min_cumulative_gpa", value[0].toString())}
                 className="w-full"
@@ -244,7 +244,7 @@ export function SearchFilters({ filters, onFiltersChange, onSearch, loading }: S
                 id="min_recent_gpa"
                 min={0}
                 max={4}
-                step={0.1}
+                step={0.01}
                 value={[Number.parseFloat(filters.min_most_recent_gpa) || 0]}
                 onValueChange={(value) => updateFilter("min_most_recent_gpa", value[0].toString())}
                 className="w-full"

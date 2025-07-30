@@ -9,7 +9,10 @@ const inter = Inter({ subsets: ["latin"] })
 export const metadata: Metadata = {
   title: "Course Search App",
   description: "Search and filter university courses with instructor ratings",
-    generator: 'v0.dev'
+  generator: 'v0.dev',
+  icons: {
+    icon: "/SconnieGradesLogo.png",
+  },
 }
 
 export default function RootLayout({

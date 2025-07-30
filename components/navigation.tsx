@@ -3,7 +3,9 @@
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { cn } from "@/lib/utils"
+import Logo from "@/public/SconnieGradesLogo.png"
 import { GraduationCap } from "lucide-react"
+import Image from "next/image"
 
 export function Navigation() {
   const pathname = usePathname()
@@ -14,7 +16,7 @@ export function Navigation() {
         <div className="flex justify-between h-16">
           <div className="flex items-center">
             <Link href="/" className="flex items-center space-x-2">
-              <GraduationCap className="h-8 w-8 text-red-600" />
+              <Image src={Logo} alt="SconnieGrades Logo" width={32} height={32} />
               <span className="text-xl font-bold text-gray-900">SconnieGrades</span>
             </Link>
           </div>
