@@ -6,6 +6,8 @@ export async function GET(request: Request) {
   const API_KEY = process.env.API_KEY || ""
 
   console.log(searchParams.toString())
+  console.log(API_KEY)
+  console.log(API_BASE_URL)
 
   try {
     const response = await fetch(`${API_BASE_URL}/api/query?${searchParams.toString()}`, {
