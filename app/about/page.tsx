@@ -86,21 +86,21 @@ export default function AboutPage() {
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             <div>
-              <h4 className="font-semibold mb-2">Basic Filters</h4>
+              <h4 className="font-semibold mb-2">Course Details</h4>
               <div className="space-y-1 text-sm text-gray-600">
-                <div>• Course status (Open/Closed/Waitlist)</div>
-                <div>• Instruction mode</div>
-                <div>• Available seats</div>
-                <div>• Results limit</div>
+                <div>• Course level</div>
+                <div>• Breadth</div>
+                <div>• Credits</div>
+                <div>• GPA requirements</div>
               </div>
             </div>
 
             <div>
-              <h4 className="font-semibold mb-2">Course Details</h4>
+              <h4 className="font-semibold mb-2">Section Details</h4>
               <div className="space-y-1 text-sm text-gray-600">
-                <div>• Credit range</div>
-                <div>• Course level</div>
-                <div>• Subject areas</div>
+                <div>• Status (Open/Closed/Waitlist)</div>
+                <div>• Available seats</div>
+                <div>• Instruction Mode</div>
                 <div>• GPA requirements</div>
               </div>
             </div>
@@ -108,7 +108,7 @@ export default function AboutPage() {
             <div>
               <h4 className="font-semibold mb-2">Rate My Professor</h4>
               <div className="space-y-1 text-sm text-gray-600">
-                <div>• Section rating</div>
+                <div>• Professor rating</div>
                 <div>• Difficulty level</div>
                 <div>• Number of ratings</div>
                 <div>• Would take again %</div>
