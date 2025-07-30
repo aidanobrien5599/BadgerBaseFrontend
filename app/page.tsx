@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react"
 import { SearchFilters } from "@/components/search-filters"
 import { CourseTable } from "@/components/course-table"
+import { PaginationControls } from "@/components/pagination-controls"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Loader2 } from "lucide-react"
@@ -46,6 +47,14 @@ interface Instructor {
   would_take_again_percent: number
 }
 
+interface ApiResponse {
+  data: Course[]
+  count: number
+  total_count: number
+  has_more: boolean
+  filters_applied: any
+}
+
 interface FilterState {
   search_param: string
   status: string
@@ -74,6 +83,9 @@ export default function HomePage() {
   const [courses, setCourses] = useState<Course[]>([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [currentPage, setCurrentPage] = useState(1)
+  const [totalCount, setTotalCount] = useState(0)
+  const [hasMore, setHasMore] = useState(false)
   const [filters, setFilters] = useState<FilterState>({
     search_param: "",
     status: "",
@@ -98,12 +110,15 @@ export default function HomePage() {
     min_section_avg_would_take_again: "",
   })
 
-  const searchCourses = async () => {
+  const searchCourses = async (page = 1) => {
     setLoading(true)
     setError(null)
 
     try {
       const params = new URLSearchParams()
+
+      // Add pagination parameter
+      params.append("page", page.toString())
 
       // Add all non-empty filters to params
       Object.entries(filters).forEach(([key, value]) => {
@@ -122,11 +137,17 @@ export default function HomePage() {
         throw new Error(`HTTP error! status: ${response.status}`)
       }
 
-      const data = await response.json()
+      const data: ApiResponse = await response.json()
       setCourses(data.data || [])
+      setCurrentPage(page)
+      setTotalCount(data.total_count || 0)
+      setHasMore(data.has_more || false)
     } catch (err) {
       setError(err instanceof Error ? err.message : "An error occurred")
       setCourses([])
+      setCurrentPage(1)
+      setTotalCount(0)
+      setHasMore(false)
     } finally {
       setLoading(false)
     }
@@ -134,8 +155,19 @@ export default function HomePage() {
 
   // Search on initial load
   useEffect(() => {
-    searchCourses()
+    searchCourses(1)
   }, [])
+
+  const handlePageChange = (page: number) => {
+    searchCourses(page)
+  }
+
+  const handleSearch = () => {
+    setCurrentPage(1)
+    searchCourses(1)
+  }
+
+  const totalPages = Math.ceil(totalCount / Number.parseInt(filters.limit))
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -152,12 +184,7 @@ export default function HomePage() {
               <CardTitle>Search & Filters</CardTitle>
             </CardHeader>
             <CardContent>
-              <SearchFilters
-                filters={filters}
-                onFiltersChange={setFilters}
-                onSearch={searchCourses}
-                loading={loading}
-              />
+              <SearchFilters filters={filters} onFiltersChange={setFilters} onSearch={handleSearch} loading={loading} />
             </CardContent>
           </Card>
         </div>
@@ -178,7 +205,20 @@ export default function HomePage() {
               </CardContent>
             </Card>
           ) : (
-            <CourseTable courses={courses} />
+            <div className="space-y-6">
+              <CourseTable courses={courses} />
+
+              {!loading && courses.length > 0 && (
+                <PaginationControls
+                  currentPage={currentPage}
+                  totalPages={totalPages}
+                  totalCount={totalCount}
+                  hasMore={hasMore}
+                  onPageChange={handlePageChange}
+                  resultsPerPage={Number.parseInt(filters.limit)}
+                />
+              )}
+            </div>
           )}
         </div>
       </div>
