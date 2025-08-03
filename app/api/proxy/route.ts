@@ -9,6 +9,26 @@ export async function GET(request: Request) {
     return new Response("Unauthorized", { status: 401 })
   }
 
+
+
+  const origin = request.headers.get("origin") || request.headers.get("referer");
+
+  const ALLOWED_ORIGINS = [
+    "https://sconniegrades.com",
+    "http://localhost:3000", // for local dev
+    "http://localhost:3001" // for local dev
+  ];
+
+  const isAllowed = ALLOWED_ORIGINS.some((allowed) =>
+    origin?.startsWith(allowed)
+  );
+
+  if (!isAllowed) {
+    return new Response("Forbidden: Invalid origin", { status: 403 });
+  }
+
+
+
   // You'll need to replace this with your actual API endpoint and API key
   const API_BASE_URL = process.env.API_BASE_URL || "http://localhost:3000"
   const API_KEY = process.env.API_KEY || ""
