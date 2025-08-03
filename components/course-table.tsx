@@ -18,6 +18,7 @@ interface Course {
   cumulative_gpa: number
   most_recent_gpa: number
   sections: Section[]
+  madgrades_course_uuid: string
 }
 
 interface Section {
@@ -43,7 +44,9 @@ interface Instructor {
   avg_rating: number
   avg_difficulty: number
   num_ratings: number
+  madgrades_instructor_uuid: string
   would_take_again_percent: number
+  rmp_instructor_id: string
 }
 
 interface CourseTableProps {
@@ -129,7 +132,7 @@ export function CourseTable({ courses, currentPage, totalPages, totalCount, hasM
                         {course.minimum_credits == course.maximum_credits ? course.minimum_credits == 1 ? `${course.minimum_credits} credit` : `${course.minimum_credits} credits` : `${course.minimum_credits}-${course.maximum_credits} credits`}
                       </span>
                       <Badge variant="outline">{course.level}</Badge>
-                      <span>GPA: {course.cumulative_gpa?.toFixed(2) || "N/A"}</span>
+                      <span> <a target="_blank" className="hover:font-bold hover:underline"  href={`https://madgrades.com/courses/${course.madgrades_course_uuid}`}>GPA: {course.cumulative_gpa?.toFixed(2) || "N/A"} </a></span>
                       <span>{course.sections.length} sections</span>
                     </div>
                   </div>
@@ -165,7 +168,7 @@ export function CourseTable({ courses, currentPage, totalPages, totalCount, hasM
                         <div className="flex items-center gap-2 text-sm">
                           <Clock className="h-4 w-4 text-gray-500" />
                           <span>{section.meeting_time || "TBA"}</span>
-                        </div>
+                        </div> 
                         <div className="flex items-center gap-2 text-sm">
                           <MapPin className="h-4 w-4 text-gray-500" />
                           <span>{section.location || "TBA"}</span>
@@ -219,7 +222,7 @@ export function CourseTable({ courses, currentPage, totalPages, totalCount, hasM
                           <div className="space-y-2">
                             {section.instructors.map((instructor, idx) => (
                               <div key={idx} className="flex items-center justify-between p-2 bg-white rounded border">
-                                <span className="font-medium">{instructor.name}</span>
+                                <span className="font-medium">{ instructor.rmp_instructor_id ? <a target="_blank" className="hover:font-bold hover:underline"  href={`https://www.ratemyprofessors.com/professor/${instructor.rmp_instructor_id}`}>{instructor.name}</a> : instructor.name}</span>
                                 {instructor.avg_rating && (
                                   <div className="flex items-center gap-4 text-sm">
                                     <div className="flex items-center gap-1">

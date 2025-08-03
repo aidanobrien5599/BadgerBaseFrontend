@@ -91,7 +91,7 @@ export default function AboutPage() {
                 <div>• Course level</div>
                 <div>• Breadth</div>
                 <div>• Credits</div>
-                <div>• GPA requirements</div>
+                <div>• Madgrades GPA Info</div>
               </div>
             </div>
 
@@ -101,12 +101,11 @@ export default function AboutPage() {
                 <div>• Status (Open/Closed/Waitlist)</div>
                 <div>• Available seats</div>
                 <div>• Instruction Mode</div>
-                <div>• GPA requirements</div>
               </div>
             </div>
 
             <div>
-              <h4 className="font-semibold mb-2">Rate My Professor</h4>
+              <h4 className="font-semibold mb-2">Professor Details</h4>
               <div className="space-y-1 text-sm text-gray-600">
                 <div>• Professor rating</div>
                 <div>• Difficulty level</div>

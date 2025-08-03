@@ -19,6 +19,7 @@ interface Course {
   cumulative_gpa: number
   most_recent_gpa: number
   sections: Section[]
+  madgrades_course_uuid: string
 }
 
 interface Section {
@@ -45,6 +46,7 @@ interface Instructor {
   avg_difficulty: number
   num_ratings: number
   would_take_again_percent: number
+  rmp_instructor_id: string
 }
 
 interface ApiResponse {

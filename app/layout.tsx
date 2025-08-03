@@ -4,13 +4,13 @@ import { Inter } from "next/font/google"
 import "./globals.css"
 import { Navigation } from "@/components/navigation"
 import { Footer } from "@/components/footer"
+import { Analytics } from "@vercel/analytics/react"
 
 const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
-  title: "Course Search App",
-  description: "Search and filter university courses with instructor ratings",
-  generator: "v0.dev",
+  title: "SconnieGrades",
+  description: "Search and filter live UW-Madison courses with instructor ratings and GPA information",
   icons: {
     icon: "/SconnieGradesLogo.png",
   },
@@ -27,6 +27,7 @@ export default function RootLayout({
         <Navigation />
         <main className="min-h-screen bg-gray-50">{children}</main>
         <Footer />
+        <Analytics/>
       </body>
     </html>
   )

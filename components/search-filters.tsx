@@ -108,31 +108,46 @@ export function SearchFilters({ filters, onFiltersChange, onSearch, loading }: S
           </Select>
         </div>
 
-        <div className="space-y-2">
-          <Label htmlFor="instruction_mode">Instruction Mode</Label>
-          <Select value={filters.instruction_mode} onValueChange={(value) => updateFilter("instruction_mode", value)}>
-            <SelectTrigger>
-              <SelectValue placeholder="Any mode" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="any">Any mode</SelectItem>
-              <SelectItem value="Classroom Instruction">In Person</SelectItem>
-              <SelectItem value="Online Only">Online</SelectItem>
-              <SelectItem value="Online (some classroom)">Hybrid</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
 
         <div className="space-y-2">
-          <Label htmlFor="min_seats">Min Available Seats</Label>
-          <Input
-            id="min_seats"
-            type="number"
-            placeholder="0"
-            value={filters.min_available_seats}
-            onChange={(e) => updateFilter("min_available_seats", e.target.value)}
-          />
-        </div>
+            <Label htmlFor="level">Course Level</Label>
+            <Select value={filters.level} onValueChange={(value) => updateFilter("level", value)}>
+              <SelectTrigger>
+                <SelectValue placeholder="Any level" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="any">Any level</SelectItem>
+                <SelectItem value="E">Elementary</SelectItem>
+                <SelectItem value="I">Intermediate</SelectItem>
+                <SelectItem value="A">Advanced</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="grid grid-cols-2 gap-2">
+            <div className="space-y-2">
+              <Label htmlFor="min_credits">Min Credits</Label>
+              <Input
+                id="min_credits"
+                type="number"
+                placeholder="0"
+                value={filters.min_credits}
+                onChange={(e) => updateFilter("min_credits", e.target.value)}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="max_credits">Max Credits</Label>
+              <Input
+                id="max_credits"
+                type="number"
+                placeholder="10"
+                value={filters.max_credits}
+                onChange={(e) => updateFilter("max_credits", e.target.value)}
+              />
+            </div>
+          </div>
+
+
 
         <div className="space-y-2">
           <Label htmlFor="limit">Results Limit</Label>
@@ -161,43 +176,33 @@ export function SearchFilters({ filters, onFiltersChange, onSearch, loading }: S
           </Button>
         </CollapsibleTrigger>
         <CollapsibleContent className="space-y-4 mt-4">
-          <div className="grid grid-cols-2 gap-2">
-            <div className="space-y-2">
-              <Label htmlFor="min_credits">Min Credits</Label>
-              <Input
-                id="min_credits"
-                type="number"
-                placeholder="0"
-                value={filters.min_credits}
-                onChange={(e) => updateFilter("min_credits", e.target.value)}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="max_credits">Max Credits</Label>
-              <Input
-                id="max_credits"
-                type="number"
-                placeholder="10"
-                value={filters.max_credits}
-                onChange={(e) => updateFilter("max_credits", e.target.value)}
-              />
-            </div>
-          </div>
-
+    
           <div className="space-y-2">
-            <Label htmlFor="level">Course Level</Label>
-            <Select value={filters.level} onValueChange={(value) => updateFilter("level", value)}>
-              <SelectTrigger>
-                <SelectValue placeholder="Any level" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="any">Any level</SelectItem>
-                <SelectItem value="E">Elementary</SelectItem>
-                <SelectItem value="I">Intermediate</SelectItem>
-                <SelectItem value="A">Advanced</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
+          <Label htmlFor="min_seats">Min Available Seats</Label>
+          <Input
+            id="min_seats"
+            type="number"
+            placeholder="0"
+            value={filters.min_available_seats}
+            onChange={(e) => updateFilter("min_available_seats", e.target.value)}
+          />
+        </div>
+
+         
+        <div className="space-y-2">
+          <Label htmlFor="instruction_mode">Instruction Mode</Label>
+          <Select value={filters.instruction_mode} onValueChange={(value) => updateFilter("instruction_mode", value)}>
+            <SelectTrigger>
+              <SelectValue placeholder="Any mode" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="any">Any mode</SelectItem>
+              <SelectItem value="Classroom Instruction">In Person</SelectItem>
+              <SelectItem value="Online Only">Online</SelectItem>
+              <SelectItem value="Online (some classroom)">Hybrid</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
 
           <div className="space-y-3">
             <Label>Subject Areas</Label>
