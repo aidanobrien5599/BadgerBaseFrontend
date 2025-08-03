@@ -1,13 +1,18 @@
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url)
 
+
+
+  const clientSecret = request.headers.get("x-client-secret")
+
+  if (clientSecret !== process.env.CLIENT_SECRET) {
+    return new Response("Unauthorized", { status: 401 })
+  }
+
   // You'll need to replace this with your actual API endpoint and API key
   const API_BASE_URL = process.env.API_BASE_URL || "http://localhost:3000"
   const API_KEY = process.env.API_KEY || ""
 
-  console.log(searchParams.toString())
-  console.log(API_KEY)
-  console.log(API_BASE_URL)
 
   try {
     const response = await fetch(`${API_BASE_URL}/api/query?${searchParams.toString()}`, {

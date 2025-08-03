@@ -133,7 +133,14 @@ export default function HomePage() {
         }
       })
 
-      const response = await fetch(`/api/proxy?${params.toString()}`)
+   
+
+      const response = await fetch(`/api/proxy?${params.toString()}`, {
+        headers: {
+          "x-client-secret": process.env.NEXT_PUBLIC_CLIENT_SECRET ?? "",
+        },
+      })
+      
 
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`)

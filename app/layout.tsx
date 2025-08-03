@@ -5,6 +5,7 @@ import "./globals.css"
 import { Navigation } from "@/components/navigation"
 import { Footer } from "@/components/footer"
 import { Analytics } from "@vercel/analytics/react"
+import { PostHogProvider } from "@/components/PostHogProvider"
 
 const inter = Inter({ subsets: ["latin"] })
 
@@ -24,10 +25,12 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={inter.className}>
-        <Navigation />
-        <main className="min-h-screen bg-gray-50">{children}</main>
-        <Footer />
-        <Analytics/>
+        <PostHogProvider>
+          <Navigation />
+          <main className="min-h-screen bg-gray-50">{children}</main>
+          <Footer />
+          <Analytics/>
+        </PostHogProvider>
       </body>
     </html>
   )
