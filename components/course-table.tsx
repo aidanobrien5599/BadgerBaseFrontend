@@ -3,10 +3,11 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible"
-import { ChevronDown, Users, Clock, MapPin, Star, TrendingUp, ExternalLink, BarChart3 } from "lucide-react"
+import { ChevronDown, Users, Clock, MapPin, Star, TrendingUp, BarChart3 } from "lucide-react"
 import { useState } from "react"
 import { PaginationControls } from "./pagination-controls"
-import { Button } from "@/components/ui/button"
+import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart"
+import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis } from "recharts"
 
 interface Course {
   course_id: number
@@ -131,6 +132,46 @@ export function CourseTable({
     return decimal ? `${Math.round(decimal * 100)}%` : "0%"
   }
 
+  const getGradeChartData = (course: Course) => {
+    return [
+      {
+        grade: "A",
+        percentage: Math.round((course.a_percent || 0) * 100),
+        fill: "#22c55e", // green-500
+      },
+      {
+        grade: "AB",
+        percentage: Math.round((course.ab_percent || 0) * 100),
+        fill: "#4ade80", // green-400
+      },
+      {
+        grade: "B",
+        percentage: Math.round((course.b_percent || 0) * 100),
+        fill: "#3b82f6", // blue-500
+      },
+      {
+        grade: "BC",
+        percentage: Math.round((course.bc_percent || 0) * 100),
+        fill: "#60a5fa", // blue-400
+      },
+      {
+        grade: "C",
+        percentage: Math.round((course.c_percent || 0) * 100),
+        fill: "#eab308", // yellow-500
+      },
+      {
+        grade: "D",
+        percentage: Math.round((course.d_percent || 0) * 100),
+        fill: "#f97316", // orange-500
+      },
+      {
+        grade: "F",
+        percentage: Math.round((course.f_percent || 0) * 100),
+        fill: "#ef4444", // red-500
+      },
+    ]
+  }
+
   if (courses.length === 0) {
     return (
       <Card>
@@ -180,13 +221,32 @@ export function CourseTable({
                         <Badge className={getGradeColor(course.median_grade)}>Median: {course.median_grade}</Badge>
                       )}
 
-                      <span> <a target="_blank" className="hover:font-bold hover:underline"  href={`https://madgrades.com/courses/${course.madgrades_course_uuid}`}>Avg GPA: {course.cumulative_gpa?.toFixed(2) || "N/A"}</a></span>
-                      <span> <a target="_blank" className="hover:font-bold hover:underline"  href={`https://madgrades.com/courses/${course.madgrades_course_uuid}`}>Recent GPA: {course.most_recent_gpa?.toFixed(2) || "N/A"}</a></span>
+                      <span>
+                        {" "}
+                        <a
+                          target="_blank"
+                          className="hover:font-bold hover:underline"
+                          href={`https://madgrades.com/courses/${course.madgrades_course_uuid}`}
+                          rel="noreferrer"
+                        >
+                          Avg GPA: {course.cumulative_gpa?.toFixed(2) || "N/A"}
+                        </a>
+                      </span>
+                      <span>
+                        {" "}
+                        <a
+                          target="_blank"
+                          className="hover:font-bold hover:underline"
+                          href={`https://madgrades.com/courses/${course.madgrades_course_uuid}`}
+                          rel="noreferrer"
+                        >
+                          Recent GPA: {course.most_recent_gpa?.toFixed(2) || "N/A"}
+                        </a>
+                      </span>
                       <span>{course.sections.length} sections</span>
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
-
                     <ChevronDown
                       className={`h-5 w-5 transition-transform ${expandedCourses.has(course.course_id) ? "rotate-180" : ""}`}
                     />
@@ -197,30 +257,51 @@ export function CourseTable({
 
             <CollapsibleContent>
               <CardContent className="pt-0">
-                {/* Grade Distribution */}
-                <div className="mb-6 p-4 bg-gray-50 rounded-lg">
-                  <h4 className="font-medium mb-3 flex items-center gap-2">
+                {/* Animated Grade Distribution Chart */}
+                <div className="mb-6 p-4 bg-gradient-to-br from-gray-50 to-gray-100 rounded-lg border">
+                  <h4 className="font-medium mb-4 flex items-center gap-2">
                     <BarChart3 className="h-4 w-4" />
                     Grade Distribution
                   </h4>
-                  <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-3">
-                    {[
-                      { grade: "A", percent: course.a_percent, color: "bg-green-500" },
-                      { grade: "AB", percent: course.ab_percent, color: "bg-green-400" },
-                      { grade: "B", percent: course.b_percent, color: "bg-blue-500" },
-                      { grade: "BC", percent: course.bc_percent, color: "bg-blue-400" },
-                      { grade: "C", percent: course.c_percent, color: "bg-yellow-500" },
-                      { grade: "D", percent: course.d_percent, color: "bg-orange-500" },
-                      { grade: "F", percent: course.f_percent, color: "bg-red-500" },
-                    ].map(({ grade, percent, color }) => (
-                      <div key={grade} className="text-center">
-                        <div className={`${color} text-white text-xs font-medium py-1 px-2 rounded-t`}>{grade}</div>
-                        <div className="bg-white border border-t-0 text-xs py-1 px-2 rounded-b">
-                          {formatPercent(percent)}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
+                  <ChartContainer
+                    config={{
+                      percentage: {
+                        label: "Percentage",
+                      },
+                    }}
+                    className="h-[200px] w-full"
+                  >
+                    <ResponsiveContainer width="100%" height="100%">
+                      <BarChart
+                        data={getGradeChartData(course)}
+                        margin={{
+                          top: 20,
+                          right: 30,
+                          left: 20,
+                          bottom: 5,
+                        }}
+                      >
+                        <XAxis
+                          dataKey="grade"
+                          axisLine={false}
+                          tickLine={false}
+                          tick={{ fontSize: 12, fontWeight: 600 }}
+                        />
+                        <YAxis
+                          axisLine={false}
+                          tickLine={false}
+                          tick={{ fontSize: 10 }}
+                          tickFormatter={(value) => `${value}%`}
+                        />
+                        <ChartTooltip
+                          content={<ChartTooltipContent />}
+                          formatter={(value, name) => [`${value}%`, "Students"]}
+                          labelFormatter={(label) => `Grade: ${label}`}
+                        />
+                        <Bar dataKey="percentage" radius={[4, 4, 0, 0]} animationDuration={1000} animationBegin={0} />
+                      </BarChart>
+                    </ResponsiveContainer>
+                  </ChartContainer>
                 </div>
 
                 {/* Sections */}
