@@ -16,14 +16,14 @@ export function Navigation() {
           {/* Logo */}
           <Link href="/" className="flex items-center space-x-2">
             <Image
-              src="/sconnie-grades-transparent.png"
-              alt="Sconnie Grades"
+              src="/BadgerBaseTransparent.png"
+              alt="BadgerBase"
               width={40}
               height={40}
               className="h-10 w-auto"
               priority
             />
-            <span className="text-xl font-bold text-gray-900">SconnieGrades</span>
+            <span className="text-xl font-bold text-gray-900">BadgerBase</span>
           </Link>
 
           {/* Desktop Navigation */}

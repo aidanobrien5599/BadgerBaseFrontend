@@ -1,7 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { GraduationCap, Search, Filter, Star, BarChart3 } from "lucide-react"
-import Logo from "@/public/SconnieGradesLogo.png"
+import Logo from "@/public/BadgerBaseTransparent.png"
 import Image from "next/image"
 
 export default function AboutPage() {
@@ -9,9 +9,9 @@ export default function AboutPage() {
     <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <div className="text-center mb-12">
         <div className="flex items-center justify-center mb-4">
-          <Image src={Logo} alt="SconnieGrades Logo" width={75} height={75} />
+          <Image src={Logo} alt="SconnieGrades Logo" width={150} height={150} />
         </div>
-        <h1 className="text-4xl font-bold text-gray-900 mb-4">About SconnieGrades</h1>
+        <h1 className="text-4xl font-bold text-gray-900 mb-4">About BadgerBase</h1>
         <p className="text-xl text-gray-600 max-w-2xl mx-auto">
           A comprehensive data aggregator designed to help UW-Madison students find the best courses to fit their needs. Sourcing data from UW-Madison's live course catalog, Rate My Professor, and Madgrades for an all-in-one course search experience.
         </p>
