@@ -1,6 +1,5 @@
 "use client"
-
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react" // Import useRef
 import { SearchFilters } from "@/components/search-filters"
 import { CourseTable } from "@/components/course-table"
 import { TikTokFeed } from "@/components/tiktok-feed"
@@ -131,6 +130,10 @@ export default function HomePage() {
     min_section_avg_would_take_again: "",
   })
 
+  // Keep the original audio refs for preloading
+  const bellSoundRef = useRef<HTMLAudioElement>(null)
+  const clickSoundRef = useRef<HTMLAudioElement>(null)
+
   // Live stats animation
   useEffect(() => {
     const interval = setInterval(() => {
@@ -140,14 +143,38 @@ export default function HomePage() {
     return () => clearInterval(interval)
   }, [])
 
+  // Function to play overlapping bell sounds
+  const playBellSound = () => {
+    if (bellSoundRef.current) {
+      // Clone the audio element to allow overlapping
+      const audioClone = bellSoundRef.current.cloneNode() as HTMLAudioElement
+      audioClone.play().catch((e) => console.log("Bell sound autoplay blocked:", e))
+    }
+  }
+
+  // Function to play overlapping click sounds
+  const playClickSound = () => {
+    if (clickSoundRef.current) {
+      // Clone the audio element to allow overlapping
+      const audioClone = clickSoundRef.current.cloneNode() as HTMLAudioElement
+      audioClone.play().catch((e) => console.log("Click sound autoplay blocked:", e))
+    }
+  }
+
+  // Bell sound interval - now plays overlapping sounds
+  useEffect(() => {
+    const bellInterval = setInterval(() => {
+      playBellSound()
+    }, 100) // Play bell every 0.1 seconds
+    return () => clearInterval(bellInterval)
+  }, [])
+
   const searchCourses = async (page = 1) => {
     setLoading(true)
     setError(null)
-
     try {
       const params = new URLSearchParams()
       params.append("page", page.toString())
-
       Object.entries(filters).forEach(([key, value]) => {
         if (value && value !== "" && value !== false) {
           if (typeof value === "boolean") {
@@ -157,17 +184,14 @@ export default function HomePage() {
           }
         }
       })
-
       const response = await fetch(`/api/proxy?${params.toString()}`, {
         headers: {
           "x-client-secret": process.env.NEXT_PUBLIC_CLIENT_SECRET ?? "",
         },
       })
-
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`)
       }
-
       const data: ApiResponse = await response.json()
       setCourses(data.data || [])
       setCurrentPage(page)
@@ -189,10 +213,12 @@ export default function HomePage() {
   }, [])
 
   const handlePageChange = (page: number) => {
+    playClickSound() // Play click sound on page change
     searchCourses(page)
   }
 
   const handleSearch = () => {
+    playClickSound() // Play click sound on search
     setCurrentPage(1)
     searchCourses(1)
   }
@@ -200,90 +226,96 @@ export default function HomePage() {
   const totalPages = Math.ceil(totalCount / Number.parseInt(filters.limit))
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-orange-50">
-      <NotificationTicker />
+    <div className="min-h-screen relative overflow-hidden">
+      {/* Audio elements for sounds - these are used as templates for cloning */}
+      <audio ref={bellSoundRef} src="/sounds/bell-sound.mp3" preload="auto" />
+      <audio ref={clickSoundRef} src="/sounds/bell-sound.mp3" preload="auto" />
 
-      {/* Live Stats Header */}
-      <div className="bg-gradient-to-r from-purple-600 to-pink-600 text-white py-3">
-        <div className="max-w-7xl mx-auto px-4 flex items-center justify-between">
-          <div className="flex items-center gap-6">
-            <Badge className="bg-white/20 text-white animate-pulse">
-              <Users className="h-3 w-3 mr-1" />
-              {onlineUsers} online now
-            </Badge>
-            <Badge className="bg-white/20 text-white animate-pulse">
-              <TrendingUp className="h-3 w-3 mr-1" />
-              {totalSearches.toLocaleString()} searches today
-            </Badge>
-            <Badge className="bg-white/20 text-white animate-pulse">
-              <Fire className="h-3 w-3 mr-1" />🔥 TRENDING: CS 540, MATH 221, BIO 152
-            </Badge>
+      {/* Extreme flashing background overlay */}
+      <div className="absolute inset-0 z-0 animate-bg-flash"></div>
+      <div className="relative z-10">
+        <NotificationTicker />
+        {/* Live Stats Header */}
+        <div className="bg-gradient-to-r from-purple-600 to-pink-600 text-white py-3 animate-super-fast-pulse">
+          <div className="max-w-7xl mx-auto px-4 flex items-center justify-between">
+            <div className="flex items-center gap-6">
+              <Badge className="bg-white/20 text-yellow-300 animate-super-fast-pulse animate-ping">
+                <Users className="h-3 w-3 mr-1 animate-hyper-spin" />
+                {onlineUsers} online now
+              </Badge>
+              <Badge className="bg-white/20 text-yellow-300 animate-super-fast-pulse animate-ping">
+                <TrendingUp className="h-3 w-3 mr-1 animate-hyper-spin" />
+                {totalSearches.toLocaleString()} searches today
+              </Badge>
+              <Badge className="bg-white/20 text-yellow-300 animate-super-fast-pulse animate-ping">
+                <Fire className="h-3 w-3 mr-1 animate-hyper-spin" />🔥 TRENDING: CS 540, MATH 221, BIO 152
+              </Badge>
+            </div>
+            <Button
+              variant="ghost"
+              className="text-white hover:bg-white/20 animate-bounce animate-super-fast-pulse"
+              onClick={playClickSound}
+            >
+              <Sparkles className="h-4 w-4 mr-2 animate-hyper-spin" />
+              Level Up!
+            </Button>
           </div>
-          <Button variant="ghost" className="text-white hover:bg-white/20">
-            <Sparkles className="h-4 w-4 mr-2 animate-spin" />
-            Level Up!
-          </Button>
         </div>
-      </div>
-
-      <div className="max-w-9xl mx-auto px-4 sm:px-6 lg:px-20 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-6 gap-5">
-          {/* Left Sidebar - Filters & Stats */}
-          <div className="lg:col-span-1 space-y-6">
-            <Card className="border-2 border-purple-200 bg-gradient-to-br from-purple-50 to-pink-50">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Zap className="h-5 w-5 text-purple-500 animate-pulse" />
-                  Search & Filters
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <SearchFilters
-                  filters={filters}
-                  onFiltersChange={setFilters}
-                  onSearch={handleSearch}
-                  loading={loading}
-                />
-              </CardContent>
-            </Card>
-
-            <DopamineDashboard />
-          </div>
-
-          {/* Center - Course Results */}
-          <div className="lg:col-span-3">
-            {error && (
-              <Alert className="mb-6" variant="destructive">
-                <AlertDescription>{error}</AlertDescription>
-              </Alert>
-            )}
-
-            {loading ? (
-              <Card className="border-2 border-blue-200">
-                <CardContent className="flex items-center justify-center py-12">
-                  <Loader2 className="h-8 w-8 animate-spin mr-2 text-blue-500" />
-                  <span className="text-lg">Finding your perfect courses...</span>
+        <div className="max-w-9xl mx-auto px-4 sm:px-6 lg:px-20 py-8">
+          <div className="grid grid-cols-1 lg:grid-cols-6 gap-5">
+            {/* Left Sidebar - Filters & Stats */}
+            <div className="lg:col-span-1 space-y-6">
+              <Card className="border-4 border-red-500 bg-gradient-to-br from-purple-50 to-pink-50 animate-border-flash animate-super-fast-pulse">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2 animate-text-flash">
+                    <Zap className="h-5 w-5 text-purple-500 animate-hyper-spin" />
+                    Search & Filters
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <SearchFilters
+                    filters={filters}
+                    onFiltersChange={setFilters}
+                    onSearch={handleSearch}
+                    loading={loading}
+                  />
                 </CardContent>
               </Card>
-            ) : (
-              <div className="space-y-6">
-                <CourseTable
-                  courses={courses}
-                  currentPage={currentPage}
-                  totalPages={totalPages}
-                  totalCount={totalCount}
-                  hasMore={hasMore}
-                  onPageChange={handlePageChange}
-                  resultsPerPage={Number.parseInt(filters.limit)}
-                />
-              </div>
-            )}
-          </div>
-
-          {/* Right Sidebar - Social Feeds */}
-          <div className="lg:col-span-2 space-y-6">
-            <TikTokFeed />
-            <TrendingFeed />
+              <DopamineDashboard />
+            </div>
+            {/* Center - Course Results */}
+            <div className="lg:col-span-3">
+              {error && (
+                <Alert className="mb-6 animate-super-fast-pulse" variant="destructive">
+                  <AlertDescription>{error}</AlertDescription>
+                </Alert>
+              )}
+              {loading ? (
+                <Card className="border-4 border-lime-500 animate-border-flash">
+                  <CardContent className="flex items-center justify-center py-12">
+                    <Loader2 className="h-8 w-8 animate-hyper-spin mr-2 text-blue-500" />
+                    <span className="text-lg animate-text-flash text-red-500">Finding your perfect courses...</span>
+                  </CardContent>
+                </Card>
+              ) : (
+                <div className="space-y-6">
+                  <CourseTable
+                    courses={courses}
+                    currentPage={currentPage}
+                    totalPages={totalPages}
+                    totalCount={totalCount}
+                    hasMore={hasMore}
+                    onPageChange={handlePageChange}
+                    resultsPerPage={Number.parseInt(filters.limit)}
+                  />
+                </div>
+              )}
+            </div>
+            {/* Right Sidebar - Social Feeds */}
+            <div className="lg:col-span-2 space-y-6">
+              <TikTokFeed />
+              <TrendingFeed />
+            </div>
           </div>
         </div>
       </div>
