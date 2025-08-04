@@ -13,7 +13,7 @@ export const metadata: Metadata = {
   title: "BadgerBase",
   description: "Data-aggregated search and filter of live UW-Madison courses with instructor ratings and GPA information",
   icons: {
-    icon: "/BadgerBase.png",
+    icon: "/BadgerBaseTransparent.png",
   },
     generator: 'v0.dev'
 }
