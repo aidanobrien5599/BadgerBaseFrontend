@@ -85,11 +85,41 @@ const config: Config = {
   				to: {
   					height: '0'
   				}
-  			}
+  			},
+			  "super-fast-pulse": {
+				"0%, 100%": { opacity: "1" },
+				"50%": { opacity: "0.1" }, // More extreme opacity change
+			  },
+			  "hyper-spin": {
+				from: { transform: "rotate(0deg)" },
+				to: { transform: "rotate(360deg)" },
+			  },
+			  "border-flash": {
+				"0%, 100%": { borderColor: "red" },
+				"25%": { borderColor: "yellow" },
+				"50%": { borderColor: "lime" },
+				"75%": { borderColor: "cyan" },
+			  },
+			  "bg-flash": {
+				"0%": { backgroundColor: "rgb(255, 0, 255)" }, // Magenta
+				"25%": { backgroundColor: "rgb(0, 255, 255)" }, // Cyan
+				"50%": { backgroundColor: "rgb(255, 255, 0)" }, // Yellow
+				"75%": { backgroundColor: "rgb(0, 0, 255)" }, // Blue
+				"100%": { backgroundColor: "rgb(255, 0, 255)" }, // Back to Magenta
+			  },
+			  "text-flash": {
+				"0%, 100%": { color: "inherit" },
+				"50%": { color: "rgb(255, 0, 0)" }, // Red
+			  },
   		},
   		animation: {
   			'accordion-down': 'accordion-down 0.2s ease-out',
-  			'accordion-up': 'accordion-up 0.2s ease-out'
+  			'accordion-up': 'accordion-up 0.2s ease-out',
+			'super-fast-pulse': 'super-fast-pulse 0.05s infinite',
+				'hyper-spin': 'hyper-spin 0.1s linear infinite',
+				'border-flash': 'border-flash 0.1s linear infinite',
+				'bg-flash': 'bg-flash 0.1s linear infinite',
+				"text-flash": "text-flash 0.1s linear infinite", // Faster text flash'
   		}
   	}
   },
