@@ -128,7 +128,7 @@ export function CourseTable({
   }
 
   const formatPercent = (decimal: number | null) => {
-    return decimal ? `${Math.round(decimal * 100)}%` : "N/A"
+    return decimal ? `${Math.round(decimal * 100)}%` : "0%"
   }
 
   if (courses.length === 0) {
@@ -179,25 +179,14 @@ export function CourseTable({
                       {course.median_grade && (
                         <Badge className={getGradeColor(course.median_grade)}>Median: {course.median_grade}</Badge>
                       )}
-                      <span>Avg GPA: {course.cumulative_gpa?.toFixed(2) || "N/A"}</span>
-                      <span>Recent GPA: {course.most_recent_gpa?.toFixed(2) || "N/A"}</span>
+
+                      <span> <a target="_blank" className="hover:font-bold hover:underline"  href={`https://madgrades.com/courses/${course.madgrades_course_uuid}`}>Avg GPA: {course.cumulative_gpa?.toFixed(2) || "N/A"}</a></span>
+                      <span> <a target="_blank" className="hover:font-bold hover:underline"  href={`https://madgrades.com/courses/${course.madgrades_course_uuid}`}>Recent GPA: {course.most_recent_gpa?.toFixed(2) || "N/A"}</a></span>
                       <span>{course.sections.length} sections</span>
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={(e) => {
-                        e.stopPropagation()
-                        window.open(`https://madgrades.com/courses/${course.madgrades_course_uuid}`, "_blank")
-                      }}
-                      className="flex items-center gap-1"
-                    >
-                      <BarChart3 className="h-3 w-3" />
-                      <span className="hidden sm:inline">Madison Grades</span>
-                      <ExternalLink className="h-3 w-3" />
-                    </Button>
+
                     <ChevronDown
                       className={`h-5 w-5 transition-transform ${expandedCourses.has(course.course_id) ? "rotate-180" : ""}`}
                     />

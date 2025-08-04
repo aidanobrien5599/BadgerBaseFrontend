@@ -1,13 +1,25 @@
 export function Footer() {
   return (
-    <footer className="bg-white border-t border-gray-200 mt-16">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+    <footer className="bg-white border-t border-gray-200 py-6 mt-8">
+      <div className="container mx-auto px-4">
         <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
-          <div className="text-sm text-gray-600">
-            Created by <span className="text-red-600 font-medium">Aidan O'Brien</span> • Not affiliated with UW-Madison
-            • Data from UW Course Guide, Madison Grades, and Rate My Professors
+          {/* Left side - Creator */}
+          <div className="flex flex-col items-center text-center space-y-1">
+          <p className="text-sm text-gray-600">
+            Created by <span className=" hover:underline font-semibold text-red-600"><a href="https://aidanpobrien.com">Aidan O'Brien</a></span>
+          </p>
+          <p className="text-xs text-gray-500">
+            Logo by Joe Tortorella
+          </p>
+        </div>
+
+          {/* Right side - Disclaimers */}
+          <div className="text-center md:text-right">
+            <p className="text-xs text-gray-500">
+              Not affiliated with UW-Madison • Data from UW-Madison & Madgrades & Rate My Professors
+            </p>
+            <p className="text-xs text-gray-400 mt-1"> {new Date().getFullYear()} For educational purposes only</p>
           </div>
-          <div className="text-xs text-gray-500">© 2024 Independent student project</div>
         </div>
       </div>
     </footer>
