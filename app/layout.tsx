@@ -10,10 +10,10 @@ import { PostHogProvider } from "@/components/PostHogProvider"
 const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
-  title: "SconnieGrades",
-  description: "Search and filter live UW-Madison courses with instructor ratings and GPA information",
+  title: "BadgerBase",
+  description: "Data-aggregated search and filter of live UW-Madison courses with instructor ratings and GPA information",
   icons: {
-    icon: "/SconnieGradesLogo.png",
+    icon: "/BadgerBase.png",
   },
     generator: 'v0.dev'
 }

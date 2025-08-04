@@ -8,9 +8,6 @@ export function Footer() {
           <p className="text-sm text-gray-600">
             Created by <span className=" hover:underline font-semibold text-red-600"><a href="https://aidanpobrien.com">Aidan O'Brien</a></span>
           </p>
-          <p className="text-xs text-gray-500">
-            Logo by Joe Tortorella
-          </p>
         </div>
 
           {/* Right side - Disclaimers */}
