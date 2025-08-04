@@ -137,37 +137,37 @@ export function CourseTable({
       {
         grade: "A",
         percentage: Math.round((course.a_percent || 0) * 100),
-        fill: "#22c55e", // green-500
+        fill: "#dc2626", // red-600
       },
       {
         grade: "AB",
         percentage: Math.round((course.ab_percent || 0) * 100),
-        fill: "#4ade80", // green-400
+        fill: "#ef4444", // red-500
       },
       {
         grade: "B",
         percentage: Math.round((course.b_percent || 0) * 100),
-        fill: "#3b82f6", // blue-500
+        fill: "#f87171", // red-400
       },
       {
         grade: "BC",
         percentage: Math.round((course.bc_percent || 0) * 100),
-        fill: "#60a5fa", // blue-400
+        fill: "#fca5a5", // red-300
       },
       {
         grade: "C",
         percentage: Math.round((course.c_percent || 0) * 100),
-        fill: "#eab308", // yellow-500
+        fill: "#fecaca", // red-200
       },
       {
         grade: "D",
         percentage: Math.round((course.d_percent || 0) * 100),
-        fill: "#f97316", // orange-500
+        fill: "#fee2e2", // red-100
       },
       {
         grade: "F",
         percentage: Math.round((course.f_percent || 0) * 100),
-        fill: "#ef4444", // red-500
+        fill: "#f5e0e0", // red-800
       },
     ]
   }
