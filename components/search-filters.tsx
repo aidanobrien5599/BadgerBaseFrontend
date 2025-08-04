@@ -48,6 +48,7 @@ interface SearchFiltersProps {
 export function SearchFilters({ filters, onFiltersChange, onSearch, loading }: SearchFiltersProps) {
   const [advancedOpen, setAdvancedOpen] = useState(false)
   const [rmpOpen, setRmpOpen] = useState(false)
+  const [gpaOpen, setGpaOpen] = useState(false)
 
   const updateFilter = (key: keyof FilterState, value: string | boolean) => {
     onFiltersChange({ ...filters, [key]: value })
@@ -169,8 +170,16 @@ export function SearchFilters({ filters, onFiltersChange, onSearch, loading }: S
       <Separator />
 
       {/* Grade Filters */}
+
+      <Collapsible open={gpaOpen} onOpenChange={setGpaOpen}>
+        <CollapsibleTrigger asChild>
+          <Button variant="ghost" className="w-full justify-between p-0">
+            GPA Filters
+            <ChevronDown className={`h-4 w-4 transition-transform ${gpaOpen ? "rotate-180" : ""}`} />
+          </Button>
+        </CollapsibleTrigger>
+        <CollapsibleContent className="space-y-4 mt-4">
       <div className="space-y-4">
-        <h3 className="font-medium text-sm">Grade Filters</h3>
 
         <div className="space-y-2">
           <Label htmlFor="median_grade">Median Grade</Label>
@@ -234,6 +243,9 @@ export function SearchFilters({ filters, onFiltersChange, onSearch, loading }: S
           </div>
         </div>
       </div>
+      </CollapsibleContent>
+      </Collapsible>
+      
 
       <Separator />
 

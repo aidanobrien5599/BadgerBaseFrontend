@@ -23,7 +23,7 @@ export function Navigation() {
               className="h-10 w-auto"
               priority
             />
-            <span className="text-xl font-bold text-gray-900">Sconnie Grades</span>
+            <span className="text-xl font-bold text-gray-900">SconnieGrades</span>
           </Link>
 
           {/* Desktop Navigation */}
