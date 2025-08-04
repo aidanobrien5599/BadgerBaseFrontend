@@ -3,9 +3,10 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible"
-import { ChevronDown, Users, Clock, MapPin, Star, TrendingUp } from "lucide-react"
+import { ChevronDown, Users, Clock, MapPin, Star, TrendingUp, ExternalLink, BarChart3 } from "lucide-react"
 import { useState } from "react"
 import { PaginationControls } from "./pagination-controls"
+import { Button } from "@/components/ui/button"
 
 interface Course {
   course_id: number
@@ -17,6 +18,14 @@ interface Course {
   level: string
   cumulative_gpa: number
   most_recent_gpa: number
+  median_grade: string
+  a_percent: number
+  ab_percent: number
+  b_percent: number
+  bc_percent: number
+  c_percent: number
+  d_percent: number
+  f_percent: number
   sections: Section[]
   madgrades_course_uuid: string
 }
@@ -59,7 +68,15 @@ interface CourseTableProps {
   resultsPerPage: number
 }
 
-export function CourseTable({ courses, currentPage, totalPages, totalCount, hasMore, onPageChange, resultsPerPage }: CourseTableProps) {
+export function CourseTable({
+  courses,
+  currentPage,
+  totalPages,
+  totalCount,
+  hasMore,
+  onPageChange,
+  resultsPerPage,
+}: CourseTableProps) {
   const [expandedCourses, setExpandedCourses] = useState<Set<number>>(new Set())
 
   const toggleCourse = (courseId: number) => {
@@ -85,8 +102,33 @@ export function CourseTable({ courses, currentPage, totalPages, totalCount, hasM
     }
   }
 
+  const getGradeColor = (grade: string) => {
+    switch (grade) {
+      case "A":
+        return "bg-green-100 text-green-800"
+      case "AB":
+        return "bg-green-50 text-green-700"
+      case "B":
+        return "bg-blue-100 text-blue-800"
+      case "BC":
+        return "bg-blue-50 text-blue-700"
+      case "C":
+        return "bg-yellow-100 text-yellow-800"
+      case "D":
+        return "bg-orange-100 text-orange-800"
+      case "F":
+        return "bg-red-100 text-red-800"
+      default:
+        return "bg-gray-100 text-gray-800"
+    }
+  }
+
   const formatRating = (rating: number | null) => {
     return rating ? rating.toFixed(1) : "N/A"
+  }
+
+  const formatPercent = (decimal: number | null) => {
+    return decimal ? `${Math.round(decimal * 100)}%` : "N/A"
   }
 
   if (courses.length === 0) {
@@ -101,21 +143,19 @@ export function CourseTable({ courses, currentPage, totalPages, totalCount, hasM
 
   return (
     <div className="space-y-4">
-
-    
       <div className="flex items-center justify-between">
         <h2 className="text-2xl font-semibold">Search Results</h2>
       </div>
       {courses.length > 0 && (
-                <PaginationControls
-                  currentPage={currentPage}
-                  totalPages={totalPages}
-                  totalCount={totalCount}
-                  hasMore={hasMore}
-                  onPageChange={onPageChange}
-                  resultsPerPage={resultsPerPage}
-                />
-              )}
+        <PaginationControls
+          currentPage={currentPage}
+          totalPages={totalPages}
+          totalCount={totalCount}
+          hasMore={hasMore}
+          onPageChange={onPageChange}
+          resultsPerPage={resultsPerPage}
+        />
+      )}
 
       {courses.map((course) => (
         <Card key={course.course_id}>
@@ -127,30 +167,81 @@ export function CourseTable({ courses, currentPage, totalPages, totalCount, hasM
                     <CardTitle className="text-lg">
                       {course.course_designation} - {course.full_course_designation}
                     </CardTitle>
-                    <div className="flex items-center gap-4 mt-2 text-sm text-gray-600">
+                    <div className="flex items-center gap-4 mt-2 text-sm text-gray-600 flex-wrap">
                       <span>
-                        {course.minimum_credits == course.maximum_credits ? course.minimum_credits == 1 ? `${course.minimum_credits} credit` : `${course.minimum_credits} credits` : `${course.minimum_credits}-${course.maximum_credits} credits`}
+                        {course.minimum_credits == course.maximum_credits
+                          ? course.minimum_credits == 1
+                            ? `${course.minimum_credits} credit`
+                            : `${course.minimum_credits} credits`
+                          : `${course.minimum_credits}-${course.maximum_credits} credits`}
                       </span>
                       <Badge variant="outline">{course.level}</Badge>
-                      <span> <a target="_blank" className="hover:font-bold hover:underline"  href={`https://madgrades.com/courses/${course.madgrades_course_uuid}`}>GPA: {course.cumulative_gpa?.toFixed(2) || "N/A"} </a></span>
+                      {course.median_grade && (
+                        <Badge className={getGradeColor(course.median_grade)}>Median: {course.median_grade}</Badge>
+                      )}
+                      <span>Avg GPA: {course.cumulative_gpa?.toFixed(2) || "N/A"}</span>
+                      <span>Recent GPA: {course.most_recent_gpa?.toFixed(2) || "N/A"}</span>
                       <span>{course.sections.length} sections</span>
                     </div>
                   </div>
-                  <ChevronDown
-                    className={`h-5 w-5 transition-transform ${expandedCourses.has(course.course_id) ? "rotate-180" : ""}`}
-                  />
+                  <div className="flex items-center gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        window.open(`https://madgrades.com/courses/${course.madgrades_course_uuid}`, "_blank")
+                      }}
+                      className="flex items-center gap-1"
+                    >
+                      <BarChart3 className="h-3 w-3" />
+                      <span className="hidden sm:inline">Madison Grades</span>
+                      <ExternalLink className="h-3 w-3" />
+                    </Button>
+                    <ChevronDown
+                      className={`h-5 w-5 transition-transform ${expandedCourses.has(course.course_id) ? "rotate-180" : ""}`}
+                    />
+                  </div>
                 </div>
               </CardHeader>
             </CollapsibleTrigger>
 
             <CollapsibleContent>
               <CardContent className="pt-0">
+                {/* Grade Distribution */}
+                <div className="mb-6 p-4 bg-gray-50 rounded-lg">
+                  <h4 className="font-medium mb-3 flex items-center gap-2">
+                    <BarChart3 className="h-4 w-4" />
+                    Grade Distribution
+                  </h4>
+                  <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-3">
+                    {[
+                      { grade: "A", percent: course.a_percent, color: "bg-green-500" },
+                      { grade: "AB", percent: course.ab_percent, color: "bg-green-400" },
+                      { grade: "B", percent: course.b_percent, color: "bg-blue-500" },
+                      { grade: "BC", percent: course.bc_percent, color: "bg-blue-400" },
+                      { grade: "C", percent: course.c_percent, color: "bg-yellow-500" },
+                      { grade: "D", percent: course.d_percent, color: "bg-orange-500" },
+                      { grade: "F", percent: course.f_percent, color: "bg-red-500" },
+                    ].map(({ grade, percent, color }) => (
+                      <div key={grade} className="text-center">
+                        <div className={`${color} text-white text-xs font-medium py-1 px-2 rounded-t`}>{grade}</div>
+                        <div className="bg-white border border-t-0 text-xs py-1 px-2 rounded-b">
+                          {formatPercent(percent)}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Sections */}
                 <div className="space-y-4">
+                  <h4 className="font-medium">Sections</h4>
                   {course.sections.map((section) => (
                     <div key={section.section_id} className="border rounded-lg p-4 bg-gray-50">
                       <div className="flex items-start justify-between mb-3">
                         <div className="flex items-center gap-2">
-                          <h4 className="font-medium">Section {section.section_id}</h4>
+                          <h5 className="font-medium">Section {section.section_id}</h5>
                           <Badge className={getStatusColor(section.status)}>{section.status}</Badge>
                         </div>
                         <div className="text-right text-sm text-gray-600">
@@ -168,7 +259,7 @@ export function CourseTable({ courses, currentPage, totalPages, totalCount, hasM
                         <div className="flex items-center gap-2 text-sm">
                           <Clock className="h-4 w-4 text-gray-500" />
                           <span>{section.meeting_time || "TBA"}</span>
-                        </div> 
+                        </div>
                         <div className="flex items-center gap-2 text-sm">
                           <MapPin className="h-4 w-4 text-gray-500" />
                           <span>{section.location || "TBA"}</span>
@@ -218,11 +309,24 @@ export function CourseTable({ courses, currentPage, totalPages, totalCount, hasM
                       {/* Instructors */}
                       {section.instructors.length > 0 && (
                         <div>
-                          <h5 className="font-medium mb-2">Instructors:</h5>
+                          <h6 className="font-medium mb-2">Instructors:</h6>
                           <div className="space-y-2">
                             {section.instructors.map((instructor, idx) => (
                               <div key={idx} className="flex items-center justify-between p-2 bg-white rounded border">
-                                <span className="font-medium">{ instructor.rmp_instructor_id ? <a target="_blank" className="hover:font-bold hover:underline"  href={`https://www.ratemyprofessors.com/professor/${instructor.rmp_instructor_id}`}>{instructor.name}</a> : instructor.name}</span>
+                                <span className="font-medium">
+                                  {instructor.rmp_instructor_id ? (
+                                    <a
+                                      target="_blank"
+                                      className="hover:font-bold hover:underline text-blue-600"
+                                      href={`https://www.ratemyprofessors.com/professor/${instructor.rmp_instructor_id}`}
+                                      rel="noreferrer"
+                                    >
+                                      {instructor.name}
+                                    </a>
+                                  ) : (
+                                    instructor.name
+                                  )}
+                                </span>
                                 {instructor.avg_rating && (
                                   <div className="flex items-center gap-4 text-sm">
                                     <div className="flex items-center gap-1">

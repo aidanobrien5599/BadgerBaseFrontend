@@ -3,7 +3,6 @@
 import { useState, useEffect } from "react"
 import { SearchFilters } from "@/components/search-filters"
 import { CourseTable } from "@/components/course-table"
-import { PaginationControls } from "@/components/pagination-controls"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Loader2 } from "lucide-react"
@@ -18,6 +17,14 @@ interface Course {
   level: string
   cumulative_gpa: number
   most_recent_gpa: number
+  median_grade: string
+  a_percent: number
+  ab_percent: number
+  b_percent: number
+  bc_percent: number
+  c_percent: number
+  d_percent: number
+  f_percent: number
   sections: Section[]
   madgrades_course_uuid: string
 }
@@ -75,6 +82,8 @@ interface FilterState {
   literature: string
   min_cumulative_gpa: string
   min_most_recent_gpa: string
+  median_grade: string
+  min_a_percent: string
   min_section_avg_rating: string
   min_section_avg_difficulty: string
   min_section_total_ratings: string
@@ -106,6 +115,8 @@ export default function HomePage() {
     literature: "",
     min_cumulative_gpa: "",
     min_most_recent_gpa: "",
+    median_grade: "",
+    min_a_percent: "",
     min_section_avg_rating: "",
     min_section_avg_difficulty: "",
     min_section_total_ratings: "",
@@ -133,14 +144,11 @@ export default function HomePage() {
         }
       })
 
-   
-
       const response = await fetch(`/api/proxy?${params.toString()}`, {
         headers: {
           "x-client-secret": process.env.NEXT_PUBLIC_CLIENT_SECRET ?? "",
         },
       })
-      
 
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`)
@@ -180,8 +188,6 @@ export default function HomePage() {
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-
-
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
         {/* Filters Sidebar */}
         <div className="lg:col-span-1">
@@ -212,8 +218,15 @@ export default function HomePage() {
             </Card>
           ) : (
             <div className="space-y-6">
-                
-              <CourseTable courses={courses} currentPage={currentPage} totalPages={totalPages} totalCount={totalCount} hasMore={hasMore} onPageChange={handlePageChange} resultsPerPage={Number.parseInt(filters.limit)} />
+              <CourseTable
+                courses={courses}
+                currentPage={currentPage}
+                totalPages={totalPages}
+                totalCount={totalCount}
+                hasMore={hasMore}
+                onPageChange={handlePageChange}
+                resultsPerPage={Number.parseInt(filters.limit)}
+              />
             </div>
           )}
         </div>

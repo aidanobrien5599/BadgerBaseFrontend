@@ -30,6 +30,8 @@ interface FilterState {
   literature: string
   min_cumulative_gpa: string
   min_most_recent_gpa: string
+  median_grade: string
+  min_a_percent: string
   min_section_avg_rating: string
   min_section_avg_difficulty: string
   min_section_total_ratings: string
@@ -70,6 +72,8 @@ export function SearchFilters({ filters, onFiltersChange, onSearch, loading }: S
       literature: "",
       min_cumulative_gpa: "",
       min_most_recent_gpa: "",
+      median_grade: "",
+      min_a_percent: "",
       min_section_avg_rating: "",
       min_section_avg_difficulty: "",
       min_section_total_ratings: "",
@@ -108,46 +112,43 @@ export function SearchFilters({ filters, onFiltersChange, onSearch, loading }: S
           </Select>
         </div>
 
-
         <div className="space-y-2">
-            <Label htmlFor="level">Course Level</Label>
-            <Select value={filters.level} onValueChange={(value) => updateFilter("level", value)}>
-              <SelectTrigger>
-                <SelectValue placeholder="Any level" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="any">Any level</SelectItem>
-                <SelectItem value="E">Elementary</SelectItem>
-                <SelectItem value="I">Intermediate</SelectItem>
-                <SelectItem value="A">Advanced</SelectItem>
-              </SelectContent>
-            </Select>
+          <Label htmlFor="level">Course Level</Label>
+          <Select value={filters.level} onValueChange={(value) => updateFilter("level", value)}>
+            <SelectTrigger>
+              <SelectValue placeholder="Any level" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="any">Any level</SelectItem>
+              <SelectItem value="E">Elementary</SelectItem>
+              <SelectItem value="I">Intermediate</SelectItem>
+              <SelectItem value="A">Advanced</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+
+        <div className="grid grid-cols-2 gap-2">
+          <div className="space-y-2">
+            <Label htmlFor="min_credits">Min Credits</Label>
+            <Input
+              id="min_credits"
+              type="number"
+              placeholder="0"
+              value={filters.min_credits}
+              onChange={(e) => updateFilter("min_credits", e.target.value)}
+            />
           </div>
-
-          <div className="grid grid-cols-2 gap-2">
-            <div className="space-y-2">
-              <Label htmlFor="min_credits">Min Credits</Label>
-              <Input
-                id="min_credits"
-                type="number"
-                placeholder="0"
-                value={filters.min_credits}
-                onChange={(e) => updateFilter("min_credits", e.target.value)}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="max_credits">Max Credits</Label>
-              <Input
-                id="max_credits"
-                type="number"
-                placeholder="10"
-                value={filters.max_credits}
-                onChange={(e) => updateFilter("max_credits", e.target.value)}
-              />
-            </div>
+          <div className="space-y-2">
+            <Label htmlFor="max_credits">Max Credits</Label>
+            <Input
+              id="max_credits"
+              type="number"
+              placeholder="10"
+              value={filters.max_credits}
+              onChange={(e) => updateFilter("max_credits", e.target.value)}
+            />
           </div>
-
-
+        </div>
 
         <div className="space-y-2">
           <Label htmlFor="limit">Results Limit</Label>
@@ -167,6 +168,75 @@ export function SearchFilters({ filters, onFiltersChange, onSearch, loading }: S
 
       <Separator />
 
+      {/* Grade Filters */}
+      <div className="space-y-4">
+        <h3 className="font-medium text-sm">Grade Filters</h3>
+
+        <div className="space-y-2">
+          <Label htmlFor="median_grade">Median Grade</Label>
+          <Select value={filters.median_grade} onValueChange={(value) => updateFilter("median_grade", value)}>
+            <SelectTrigger>
+              <SelectValue placeholder="Any grade" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="any">Any grade</SelectItem>
+              <SelectItem value="A">A</SelectItem>
+              <SelectItem value="AB">AB</SelectItem>
+              <SelectItem value="B">B</SelectItem>
+              <SelectItem value="BC">BC</SelectItem>
+              <SelectItem value="C">C</SelectItem>
+              <SelectItem value="D">D</SelectItem>
+              <SelectItem value="F">F</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+
+        <div className="space-y-3">
+          <Label htmlFor="min_a_percent">
+            Min A Percentage:{" "}
+            {filters.min_a_percent ? `${Math.round(Number.parseFloat(filters.min_a_percent) * 100)}%` : "0%"}
+          </Label>
+          <Slider
+            id="min_a_percent"
+            min={0}
+            max={1}
+            step={0.01}
+            value={[Number.parseFloat(filters.min_a_percent) || 0]}
+            onValueChange={(value) => updateFilter("min_a_percent", value[0].toString())}
+            className="w-full"
+          />
+        </div>
+
+        <div className="grid grid-cols-1 gap-4">
+          <div className="space-y-3">
+            <Label htmlFor="min_cum_gpa">Min Avg GPA: {filters.min_cumulative_gpa || "0.0"}</Label>
+            <Slider
+              id="min_cum_gpa"
+              min={0}
+              max={4}
+              step={0.01}
+              value={[Number.parseFloat(filters.min_cumulative_gpa) || 0]}
+              onValueChange={(value) => updateFilter("min_cumulative_gpa", value[0].toString())}
+              className="w-full"
+            />
+          </div>
+          <div className="space-y-3">
+            <Label htmlFor="min_recent_gpa">Min Recent GPA: {filters.min_most_recent_gpa || "0.0"}</Label>
+            <Slider
+              id="min_recent_gpa"
+              min={0}
+              max={4}
+              step={0.01}
+              value={[Number.parseFloat(filters.min_most_recent_gpa) || 0]}
+              onValueChange={(value) => updateFilter("min_most_recent_gpa", value[0].toString())}
+              className="w-full"
+            />
+          </div>
+        </div>
+      </div>
+
+      <Separator />
+
       {/* Advanced Filters */}
       <Collapsible open={advancedOpen} onOpenChange={setAdvancedOpen}>
         <CollapsibleTrigger asChild>
@@ -176,33 +246,31 @@ export function SearchFilters({ filters, onFiltersChange, onSearch, loading }: S
           </Button>
         </CollapsibleTrigger>
         <CollapsibleContent className="space-y-4 mt-4">
-    
           <div className="space-y-2">
-          <Label htmlFor="min_seats">Min Available Seats</Label>
-          <Input
-            id="min_seats"
-            type="number"
-            placeholder="0"
-            value={filters.min_available_seats}
-            onChange={(e) => updateFilter("min_available_seats", e.target.value)}
-          />
-        </div>
+            <Label htmlFor="min_seats">Min Available Seats</Label>
+            <Input
+              id="min_seats"
+              type="number"
+              placeholder="0"
+              value={filters.min_available_seats}
+              onChange={(e) => updateFilter("min_available_seats", e.target.value)}
+            />
+          </div>
 
-         
-        <div className="space-y-2">
-          <Label htmlFor="instruction_mode">Instruction Mode</Label>
-          <Select value={filters.instruction_mode} onValueChange={(value) => updateFilter("instruction_mode", value)}>
-            <SelectTrigger>
-              <SelectValue placeholder="Any mode" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="any">Any mode</SelectItem>
-              <SelectItem value="Classroom Instruction">In Person</SelectItem>
-              <SelectItem value="Online Only">Online</SelectItem>
-              <SelectItem value="Online (some classroom)">Hybrid</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
+          <div className="space-y-2">
+            <Label htmlFor="instruction_mode">Instruction Mode</Label>
+            <Select value={filters.instruction_mode} onValueChange={(value) => updateFilter("instruction_mode", value)}>
+              <SelectTrigger>
+                <SelectValue placeholder="Any mode" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="any">Any mode</SelectItem>
+                <SelectItem value="Classroom Instruction">In Person</SelectItem>
+                <SelectItem value="Online Only">Online</SelectItem>
+                <SelectItem value="Online (some classroom)">Hybrid</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
 
           <div className="space-y-3">
             <Label>Subject Areas</Label>
@@ -227,33 +295,6 @@ export function SearchFilters({ filters, onFiltersChange, onSearch, loading }: S
                   </Label>
                 </div>
               ))}
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 gap-4">
-            <div className="space-y-3">
-              <Label htmlFor="min_cum_gpa">Min Avg GPA: {filters.min_cumulative_gpa || "0.0"}</Label>
-              <Slider
-                id="min_cum_gpa"
-                min={0}
-                max={4}
-                step={0.01}
-                value={[Number.parseFloat(filters.min_cumulative_gpa) || 0]}
-                onValueChange={(value) => updateFilter("min_cumulative_gpa", value[0].toString())}
-                className="w-full"
-              />
-            </div>
-            <div className="space-y-3">
-              <Label htmlFor="min_recent_gpa">Min Recent GPA: {filters.min_most_recent_gpa || "0.0"}</Label>
-              <Slider
-                id="min_recent_gpa"
-                min={0}
-                max={4}
-                step={0.01}
-                value={[Number.parseFloat(filters.min_most_recent_gpa) || 0]}
-                onValueChange={(value) => updateFilter("min_most_recent_gpa", value[0].toString())}
-                className="w-full"
-              />
             </div>
           </div>
         </CollapsibleContent>
