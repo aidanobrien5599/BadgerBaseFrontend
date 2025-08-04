@@ -227,12 +227,24 @@ export default function HomePage() {
 
   return (
     <div className="min-h-screen relative overflow-hidden">
+  {/* Video Background */}
+  <video
+    autoPlay
+    muted
+    loop
+    playsInline
+    className="absolute inset-0 w-full h-full object-cover z-0"
+  >
+    <source src="/videos/background-video.mp4" type="video/mp4" />
+    <source src="/videos/background-video.webm" type="video/webm" />
+    Your browser does not support the video tag.
+  </video>
       {/* Audio elements for sounds - these are used as templates for cloning */}
       <audio ref={bellSoundRef} src="/sounds/bell-sound.mp3" preload="auto" />
       <audio ref={clickSoundRef} src="/sounds/bell-sound.mp3" preload="auto" />
 
       {/* Extreme flashing background overlay */}
-      <div className="absolute inset-0 z-0 animate-bg-flash"></div>
+      
       <div className="relative z-10">
         <NotificationTicker />
         {/* Live Stats Header */}
