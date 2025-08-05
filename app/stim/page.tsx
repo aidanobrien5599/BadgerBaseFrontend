@@ -11,6 +11,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Loader2, Sparkles, Zap, TrendingUp, Users, FlameIcon as Fire } from "lucide-react"
+import { useIsMobile } from "@/hooks/use-mobile"
 
 interface Course {
   course_id: number
@@ -96,6 +97,7 @@ interface FilterState {
 }
 
 export default function HomePage() {
+  const isMobile = useIsMobile()
   const [courses, setCourses] = useState<Course[]>([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -235,9 +237,11 @@ export default function HomePage() {
     playsInline
     className="absolute inset-0 w-full h-full object-cover z-0"
   >
-    <source src="/videos/background-video.mp4" type="video/mp4" />
-    <source src="/videos/background-video.webm" type="video/webm" />
-    Your browser does not support the video tag.
+    {isMobile ? (
+      <source src="/videos/background-video-mobile.mp4" type="video/mp4" />
+    ) : (
+      <source src="/videos/background-video.mp4" type="video/mp4" />
+    )}
   </video>
       {/* Audio elements for sounds - these are used as templates for cloning */}
       <audio ref={bellSoundRef} src="/sounds/bell-sound.mp3" preload="auto" />
