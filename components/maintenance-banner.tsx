@@ -8,7 +8,7 @@ export function MaintenanceBanner() {
         <TriangleAlert className="h-4 w-4 text-yellow-600" />
         <AlertTitle className="text-yellow-800">Maintenance Alert</AlertTitle>
         <AlertDescription className="text-yellow-700">
-          BadgerBase is currently undergoing updates and maintenance. Thank you for your patience!
+          BadgerBase is currently undergoing updates and maintenance.  Thank you for your patience!
         </AlertDescription>
       </Alert>
     </div>
