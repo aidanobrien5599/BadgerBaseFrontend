@@ -30,7 +30,7 @@ export default function RootLayout({
     <html lang="en">
       <body className={inter.className}>
         <Suspense fallback={<div>Loading...</div>}>
-          <MaintenanceBanner /> {/* Add the maintenance banner here */}
+          <MaintenanceBanner /> 
           <PostHogProvider>
             <Navigation />
             <main className="min-h-screen bg-gray-50">{children}</main>
