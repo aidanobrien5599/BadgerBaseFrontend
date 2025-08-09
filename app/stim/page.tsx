@@ -238,14 +238,14 @@ export default function HomePage() {
     className="absolute inset-0 w-full h-full object-cover z-0"
   >
     {isMobile ? (
-      <source src="/videos/background-video-mobile.mp4" type="video/mp4" />
+      <source src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/git-blob/prj_2Uw13M88jvJCMJN6OjPlqwC7dTHl/tUzt_8JRUom5ryoq3JgGC1/public/videos/background-video-mobile.mp4" type="video/mp4" />
     ) : (
-      <source src="/videos/background-video.mp4" type="video/mp4" />
+      <source src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/git-blob/prj_2Uw13M88jvJCMJN6OjPlqwC7dTHl/5zf3UQPkaMC5E4i--ejFzm/public/videos/background-video.mp4" type="video/mp4" />
     )}
   </video>
       {/* Audio elements for sounds - these are used as templates for cloning */}
-      <audio ref={bellSoundRef} src="/sounds/bell-sound.mp3" preload="auto" />
-      <audio ref={clickSoundRef} src="/sounds/bell-sound.mp3" preload="auto" />
+      <audio ref={bellSoundRef} src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/git-blob/prj_2Uw13M88jvJCMJN6OjPlqwC7dTHl/B0g4cHw2pSmuN9cDtf_you/public/sounds/bell-sound.mp3" preload="auto" />
+      <audio ref={clickSoundRef} src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/git-blob/prj_2Uw13M88jvJCMJN6OjPlqwC7dTHl/B0g4cHw2pSmuN9cDtf_you/public/sounds/bell-sound.mp3" preload="auto" />
 
       {/* Extreme flashing background overlay */}
       

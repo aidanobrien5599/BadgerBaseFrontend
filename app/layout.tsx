@@ -6,16 +6,19 @@ import { Navigation } from "@/components/navigation"
 import { Footer } from "@/components/footer"
 import { Analytics } from "@vercel/analytics/react"
 import { PostHogProvider } from "@/components/PostHogProvider"
+import { MaintenanceBanner } from "@/components/maintenance-banner" // Import the new component
+import { Suspense } from "react"
 
 const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
   title: "BadgerBase",
-  description: "Data-aggregated search and filter of live UW-Madison courses with instructor ratings and GPA information",
+  description:
+    "Data-aggregated search and filter of live UW-Madison courses with instructor ratings and GPA information",
   icons: {
     icon: "/BadgerBaseTransparent.png",
   },
-    generator: 'v0.dev'
+  generator: "v0.dev",
 }
 
 export default function RootLayout({
@@ -26,12 +29,15 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={inter.className}>
-        <PostHogProvider>
-          <Navigation />
-          <main className="min-h-screen bg-gray-50">{children}</main>
-          <Footer />
-          <Analytics/>
-        </PostHogProvider>
+        <Suspense fallback={<div>Loading...</div>}>
+          <MaintenanceBanner /> {/* Add the maintenance banner here */}
+          <PostHogProvider>
+            <Navigation />
+            <main className="min-h-screen bg-gray-50">{children}</main>
+            <Footer />
+            <Analytics />
+          </PostHogProvider>
+        </Suspense>
       </body>
     </html>
   )
