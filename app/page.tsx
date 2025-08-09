@@ -25,6 +25,13 @@ interface Course {
   c_percent: number
   d_percent: number
   f_percent: number
+  ethnic_studies: string
+  social_science: string
+  humanities: string
+  biological_science: string
+  physical_science: string
+  natural_science: string
+  literature: string
   sections: Section[]
   madgrades_course_uuid: string
 }

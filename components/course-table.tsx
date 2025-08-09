@@ -3,7 +3,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible"
-import { ChevronDown, Users, Clock, MapPin, Star, TrendingUp, BarChart3 } from "lucide-react"
+import { ChevronDown, Users, Clock, MapPin, Star, TrendingUp, BarChart3 } from 'lucide-react'
 import { useState } from "react"
 import { PaginationControls } from "./pagination-controls"
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart"
@@ -29,6 +29,15 @@ interface Course {
   f_percent: number
   sections: Section[]
   madgrades_course_uuid: string
+  // New breadth properties
+  ethnic_studies: string
+  social_science: string
+  humanities: string
+  biological_science: string
+  physical_science: string
+  natural_science: string
+  literature: string
+
 }
 
 interface Section {
@@ -167,7 +176,7 @@ export function CourseTable({
       {
         grade: "F",
         percentage: Math.round((course.f_percent || 0) * 100),
-        fill: "#f5e0e0", // red-800
+        fill: "#991b1b", // red-800
       },
     ]
   }
@@ -216,10 +225,21 @@ export function CourseTable({
                             : `${course.minimum_credits} credits`
                           : `${course.minimum_credits}-${course.maximum_credits} credits`}
                       </span>
-                      <Badge variant="outline">{course.level}</Badge>
+                      
+                     {course.level == "A" && <Badge variant="outline">Advanced</Badge>}
+                     {course.level == "I" && <Badge variant="outline">Intermediate</Badge>}
+                     {course.level == "E" && <Badge variant="outline">Elementary</Badge>}
+
                       {course.median_grade && (
                         <Badge className={getGradeColor(course.median_grade)}>Median: {course.median_grade}</Badge>
                       )}
+                      {course.ethnic_studies && <Badge className="bg-red-100 text-red-800" variant="secondary">Ethnic Studies</Badge>}
+                      {course.social_science && <Badge className="bg-red-100 text-red-800" variant="secondary">Social Science</Badge>}
+                      {course.humanities && <Badge className="bg-red-100 text-red-800" variant="secondary">Humanities</Badge>}
+                      {course.biological_science && <Badge className="bg-red-100 text-red-800" variant="secondary">Bio Science</Badge>}
+                      {course.physical_science && <Badge className="bg-red-100 text-red-800" variant="secondary">Physical Science</Badge>}
+                      {course.natural_science && <Badge className="bg-red-100 text-red-800" variant="secondary">Natural Science</Badge>}
+                      {course.literature && <Badge className="bg-red-100 text-red-800" variant="secondary">Literature</Badge>}
 
                       <span>
                         {" "}
