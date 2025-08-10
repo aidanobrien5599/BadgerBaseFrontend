@@ -3,7 +3,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible"
-import { ChevronDown, Users, Clock, MapPin, Star, TrendingUp, BarChart3 } from 'lucide-react'
+import { ChevronDown, Users, Clock, MapPin, Star, TrendingUp, BarChart3 } from "lucide-react"
 import { useState } from "react"
 import { PaginationControls } from "./pagination-controls"
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart"
@@ -27,17 +27,18 @@ interface Course {
   c_percent: number
   d_percent: number
   f_percent: number
+  ethnic_studies: string | null
+  social_science: string | null
+  humanities: string | null
+  biological_science: string | null
+  physical_science: string | null
+  natural_science: string | null
+  literature: string | null
+  course_title: string
+  course_description: string | null
+  enrollment_prerequisites: string | null
   sections: Section[]
   madgrades_course_uuid: string
-  // New breadth properties
-  ethnic_studies: string
-  social_science: string
-  humanities: string
-  biological_science: string
-  physical_science: string
-  natural_science: string
-  literature: string
-
 }
 
 interface Section {
@@ -225,21 +226,49 @@ export function CourseTable({
                             : `${course.minimum_credits} credits`
                           : `${course.minimum_credits}-${course.maximum_credits} credits`}
                       </span>
-                      
-                     {course.level == "A" && <Badge variant="outline">Advanced</Badge>}
-                     {course.level == "I" && <Badge variant="outline">Intermediate</Badge>}
-                     {course.level == "E" && <Badge variant="outline">Elementary</Badge>}
+
+                      {course.level == "A" && <Badge variant="outline">Advanced</Badge>}
+                      {course.level == "I" && <Badge variant="outline">Intermediate</Badge>}
+                      {course.level == "E" && <Badge variant="outline">Elementary</Badge>}
 
                       {course.median_grade && (
                         <Badge className={getGradeColor(course.median_grade)}>Median: {course.median_grade}</Badge>
                       )}
-                      {course.ethnic_studies && <Badge className="bg-red-100 text-red-800" variant="secondary">Ethnic Studies</Badge>}
-                      {course.social_science && <Badge className="bg-red-100 text-red-800" variant="secondary">Social Science</Badge>}
-                      {course.humanities && <Badge className="bg-red-100 text-red-800" variant="secondary">Humanities</Badge>}
-                      {course.biological_science && <Badge className="bg-red-100 text-red-800" variant="secondary">Bio Science</Badge>}
-                      {course.physical_science && <Badge className="bg-red-100 text-red-800" variant="secondary">Physical Science</Badge>}
-                      {course.natural_science && <Badge className="bg-red-100 text-red-800" variant="secondary">Natural Science</Badge>}
-                      {course.literature && <Badge className="bg-red-100 text-red-800" variant="secondary">Literature</Badge>}
+                      {course.ethnic_studies && (
+                        <Badge className="bg-red-100 text-red-800" variant="secondary">
+                          Ethnic Studies
+                        </Badge>
+                      )}
+                      {course.social_science && (
+                        <Badge className="bg-red-100 text-red-800" variant="secondary">
+                          Social Science
+                        </Badge>
+                      )}
+                      {course.humanities && (
+                        <Badge className="bg-red-100 text-red-800" variant="secondary">
+                          Humanities
+                        </Badge>
+                      )}
+                      {course.biological_science && (
+                        <Badge className="bg-red-100 text-red-800" variant="secondary">
+                          Bio Science
+                        </Badge>
+                      )}
+                      {course.physical_science && (
+                        <Badge className="bg-red-100 text-red-800" variant="secondary">
+                          Physical Science
+                        </Badge>
+                      )}
+                      {course.natural_science && (
+                        <Badge className="bg-red-100 text-red-800" variant="secondary">
+                          Natural Science
+                        </Badge>
+                      )}
+                      {course.literature && (
+                        <Badge className="bg-red-100 text-red-800" variant="secondary">
+                          Literature
+                        </Badge>
+                      )}
 
                       <span>
                         {" "}
@@ -277,6 +306,56 @@ export function CourseTable({
 
             <CollapsibleContent>
               <CardContent className="pt-0">
+                {/* Course Details */}
+                <div className="mb-6 p-4 bg-gray-50 rounded-lg border">
+                  <h4 className="font-medium mb-2 text-lg">{course.course_title}</h4>
+                  {course.course_description && (
+                    <p className="text-sm text-gray-700 mb-3">{course.course_description}</p>
+                  )}
+                  {course.enrollment_prerequisites && (
+                    <p className="text-xs text-gray-500">
+                      <span className="font-semibold">Prerequisites:</span> {course.enrollment_prerequisites}
+                    </p>
+                  )}
+                  <div className="flex flex-wrap gap-2 mt-3">
+                    {course.ethnic_studies && (
+                      <Badge className="bg-red-100 text-red-800" variant="secondary">
+                        Ethnic Studies
+                      </Badge>
+                    )}
+                    {course.social_science && (
+                      <Badge className="bg-red-100 text-red-800" variant="secondary">
+                        Social Science
+                      </Badge>
+                    )}
+                    {course.humanities && (
+                      <Badge className="bg-red-100 text-red-800" variant="secondary">
+                        Humanities
+                      </Badge>
+                    )}
+                    {course.biological_science && (
+                      <Badge className="bg-red-100 text-red-800" variant="secondary">
+                        Bio Science
+                      </Badge>
+                    )}
+                    {course.physical_science && (
+                      <Badge className="bg-red-100 text-red-800" variant="secondary">
+                        Physical Science
+                      </Badge>
+                    )}
+                    {course.natural_science && (
+                      <Badge className="bg-red-100 text-red-800" variant="secondary">
+                        Natural Science
+                      </Badge>
+                    )}
+                    {course.literature && (
+                      <Badge className="bg-red-100 text-red-800" variant="secondary">
+                        Literature
+                      </Badge>
+                    )}
+                  </div>
+                </div>
+
                 {/* Animated Grade Distribution Chart */}
                 <div className="mb-6 p-4 bg-gradient-to-br from-gray-50 to-gray-100 rounded-lg border">
                   <h4 className="font-medium mb-4 flex items-center gap-2">
