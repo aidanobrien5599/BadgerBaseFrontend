@@ -605,7 +605,7 @@ export function CourseTable({
           </Collapsible>
         </Card>
       ))}
-       {courses.length > 0 && (
+       {courses.length > 5 && (
         <PaginationControls
           currentPage={currentPage}
           totalPages={totalPages}
