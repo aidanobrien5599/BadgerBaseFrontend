@@ -3,7 +3,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible"
-import { ChevronDown, Users, Clock, MapPin, Star, TrendingUp, BarChart3 } from "lucide-react"
+import { ChevronDown, Users, Clock, MapPin, Star, TrendingUp, BarChart3, BookOpen, Award, GraduationCap } from "lucide-react"
 import { useState } from "react"
 import { PaginationControls } from "./pagination-controls"
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart"
@@ -105,19 +105,19 @@ export function CourseTable({
     const [expanded, setExpanded] = useState(false)
   
     if (text.length <= maxChars) {
-      return <p className="text-sm text-gray-700">{text}</p>
+      return <p className="text-sm text-gray-600">{text}</p>
     }
   
     return (
-      <div className="text-sm text-gray-700">
+      <div className="text-sm text-gray-600">
         {expanded ? text : `${text.substring(0, maxChars)}...`}
         <button
           type="button"
           onClick={(e) => {
-            e.stopPropagation() // prevent collapsing the course card
+            e.stopPropagation()
             setExpanded(!expanded)
           }}
-          className="ml-1 text-blue-600 hover:underline text-xs font-medium"
+          className="ml-2 text-red-600 hover:text-red-700 text-xs font-medium hover:underline"
         >
           {expanded ? "Show less" : "Show more"}
         </button>
@@ -128,34 +128,45 @@ export function CourseTable({
   const getStatusColor = (status: string) => {
     switch (status.toUpperCase()) {
       case "OPEN":
-        return "bg-green-100 text-green-800"
+        return "bg-green-50 text-green-700 border-green-200"
       case "CLOSED":
-        return "bg-red-100 text-red-800"
+        return "bg-red-50 text-red-700 border-red-200"
       case "WAITLIST":
-        return "bg-yellow-100 text-yellow-800"
+        return "bg-yellow-50 text-yellow-700 border-yellow-200"
       default:
-        return "bg-gray-100 text-gray-800"
+        return "bg-gray-50 text-gray-700 border-gray-200"
     }
   }
 
   const getGradeColor = (grade: string) => {
     switch (grade) {
       case "A":
-        return "bg-green-100 text-green-800"
+        return "bg-red-600 text-white"
       case "AB":
-        return "bg-green-50 text-green-700"
+        return "bg-red-500 text-white"
       case "B":
-        return "bg-blue-100 text-blue-800"
+        return "bg-red-400 text-white"
       case "BC":
-        return "bg-blue-50 text-blue-700"
+        return "bg-red-300 text-red-800"
       case "C":
-        return "bg-yellow-100 text-yellow-800"
+        return "bg-red-200 text-red-800"
       case "D":
-        return "bg-orange-100 text-orange-800"
+        return "bg-red-100 text-red-700"
       case "F":
-        return "bg-red-100 text-red-800"
+        return "bg-red-700 text-white"
       default:
-        return "bg-gray-100 text-gray-800"
+        return "bg-gray-100 text-gray-700"
+    }
+  }
+
+  const getLevelInfo = (level: string) => {
+    switch (level) {
+      case "A":
+        return { text: "Advanced", icon: GraduationCap }
+      case "I":
+        return { text: "Intermediate", icon: BookOpen }
+      default:
+        return { text: "Elementary", icon: Award }
     }
   }
 
@@ -218,9 +229,11 @@ export function CourseTable({
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-semibold">Search Results</h2>
+        <h2 className="text-3xl font-bold text-black-600">
+          Search Results
+        </h2>
       </div>
       {courses.length > 0 && (
         <PaginationControls
@@ -234,96 +247,192 @@ export function CourseTable({
       )}
 
       {courses.map((course) => (
-        <Card key={course.course_id}>
+        <Card key={course.course_id} className="shadow-sm hover:shadow-md transition-shadow border">
           <Collapsible open={expandedCourses.has(course.course_id)} onOpenChange={() => toggleCourse(course.course_id)}>
-          <CollapsibleTrigger asChild>
-  <CardHeader className="cursor-pointer hover:bg-gray-50 transition-colors p-4">
-    <div className="flex gap-4 items-start">
-      {/* Left: Course Info */}
-      <div className="flex-1 space-y-3">
-        {/* Title + Code */}
-        <div>
-          <CardTitle className="text-lg font-bold">{course.course_title}</CardTitle>
-          <span className="text-sm text-gray-500">{course.course_designation}</span>
-        </div>
+            <CollapsibleTrigger asChild>
+              <CardHeader className="cursor-pointer bg-white transition-colors p-6">
+                <div className="flex gap-6 items-start">
+                  {/* Left: Course Info */}
+                  <div className="flex-1 space-y-4">
+                    {/* Title + Code */}
+                    <div className="space-y-2">
+                      <CardTitle className="text-xl font-bold text-gray-900">
+                        {course.course_title}
+                      </CardTitle>
+                      <div className="flex items-center gap-2">
+                        <Badge className="bg-red-600 text-white font-semibold">
+                          {course.course_designation}
+                        </Badge>
+                      </div>
+                    </div>
 
-        {/* Full Description */}
-              {course.course_description && (
-        <ExpandableText text={course.course_description} maxChars={230} />
-      )}
-
-{course.enrollment_prerequisites && (
-                      <p className="text-xs text-gray-500 mb-3">
-                        <span className="font-semibold">Prerequisites:</span> {course.enrollment_prerequisites}
-                      </p>
+                    {/* Full Description */}
+                    {course.course_description && (
+                      <ExpandableText text={course.course_description} maxChars={230} />
                     )}
 
-        {/* Meta Info */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 text-sm">
-          <div>
-            <span className="font-semibold">Credits:</span>{" "}
-            {course.minimum_credits === course.maximum_credits
-              ? `${course.minimum_credits} credit${course.minimum_credits > 1 ? "s" : ""}`
-              : `${course.minimum_credits}-${course.maximum_credits} credits`}
-          </div>
-          <div>
-            <span className="font-semibold">Level:</span>{" "}
-            {course.level === "A" ? "Advanced" : course.level === "I" ? "Intermediate" : "Elementary"}
-          </div>
-          <div>
-            <span className="font-semibold">Median Grade:</span>{" "}
-            {course.median_grade ? (
-              <Badge className={getGradeColor(course.median_grade)}>{course.median_grade}</Badge>
-            ) : "N/A"}
-          </div>
-          <div>
-            <span className="font-semibold">Sections:</span> {course.sections.length}
-          </div>
-          <div>
-            <span className="font-semibold">Avg GPA:</span>{" "}
-            <a
-              target="_blank"
-              href={`https://madgrades.com/courses/${course.madgrades_course_uuid}`}
-              className="hover:underline text-blue-600"
-              rel="noreferrer"
-            >
-              {course.cumulative_gpa?.toFixed(2) || "N/A"}
-            </a>
-          </div>
-          <div>
-            <span className="font-semibold">Recent GPA:</span>{" "}
-            {course.most_recent_gpa?.toFixed(2) || "N/A"}
-          </div>
-        </div>
+                    {course.enrollment_prerequisites && (
+                      <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+                        <p className="text-sm text-red-800">
+                          <span className="font-bold flex items-center gap-2 mb-2">
+                            <Award className="h-4 w-4 text-red-600" />
+                            Prerequisites:
+                          </span>
+                          <span className="text-red-700">{course.enrollment_prerequisites}</span>
+                        </p>
+                      </div>
+                    )}
 
-        {/* Categories */}
-        <div className="flex flex-wrap gap-2 pt-2">
-          {course.ethnic_studies && <Badge variant="secondary">Ethnic Studies</Badge>}
-          {course.social_science && <Badge variant="secondary">Social Science</Badge>}
-          {course.humanities && <Badge variant="secondary">Humanities</Badge>}
-          {course.biological_science && <Badge variant="secondary">Bio Science</Badge>}
-          {course.physical_science && <Badge variant="secondary">Physical Science</Badge>}
-          {course.natural_science && <Badge variant="secondary">Natural Science</Badge>}
-          {course.literature && <Badge variant="secondary">Literature</Badge>}
-        </div>
-      </div>
+                    {/* Meta Info Grid */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                      {/* Credits Card */}
+                      <div className="bg-white border rounded-lg p-4">
+                        <div className="flex items-center gap-2 text-gray-700 mb-2">
+                          <BookOpen className="h-4 w-4 text-red-600" />
+                          <span className="font-medium text-sm">Credits</span>
+                        </div>
+                        <div className="text-gray-900 font-semibold">
+                          {course.minimum_credits === course.maximum_credits
+                            ? `${course.minimum_credits} credit${course.minimum_credits > 1 ? "s" : ""}`
+                            : `${course.minimum_credits}-${course.maximum_credits} credits`}
+                        </div>
+                      </div>
 
-      {/* Right: Arrow */}
-      <div className="flex items-center">
-        <ChevronDown
-          className={`h-5 w-5 transition-transform ${expandedCourses.has(course.course_id) ? "rotate-180" : ""}`}
-        />
-      </div>
-    </div>
-  </CardHeader>
-</CollapsibleTrigger>
+                      {/* Level Card */}
+                      <div className="bg-white border rounded-lg p-4">
+                        <div className="flex items-center gap-2 text-gray-700 mb-2">
+                          {(() => {
+                            const levelInfo = getLevelInfo(course.level)
+                            const IconComponent = levelInfo.icon
+                            return (
+                              <>
+                                <IconComponent className="h-4 w-4 text-red-600" />
+                                <span className="font-medium text-sm">Level</span>
+                              </>
+                            )
+                          })()}
+                        </div>
+                        <div className="text-gray-900 font-semibold">
+                          {getLevelInfo(course.level).text}
+                        </div>
+                      </div>
+
+                      {/* Median Grade Card */}
+                      <div className="bg-white border rounded-lg p-4">
+                        <div className="flex items-center gap-2 text-gray-700 mb-2">
+                          <Star className="h-4 w-4 text-red-600" />
+                          <span className="font-medium text-sm">Median Grade</span>
+                        </div>
+                        <div className="mt-1">
+                          {course.median_grade ? (
+                            <Badge className={`${getGradeColor(course.median_grade)} font-semibold`}>
+                              {course.median_grade}
+                            </Badge>
+                          ) : (
+                            <span className="text-gray-700 font-semibold">N/A</span>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Sections Card */}
+                      <div className="bg-white border rounded-lg p-4">
+                        <div className="flex items-center gap-2 text-gray-700 mb-2">
+                          <Users className="h-4 w-4 text-red-600" />
+                          <span className="font-medium text-sm">Sections</span>
+                        </div>
+                        <div className="text-gray-900 font-semibold">{course.sections.length}</div>
+                      </div>
+
+                      {/* Avg GPA Card */}
+                      <div className="bg-white border rounded-lg p-4">
+                        <div className="flex items-center gap-2 text-gray-700 mb-2">
+                          <TrendingUp className="h-4 w-4 text-red-600" />
+                          <span className="font-medium text-sm">Avg GPA</span>
+                        </div>
+                        <div className="mt-1">
+                          <a
+                            target="_blank"
+                            href={`https://madgrades.com/courses/${course.madgrades_course_uuid}`}
+                            className="text-red-600 font-bold hover:text-red-700 hover:underline"
+                            rel="noreferrer"
+                          >
+                            {course.cumulative_gpa?.toFixed(2) || "N/A"}
+                          </a>
+                        </div>
+                      </div>
+
+                      {/* Recent GPA Card */}
+                      <div className="bg-white border rounded-lg p-4">
+                        <div className="flex items-center gap-2 text-gray-700 mb-2">
+                          <BarChart3 className="h-4 w-4 text-red-600" />
+                          <span className="font-medium text-sm">Recent GPA</span>
+                        </div>
+                        <div className="text-gray-900 font-semibold">
+                          {course.most_recent_gpa?.toFixed(2) || "N/A"}
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Categories */}
+                    <div className="flex flex-wrap gap-2 pt-2">
+                      {course.ethnic_studies && (
+                        <Badge className="bg-red-50 text-red-700 border-red-200 font-medium">
+                          Ethnic Studies
+                        </Badge>
+                      )}
+                      {course.social_science && (
+                        <Badge className="bg-red-50 text-red-700 border-red-200 font-medium">
+                          Social Science
+                        </Badge>
+                      )}
+                      {course.humanities && (
+                        <Badge className="bg-red-50 text-red-700 border-red-200 font-medium">
+                          Humanities
+                        </Badge>
+                      )}
+                      {course.biological_science && (
+                        <Badge className="bg-red-50 text-red-700 border-red-200 font-medium">
+                          Bio Science
+                        </Badge>
+                      )}
+                      {course.physical_science && (
+                        <Badge className="bg-red-50 text-red-700 border-red-200 font-medium">
+                          Physical Science
+                        </Badge>
+                      )}
+                      {course.natural_science && (
+                        <Badge className="bg-red-50 text-red-700 border-red-200 font-medium">
+                          Natural Science
+                        </Badge>
+                      )}
+                      {course.literature && (
+                        <Badge className="bg-red-50 text-red-700 border-red-200 font-medium">
+                          Literature
+                        </Badge>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Right: Arrow */}
+                  <div className="flex items-center">
+                    <div className="p-2 rounded-full hover:bg-gray-100">
+                      <ChevronDown
+                        className={`h-5 w-5 text-gray-600 transition-transform duration-200 ${
+                          expandedCourses.has(course.course_id) ? "rotate-180" : ""
+                        }`}
+                      />
+                    </div>
+                  </div>
+                </div>
+              </CardHeader>
+            </CollapsibleTrigger>
 
             <CollapsibleContent>
-              <CardContent className="pt-0">
-                {/* Animated Grade Distribution Chart */}
-                <div className="mb-6 p-4 bg-gradient-to-br from-gray-50 to-gray-100 rounded-lg border">
-                  <h4 className="font-medium mb-4 flex items-center gap-2">
-                    <BarChart3 className="h-4 w-4" />
+              <CardContent className="pt-0 bg-white">
+                {/* Grade Distribution Chart */}
+                <div className="mb-6 p-6 bg-white rounded-lg border">
+                  <h4 className="font-bold mb-4 flex items-center gap-2 text-gray-900">
+                    <BarChart3 className="h-5 w-5 text-red-600" />
                     Grade Distribution
                   </h4>
                   <ChartContainer
@@ -332,7 +441,7 @@ export function CourseTable({
                         label: "Percentage",
                       },
                     }}
-                    className="h-[200px] w-full"
+                    className="h-[220px] w-full"
                   >
                     <ResponsiveContainer width="100%" height="100%">
                       <BarChart
@@ -348,12 +457,12 @@ export function CourseTable({
                           dataKey="grade"
                           axisLine={false}
                           tickLine={false}
-                          tick={{ fontSize: 12, fontWeight: 600 }}
+                          tick={{ fontSize: 14, fontWeight: 600, fill: '#374151' }}
                         />
                         <YAxis
                           axisLine={false}
                           tickLine={false}
-                          tick={{ fontSize: 10 }}
+                          tick={{ fontSize: 12, fill: '#374151' }}
                           tickFormatter={(value) => `${value}%`}
                         />
                         <ChartTooltip
@@ -361,7 +470,7 @@ export function CourseTable({
                           formatter={(value, name) => [`${value}%`, "Students"]}
                           labelFormatter={(label) => `Grade: ${label}`}
                         />
-                        <Bar dataKey="percentage" radius={[4, 4, 0, 0]} animationDuration={1000} animationBegin={0} />
+                        <Bar dataKey="percentage" radius={[4, 4, 0, 0]} />
                       </BarChart>
                     </ResponsiveContainer>
                   </ChartContainer>
@@ -369,38 +478,49 @@ export function CourseTable({
 
                 {/* Sections */}
                 <div className="space-y-4">
-                  <h4 className="font-medium">Sections</h4>
+                  <h4 className="font-bold text-gray-900 flex items-center gap-2">
+                    <Users className="h-5 w-5 text-red-600" />
+                    Sections
+                  </h4>
                   {course.sections.map((section) => (
-                    <div key={section.section_id} className="border rounded-lg p-4 bg-gray-50">
-                      <div className="flex items-start justify-between mb-3">
-                        <div className="flex items-center gap-2">
-                          <h5 className="font-medium">Section {section.section_id}</h5>
-                          <Badge className={getStatusColor(section.status)}>{section.status}</Badge>
+                    <div key={section.section_id} className="border rounded-lg p-6 bg-white">
+                      <div className="flex items-start justify-between mb-4">
+                        <div className="flex items-center gap-3">
+                          <h5 className="font-bold text-gray-900">Section {section.section_id}</h5>
+                          <Badge className={`${getStatusColor(section.status)} border font-medium`}>
+                            {section.status}
+                          </Badge>
                         </div>
-                        <div className="text-right text-sm text-gray-600">
-                          <div className="flex items-center gap-1">
+                        <div className="text-right">
+                          <div className="flex items-center gap-2 text-gray-700 bg-gray-100 px-3 py-1 rounded-full">
                             <Users className="h-4 w-4" />
-                            {section.enrolled}/{section.capacity}
+                            <span className="font-medium text-sm">
+                              {section.enrolled}/{section.capacity}
+                            </span>
                             {section.available_seats > 0 && (
-                              <span className="text-green-600">({section.available_seats} available)</span>
+                              <span className="text-green-600 font-medium text-sm">
+                                ({section.available_seats} available)
+                              </span>
                             )}
                           </div>
                         </div>
                       </div>
 
                       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-4">
-                        <div className="flex items-center gap-2 text-sm">
-                          <Clock className="h-4 w-4 text-gray-500" />
-                          <span>{section.meeting_time || "TBA"}</span>
+                        <div className="flex items-center gap-3 text-sm bg-gray-50 p-3 rounded-lg">
+                          <Clock className="h-4 w-4 text-red-600" />
+                          <span className="text-gray-700 font-medium">{section.meeting_time || "TBA"}</span>
                         </div>
-                        <div className="flex items-center gap-2 text-sm">
-                          <MapPin className="h-4 w-4 text-gray-500" />
-                          <span>{section.location || "TBA"}</span>
+                        <div className="flex items-center gap-3 text-sm bg-gray-50 p-3 rounded-lg">
+                          <MapPin className="h-4 w-4 text-red-600" />
+                          <span className="text-gray-700 font-medium">{section.location || "TBA"}</span>
                         </div>
-                        <div className="text-sm">
-                          <Badge variant="outline">{section.instruction_mode}</Badge>
+                        <div className="flex items-center gap-2">
+                          <Badge className="bg-red-600 text-white font-medium">
+                            {section.instruction_mode}
+                          </Badge>
                           {section.is_asynchronous && (
-                            <Badge variant="outline" className="ml-1">
+                            <Badge className="bg-gray-600 text-white font-medium">
                               Async
                             </Badge>
                           )}
@@ -409,32 +529,32 @@ export function CourseTable({
 
                       {/* Section RMP Stats */}
                       {section.section_avg_rating && (
-                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4 p-3 bg-white rounded border">
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4 p-4 bg-gray-50 rounded-lg border">
                           <div className="text-center">
-                            <div className="flex items-center justify-center gap-1 text-sm font-medium">
-                              <Star className="h-4 w-4 text-yellow-500" />
+                            <div className="flex items-center justify-center gap-1 text-sm font-bold text-yellow-700 mb-1">
+                              <Star className="h-4 w-4 text-yellow-500 fill-current" />
                               {formatRating(section.section_avg_rating)}
                             </div>
-                            <div className="text-xs text-gray-500">Section Rating</div>
+                            <div className="text-xs text-gray-600 font-medium">Section Rating</div>
                           </div>
                           <div className="text-center">
-                            <div className="flex items-center justify-center gap-1 text-sm font-medium">
-                              <TrendingUp className="h-4 w-4 text-blue-500" />
+                            <div className="flex items-center justify-center gap-1 text-sm font-bold text-red-700 mb-1">
+                              <TrendingUp className="h-4 w-4 text-red-600" />
                               {formatRating(section.section_avg_difficulty)}
                             </div>
-                            <div className="text-xs text-gray-500">Difficulty</div>
+                            <div className="text-xs text-gray-600 font-medium">Difficulty</div>
                           </div>
                           <div className="text-center">
-                            <div className="text-sm font-medium">{section.section_total_ratings}</div>
-                            <div className="text-xs text-gray-500">Total Ratings</div>
+                            <div className="text-sm font-bold text-gray-900 mb-1">{section.section_total_ratings}</div>
+                            <div className="text-xs text-gray-600 font-medium">Total Ratings</div>
                           </div>
                           <div className="text-center">
-                            <div className="text-sm font-medium">
+                            <div className="text-sm font-bold text-green-700 mb-1">
                               {section.section_avg_would_take_again
                                 ? `${section.section_avg_would_take_again}%`
                                 : "N/A"}
                             </div>
-                            <div className="text-xs text-gray-500">Would Take Again</div>
+                            <div className="text-xs text-gray-600 font-medium">Would Take Again</div>
                           </div>
                         </div>
                       )}
@@ -442,15 +562,15 @@ export function CourseTable({
                       {/* Instructors */}
                       {section.instructors.length > 0 && (
                         <div>
-                          <h6 className="font-medium mb-2">Instructors:</h6>
-                          <div className="space-y-2">
+                          <h6 className="font-bold mb-3 text-gray-900">Instructors:</h6>
+                          <div className="space-y-3">
                             {section.instructors.map((instructor, idx) => (
-                              <div key={idx} className="flex items-center justify-between p-2 bg-white rounded border">
-                                <span className="font-medium">
+                              <div key={idx} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg border">
+                                <span className="font-bold text-gray-900">
                                   {instructor.rmp_instructor_id ? (
                                     <a
                                       target="_blank"
-                                      className="hover:font-bold hover:underline text-blue-600"
+                                      className="hover:text-red-600 hover:underline"
                                       href={`https://www.ratemyprofessors.com/professor/${instructor.rmp_instructor_id}`}
                                       rel="noreferrer"
                                     >
@@ -462,12 +582,14 @@ export function CourseTable({
                                 </span>
                                 {instructor.avg_rating && (
                                   <div className="flex items-center gap-4 text-sm">
-                                    <div className="flex items-center gap-1">
-                                      <Star className="h-3 w-3 text-yellow-500" />
-                                      {formatRating(instructor.avg_rating)}
+                                    <div className="flex items-center gap-1 bg-yellow-50 px-2 py-1 rounded border border-yellow-200">
+                                      <Star className="h-4 w-4 text-yellow-500 fill-current" />
+                                      <span className="font-medium text-yellow-700">{formatRating(instructor.avg_rating)}</span>
                                     </div>
-                                    <div>Difficulty: {formatRating(instructor.avg_difficulty)}</div>
-                                    <div>({instructor.num_ratings} ratings)</div>
+                                    <div className="bg-red-50 px-2 py-1 rounded border border-red-200">
+                                      <span className="font-medium text-red-700">Difficulty: {formatRating(instructor.avg_difficulty)}</span>
+                                    </div>
+                                    <div className="text-gray-600 font-medium text-xs">({instructor.num_ratings} ratings)</div>
                                   </div>
                                 )}
                               </div>
