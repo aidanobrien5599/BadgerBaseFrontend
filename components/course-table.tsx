@@ -8,6 +8,7 @@ import { useState } from "react"
 import { PaginationControls } from "./pagination-controls"
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart"
 import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis } from "recharts"
+import { DisplayText } from "./display-text"
 
 interface Course {
   course_id: number
@@ -98,6 +99,30 @@ export function CourseTable({
       newExpanded.add(courseId)
     }
     setExpandedCourses(newExpanded)
+  }
+
+  function ExpandableText({ text, maxChars = 150 }: { text: string; maxChars?: number }) {
+    const [expanded, setExpanded] = useState(false)
+  
+    if (text.length <= maxChars) {
+      return <p className="text-sm text-gray-700">{text}</p>
+    }
+  
+    return (
+      <div className="text-sm text-gray-700">
+        {expanded ? text : `${text.substring(0, maxChars)}...`}
+        <button
+          type="button"
+          onClick={(e) => {
+            e.stopPropagation() // prevent collapsing the course card
+            setExpanded(!expanded)
+          }}
+          className="ml-1 text-blue-600 hover:underline text-xs font-medium"
+        >
+          {expanded ? "Show less" : "Show more"}
+        </button>
+      </div>
+    )
   }
 
   const getStatusColor = (status: string) => {
@@ -211,102 +236,87 @@ export function CourseTable({
       {courses.map((course) => (
         <Card key={course.course_id}>
           <Collapsible open={expandedCourses.has(course.course_id)} onOpenChange={() => toggleCourse(course.course_id)}>
-            <CollapsibleTrigger asChild>
-              <CardHeader className="cursor-pointer hover:bg-gray-50 transition-colors p-4">
-                <div className="flex items-start justify-between gap-4">
-                  <div className="flex-1">
-                    <div className="flex items-baseline gap-2 mb-1">
-                      <CardTitle className="text-xl font-bold">{course.course_title}</CardTitle>
-                      <span className="text-sm text-gray-500 font-medium">{course.course_designation}</span>
-                    </div>
-                    {course.course_description && (
-                      <p className="text-sm text-gray-700 mb-2 line-clamp-2">{course.course_description}</p>
-                    )}
-                    {course.enrollment_prerequisites && (
+          <CollapsibleTrigger asChild>
+  <CardHeader className="cursor-pointer hover:bg-gray-50 transition-colors p-4">
+    <div className="flex gap-4 items-start">
+      {/* Left: Course Info */}
+      <div className="flex-1 space-y-3">
+        {/* Title + Code */}
+        <div>
+          <CardTitle className="text-lg font-bold">{course.course_title}</CardTitle>
+          <span className="text-sm text-gray-500">{course.course_designation}</span>
+        </div>
+
+        {/* Full Description */}
+              {course.course_description && (
+        <ExpandableText text={course.course_description} maxChars={230} />
+      )}
+
+{course.enrollment_prerequisites && (
                       <p className="text-xs text-gray-500 mb-3">
                         <span className="font-semibold">Prerequisites:</span> {course.enrollment_prerequisites}
                       </p>
                     )}
-                    <div className="flex flex-wrap items-center gap-2 text-sm text-gray-600">
-                      <span>
-                        {course.minimum_credits == course.maximum_credits
-                          ? course.minimum_credits == 1
-                            ? `${course.minimum_credits} credit`
-                            : `${course.minimum_credits} credits`
-                          : `${course.minimum_credits}-${course.maximum_credits} credits`}
-                      </span>
-                      {course.level == "A" && <Badge variant="outline">Advanced</Badge>}
-                      {course.level == "I" && <Badge variant="outline">Intermediate</Badge>}
-                      {course.level == "E" && <Badge variant="outline">Elementary</Badge>}
-                      {course.median_grade && (
-                        <Badge className={getGradeColor(course.median_grade)}>Median: {course.median_grade}</Badge>
-                      )}
-                      {course.ethnic_studies && (
-                        <Badge className="bg-red-100 text-red-800" variant="secondary">
-                          Ethnic Studies
-                        </Badge>
-                      )}
-                      {course.social_science && (
-                        <Badge className="bg-red-100 text-red-800" variant="secondary">
-                          Social Science
-                        </Badge>
-                      )}
-                      {course.humanities && (
-                        <Badge className="bg-red-100 text-red-800" variant="secondary">
-                          Humanities
-                        </Badge>
-                      )}
-                      {course.biological_science && (
-                        <Badge className="bg-red-100 text-red-800" variant="secondary">
-                          Bio Science
-                        </Badge>
-                      )}
-                      {course.physical_science && (
-                        <Badge className="bg-red-100 text-red-800" variant="secondary">
-                          Physical Science
-                        </Badge>
-                      )}
-                      {course.natural_science && (
-                        <Badge className="bg-red-100 text-red-800" variant="secondary">
-                          Natural Science
-                        </Badge>
-                      )}
-                      {course.literature && (
-                        <Badge className="bg-red-100 text-red-800" variant="secondary">
-                          Literature
-                        </Badge>
-                      )}
-                      <span className="ml-auto">
-                        <a
-                          target="_blank"
-                          className="hover:font-bold hover:underline"
-                          href={`https://madgrades.com/courses/${course.madgrades_course_uuid}`}
-                          rel="noreferrer"
-                        >
-                          Avg GPA: {course.cumulative_gpa?.toFixed(2) || "N/A"}
-                        </a>
-                      </span>
-                      <span>
-                        <a
-                          target="_blank"
-                          className="hover:font-bold hover:underline"
-                          href={`https://madgrades.com/courses/${course.madgrades_course_uuid}`}
-                          rel="noreferrer"
-                        >
-                          Recent GPA: {course.most_recent_gpa?.toFixed(2) || "N/A"}
-                        </a>
-                      </span>
-                      <span>{course.sections.length} sections</span>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <ChevronDown
-                      className={`h-5 w-5 transition-transform ${expandedCourses.has(course.course_id) ? "rotate-180" : ""}`}
-                    />
-                  </div>
-                </div>
-              </CardHeader>
-            </CollapsibleTrigger>
+
+        {/* Meta Info */}
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 text-sm">
+          <div>
+            <span className="font-semibold">Credits:</span>{" "}
+            {course.minimum_credits === course.maximum_credits
+              ? `${course.minimum_credits} credit${course.minimum_credits > 1 ? "s" : ""}`
+              : `${course.minimum_credits}-${course.maximum_credits} credits`}
+          </div>
+          <div>
+            <span className="font-semibold">Level:</span>{" "}
+            {course.level === "A" ? "Advanced" : course.level === "I" ? "Intermediate" : "Elementary"}
+          </div>
+          <div>
+            <span className="font-semibold">Median Grade:</span>{" "}
+            {course.median_grade ? (
+              <Badge className={getGradeColor(course.median_grade)}>{course.median_grade}</Badge>
+            ) : "N/A"}
+          </div>
+          <div>
+            <span className="font-semibold">Sections:</span> {course.sections.length}
+          </div>
+          <div>
+            <span className="font-semibold">Avg GPA:</span>{" "}
+            <a
+              target="_blank"
+              href={`https://madgrades.com/courses/${course.madgrades_course_uuid}`}
+              className="hover:underline text-blue-600"
+              rel="noreferrer"
+            >
+              {course.cumulative_gpa?.toFixed(2) || "N/A"}
+            </a>
+          </div>
+          <div>
+            <span className="font-semibold">Recent GPA:</span>{" "}
+            {course.most_recent_gpa?.toFixed(2) || "N/A"}
+          </div>
+        </div>
+
+        {/* Categories */}
+        <div className="flex flex-wrap gap-2 pt-2">
+          {course.ethnic_studies && <Badge variant="secondary">Ethnic Studies</Badge>}
+          {course.social_science && <Badge variant="secondary">Social Science</Badge>}
+          {course.humanities && <Badge variant="secondary">Humanities</Badge>}
+          {course.biological_science && <Badge variant="secondary">Bio Science</Badge>}
+          {course.physical_science && <Badge variant="secondary">Physical Science</Badge>}
+          {course.natural_science && <Badge variant="secondary">Natural Science</Badge>}
+          {course.literature && <Badge variant="secondary">Literature</Badge>}
+        </div>
+      </div>
+
+      {/* Right: Arrow */}
+      <div className="flex items-center">
+        <ChevronDown
+          className={`h-5 w-5 transition-transform ${expandedCourses.has(course.course_id) ? "rotate-180" : ""}`}
+        />
+      </div>
+    </div>
+  </CardHeader>
+</CollapsibleTrigger>
 
             <CollapsibleContent>
               <CardContent className="pt-0">
