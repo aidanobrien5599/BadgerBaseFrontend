@@ -605,6 +605,16 @@ export function CourseTable({
           </Collapsible>
         </Card>
       ))}
+       {courses.length > 0 && (
+        <PaginationControls
+          currentPage={currentPage}
+          totalPages={totalPages}
+          totalCount={totalCount}
+          hasMore={hasMore}
+          onPageChange={onPageChange}
+          resultsPerPage={resultsPerPage}
+        />
+      )}
     </div>
   )
 }
