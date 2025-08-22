@@ -87,10 +87,10 @@ export default function AuthPage() {
             />
           </div>
           <h2 className="text-3xl font-bold text-gray-900">
-            {isLogin ? "Sign in to" : "Create your"} BadgerBase account
+            {isLogin ? "Sign in to BadgerBase" : "Create your BadgerBase account"}
           </h2>
           <p className="mt-2 text-sm text-gray-600">
-            {isLogin ? "Welcome back!" : "Join the BadgerBase community"} Use your UW-Madison email.
+            {isLogin ? "Welcome back!" : "Access exclusive features"}
           </p>
         </div>
 
@@ -209,8 +209,7 @@ export default function AuthPage() {
             </div>
 
             <div className="mt-4 text-xs text-gray-500 text-center">
-              <p>By continuing, you agree to BadgerBase's Terms of Service and Privacy Policy.</p>
-              <p className="mt-1">Only UW-Madison students and staff with @wisc.edu emails can access.</p>
+              <p className="mt-1">Only UW-Madison students/staff with @wisc.edu emails can create an account or sign in.</p>
             </div>
           </CardContent>
         </Card>
