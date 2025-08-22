@@ -34,6 +34,11 @@ export function Navigation() {
             <Link href="/about" className="text-gray-700 hover:text-gray-900 font-medium">
               About
             </Link>
+            <Link href="/auth">
+              <Button className="bg-red-600 hover:bg-red-700 text-white font-medium">
+                Log In
+              </Button>
+            </Link>
           </div>
 
           {/* Mobile menu button */}
@@ -61,6 +66,15 @@ export function Navigation() {
                 onClick={() => setIsMenuOpen(false)}
               >
                 About
+              </Link>
+              <Link
+                href="/auth"
+                className="block px-3 py-2"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                <Button className="w-full bg-red-600 hover:bg-red-700 text-white font-medium">
+                  Log In
+                </Button>
               </Link>
             </div>
           </div>
