@@ -74,36 +74,30 @@ export default function AuthPage() {
 
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8">
-        {/* Header */}
-        <div className="text-center">
-          <div className="flex justify-center mb-4">
-            <Image
-              src="/BadgerBaseTransparent.png"
-              alt="BadgerBase"
-              width={80}
-              height={80}
-              className="h-20 w-auto"
-            />
-          </div>
-          <h2 className="text-3xl font-bold text-gray-900">
-            {isLogin ? "Sign in to BadgerBase" : "Create your BadgerBase account"}
-          </h2>
-          <p className="mt-2 text-sm text-gray-600">
-            {isLogin ? "Welcome back!" : "Access exclusive features"}
-          </p>
-        </div>
-
-        {/* Auth Card */}
+      <div className="max-w-md w-full">
+        {/* Single Card containing everything */}
         <Card className="shadow-lg">
-          <CardHeader className="space-y-1">
-            <CardTitle className="text-2xl text-center flex items-center justify-center gap-2">
-              <GraduationCap className="h-6 w-6 text-red-600" />
-              {isLogin ? "Sign In" : "Create Account"}
-            </CardTitle>
+          <CardHeader className="space-y-6 text-center pb-6">
+            <div className="flex justify-center">
+              <Image
+                src="/BadgerBaseTransparent.png"
+                alt="BadgerBase"
+                width={80}
+                height={80}
+                className="h-20 w-auto"
+              />
+            </div>
+            <div className="space-y-2">
+              <h2 className="text-3xl font-bold text-gray-900">
+                {isLogin ? "Sign in to BadgerBase" : "Create your BadgerBase account"}
+              </h2>
+              <p className="text-sm text-gray-600">
+                {isLogin ? "Welcome back!" : "Access exclusive features"}
+              </p>
+            </div>
           </CardHeader>
-          <CardContent>
-            <form onSubmit={handleSubmit} className="space-y-4">
+          <CardContent className="pt-0">
+            <form onSubmit={handleSubmit} className="space-y-5">
               {!isLogin && (
                 <div className="space-y-2">
                   <Label htmlFor="name" className="text-sm font-medium text-gray-700">
@@ -195,7 +189,7 @@ export default function AuthPage() {
               </Button>
             </form>
 
-            <div className="mt-6 text-center">
+            <div className="mt-8 text-center">
               <p className="text-sm text-gray-600">
                 {isLogin ? "Don't have an account?" : "Already have an account?"}
                 <button
@@ -208,8 +202,8 @@ export default function AuthPage() {
               </p>
             </div>
 
-            <div className="mt-4 text-xs text-gray-500 text-center">
-              <p className="mt-1">Only UW-Madison students/staff with @wisc.edu emails can create an account or sign in.</p>
+            <div className="mt-6 text-xs text-gray-500 text-center">
+              <p>Only UW-Madison students/staff with @wisc.edu emails can create an account or sign in.</p>
             </div>
           </CardContent>
         </Card>
