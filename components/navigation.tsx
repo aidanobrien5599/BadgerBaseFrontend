@@ -3,11 +3,18 @@
 import Link from "next/link"
 import Image from "next/image"
 import { Button } from "@/components/ui/button"
-import { Menu, X } from "lucide-react"
+import { Menu, X, User, LogOut } from "lucide-react"
 import { useState } from "react"
+import { useAuth } from "@/contexts/AuthContext"
 
 export function Navigation() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
+  const { user, signOut, loading } = useAuth()
+
+  const handleSignOut = async () => {
+    await signOut()
+    setIsMenuOpen(false)
+  }
 
   return (
     <nav className="bg-white border-b border-gray-200 sticky top-0 z-50">
@@ -34,11 +41,33 @@ export function Navigation() {
             <Link href="/about" className="text-gray-700 hover:text-gray-900 font-medium">
               About
             </Link>
-            <Link href="/auth">
-              <Button className="bg-red-600 hover:bg-red-700 text-white font-medium">
-                Log In
-              </Button>
-            </Link>
+            {!loading && (
+              user ? (
+                <div className="flex items-center space-x-4">
+                  <div className="flex items-center space-x-2">
+                    <User className="h-4 w-4" />
+                    <span className="text-sm text-gray-700">
+                      {user.user_metadata?.full_name || user.email}
+                    </span>
+                  </div>
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    onClick={handleSignOut}
+                    className="flex items-center space-x-1"
+                  >
+                    <LogOut className="h-4 w-4" />
+                    <span>Sign Out</span>
+                  </Button>
+                </div>
+              ) : (
+                <Link href="/auth">
+                  <Button className="bg-red-600 hover:bg-red-700 text-white font-medium">
+                    Log In
+                  </Button>
+                </Link>
+              )
+            )}
           </div>
 
           {/* Mobile menu button */}
@@ -67,15 +96,35 @@ export function Navigation() {
               >
                 About
               </Link>
-              <Link
-                href="/auth"
-                className="block px-3 py-2"
-                onClick={() => setIsMenuOpen(false)}
-              >
-                <Button className="w-full bg-red-600 hover:bg-red-700 text-white font-medium">
-                  Log In
-                </Button>
-              </Link>
+              {!loading && (
+                user ? (
+                  <div className="px-3 py-2 space-y-2">
+                    <div className="flex items-center space-x-2 text-sm text-gray-700">
+                      <User className="h-4 w-4" />
+                      <span>{user.user_metadata?.full_name || user.email}</span>
+                    </div>
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      onClick={handleSignOut}
+                      className="w-full flex items-center justify-center space-x-1"
+                    >
+                      <LogOut className="h-4 w-4" />
+                      <span>Sign Out</span>
+                    </Button>
+                  </div>
+                ) : (
+                  <Link
+                    href="/auth"
+                    className="block px-3 py-2"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    <Button className="w-full bg-red-600 hover:bg-red-700 text-white font-medium">
+                      Log In
+                    </Button>
+                  </Link>
+                )
+              )}
             </div>
           </div>
         )}

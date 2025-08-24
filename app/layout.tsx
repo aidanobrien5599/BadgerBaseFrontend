@@ -6,6 +6,7 @@ import { Navigation } from "@/components/navigation"
 import { Footer } from "@/components/footer"
 import { Analytics } from "@vercel/analytics/react"
 import { PostHogProvider } from "@/components/PostHogProvider"
+import { AuthProvider } from "@/contexts/AuthContext"
 import { MaintenanceBanner } from "@/components/maintenance-banner" // Import the new component
 import { Suspense } from "react"
 
@@ -31,10 +32,12 @@ export default function RootLayout({
       <body className={inter.className}>
         <Suspense fallback={<div>Loading...</div>}>
           <PostHogProvider>
-            <Navigation />
-            <main className="min-h-screen bg-gray-50">{children}</main>
-            <Footer />
-            <Analytics />
+            <AuthProvider>
+              <Navigation />
+              <main className="min-h-screen bg-gray-50">{children}</main>
+              <Footer />
+              <Analytics />
+            </AuthProvider>
           </PostHogProvider>
         </Suspense>
       </body>
