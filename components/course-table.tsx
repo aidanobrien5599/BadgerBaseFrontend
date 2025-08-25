@@ -1,4 +1,3 @@
-
 "use client"
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -480,9 +479,9 @@ export function CourseTable({
                             {section.meetings.map((meeting, idx) => (
                               <div key={idx} className="grid grid-cols-1 md:grid-cols-3 gap-3 p-3 bg-gray-50 rounded-lg border">
                                 <div className="flex items-center gap-2">
-                                  <Badge className={`${getMeetingTypeColor(meeting.meeting_type)} border font-medium text-xs`}>
+                                  <span className="font-semibold text-gray-900 text-sm">
                                     {getMeetingTypeLabel(meeting.meeting_type)}
-                                  </Badge>
+                                  </span>
                                 </div>
                                 <div className="flex items-center gap-2 text-sm">
                                   <Clock className="h-4 w-4 text-red-600" />
