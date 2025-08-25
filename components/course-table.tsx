@@ -502,37 +502,7 @@ export function CourseTable({
                         </div>
                       )}
 
-                      {/* Section RMP Stats */}
-                      {section.section_avg_rating && (
-                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4 p-4 bg-gray-50 rounded-lg border">
-                          <div className="text-center">
-                            <div className="flex items-center justify-center gap-1 text-sm font-bold text-yellow-700 mb-1">
-                              <Star className="h-4 w-4 text-yellow-500 fill-current" />
-                              {formatRating(section.section_avg_rating)}
-                            </div>
-                            <div className="text-xs text-gray-600 font-medium">Section Rating</div>
-                          </div>
-                          <div className="text-center">
-                            <div className="flex items-center justify-center gap-1 text-sm font-bold text-red-700 mb-1">
-                              <TrendingUp className="h-4 w-4 text-red-600" />
-                              {formatRating(section.section_avg_difficulty)}
-                            </div>
-                            <div className="text-xs text-gray-600 font-medium">Difficulty</div>
-                          </div>
-                          <div className="text-center">
-                            <div className="text-sm font-bold text-gray-900 mb-1">{section.section_total_ratings}</div>
-                            <div className="text-xs text-gray-600 font-medium">Total Ratings</div>
-                          </div>
-                          <div className="text-center">
-                            <div className="text-sm font-bold text-green-700 mb-1">
-                              {section.section_avg_would_take_again
-                                ? `${section.section_avg_would_take_again}%`
-                                : "N/A"}
-                            </div>
-                            <div className="text-xs text-gray-600 font-medium">Would Take Again</div>
-                          </div>
-                        </div>
-                      )}
+        
 
                       {/* Instructors */}
                       {section.instructors.length > 0 && (
