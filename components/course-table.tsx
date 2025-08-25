@@ -1,15 +1,27 @@
+
 "use client"
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible"
-import { ChevronDown, Users, Clock, MapPin, Star, TrendingUp, BarChart3, BookOpen, Award, GraduationCap } from "lucide-react"
+import { ChevronDown, Users, Clock, MapPin, Star, TrendingUp, BarChart3, BookOpen, Award, GraduationCap, Calendar } from "lucide-react"
 import { useState } from "react"
 import { PaginationControls } from "./pagination-controls"
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart"
 import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis } from "recharts"
 import { DisplayText } from "./display-text"
 import { CourseHeader } from "./course-header"
+
+interface Meeting {
+  meeting_number: number
+  meeting_days: string
+  meeting_type: string
+  start_time: string
+  end_time: string
+  building_name: string
+  room: string
+  location: string
+}
 
 interface Course {
   course_id: number
@@ -50,8 +62,6 @@ interface Section {
   waitlist_total: number
   capacity: number
   enrolled: number
-  meeting_time: string
-  location: string
   instruction_mode: string
   is_asynchronous: boolean
   section_avg_rating: number
@@ -59,6 +69,7 @@ interface Section {
   section_total_ratings: number
   section_avg_would_take_again: number
   instructors: Instructor[]
+  meetings: Meeting[]
 }
 
 interface Instructor {
@@ -101,7 +112,6 @@ export function CourseTable({
     }
     setExpandedCourses(newExpanded)
   }
-
 
   const getLevelInfo = (level: string) => {
     switch (level) {
@@ -148,14 +158,46 @@ export function CourseTable({
     }
   }
 
-
-
   const formatRating = (rating: number | null) => {
     return rating ? rating.toFixed(1) : "N/A"
   }
 
   const formatPercent = (decimal: number | null) => {
     return decimal ? `${Math.round(decimal * 100)}%` : "0%"
+  }
+
+  const formatMeetingTime = (startTime: string, endTime: string) => {
+    return `${startTime} - ${endTime}`
+  }
+
+  const getMeetingTypeColor = (type: string) => {
+    switch (type.toUpperCase()) {
+      case "LEC":
+        return "bg-blue-50 text-blue-700 border-blue-200"
+      case "DIS":
+        return "bg-green-50 text-green-700 border-green-200"
+      case "LAB":
+        return "bg-purple-50 text-purple-700 border-purple-200"
+      case "SEM":
+        return "bg-orange-50 text-orange-700 border-orange-200"
+      default:
+        return "bg-gray-50 text-gray-700 border-gray-200"
+    }
+  }
+
+  const getMeetingTypeLabel = (type: string) => {
+    switch (type.toUpperCase()) {
+      case "LEC":
+        return "Lecture"
+      case "DIS":
+        return "Discussion"
+      case "LAB":
+        return "Lab"
+      case "SEM":
+        return "Seminar"
+      default:
+        return type
+    }
   }
 
   const getGradeChartData = (course: Course) => {
@@ -231,117 +273,112 @@ export function CourseTable({
           <Collapsible open={expandedCourses.has(course.course_id)} onOpenChange={() => toggleCourse(course.course_id)}>
             <CourseHeader course={course} isExpanded={expandedCourses.has(course.course_id)} />
 
-
-
             <CollapsibleContent>
-
               <CardContent className="pt-0 bg-white">
-
                 <div className="flex flex-col gap-4 pb-4">
 
+                  {course.enrollment_prerequisites && (
+                    <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+                      <p className="text-sm text-red-800">
+                        <span className="font-bold flex items-center gap-2 mb-2">
+                          <Award className="h-4 w-4 text-red-600" />
+                          Prerequisites:
+                        </span>
+                        <span className="text-red-700">{course.enrollment_prerequisites}</span>
+                      </p>
+                    </div>
+                  )}
 
-              {course.enrollment_prerequisites && (
-                      <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-                        <p className="text-sm text-red-800">
-                          <span className="font-bold flex items-center gap-2 mb-2">
-                            <Award className="h-4 w-4 text-red-600" />
-                            Prerequisites:
-                          </span>
-                          <span className="text-red-700">{course.enrollment_prerequisites}</span>
-                        </p>
+                  {/* Meta Info Grid */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {/* Credits Card */}
+                    <div className="bg-white border rounded-lg p-4">
+                      <div className="flex items-center gap-2 text-gray-700 mb-2">
+                        <BookOpen className="h-4 w-4 text-red-600" />
+                        <span className="font-medium text-sm">Credits</span>
                       </div>
-                    )}
-
-                    {/* Meta Info Grid */}
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                      {/* Credits Card */}
-                      <div className="bg-white border rounded-lg p-4">
-                        <div className="flex items-center gap-2 text-gray-700 mb-2">
-                          <BookOpen className="h-4 w-4 text-red-600" />
-                          <span className="font-medium text-sm">Credits</span>
-                        </div>
-                        <div className="text-gray-900 font-semibold">
-                          {course.minimum_credits === course.maximum_credits
-                            ? `${course.minimum_credits} credit${course.minimum_credits > 1 ? "s" : ""}`
-                            : `${course.minimum_credits}-${course.maximum_credits} credits`}
-                        </div>
-                      </div>
-
-                      {/* Level Card */}
-                      <div className="bg-white border rounded-lg p-4">
-                        <div className="flex items-center gap-2 text-gray-700 mb-2">
-                          {(() => {
-                            const levelInfo = getLevelInfo(course.level)
-                            const IconComponent = levelInfo.icon
-                            return (
-                              <>
-                                <IconComponent className="h-4 w-4 text-red-600" />
-                                <span className="font-medium text-sm">Level</span>
-                              </>
-                            )
-                          })()}
-                        </div>
-                        <div className="text-gray-900 font-semibold">
-                          {getLevelInfo(course.level).text}
-                        </div>
-                      </div>
-
-                      {/* Median Grade Card */}
-                      <div className="bg-white border rounded-lg p-4">
-                        <div className="flex items-center gap-2 text-gray-700 mb-2">
-                          <Star className="h-4 w-4 text-red-600" />
-                          <span className="font-medium text-sm">Median Grade</span>
-                        </div>
-                        <div className="mt-1">
-                          {course.median_grade ? (
-                            <Badge className={`${getGradeColor(course.median_grade)} font-semibold`}>
-                              {course.median_grade}
-                            </Badge>
-                          ) : (
-                            <span className="text-gray-700 font-semibold">N/A</span>
-                          )}
-                        </div>
-                      </div>
-
-                      {/* Sections Card */}
-                      <div className="bg-white border rounded-lg p-4">
-                        <div className="flex items-center gap-2 text-gray-700 mb-2">
-                          <Users className="h-4 w-4 text-red-600" />
-                          <span className="font-medium text-sm">Sections</span>
-                        </div>
-                        <div className="text-gray-900 font-semibold">{course.sections.length}</div>
-                      </div>
-
-                      {/* Avg GPA Card */}
-                      <div className="bg-white border rounded-lg p-4">
-                        <div className="flex items-center gap-2 text-gray-700 mb-2">
-                          <TrendingUp className="h-4 w-4 text-red-600" />
-                          <span className="font-medium text-sm">Avg GPA</span>
-                        </div>
-                        <div className="mt-1">
-                          <a
-                            target="_blank"
-                            href={`https://madgrades.com/courses/${course.madgrades_course_uuid}`}
-                            className="text-red-600 font-bold hover:text-red-700 hover:underline"
-                            rel="noreferrer"
-                          >
-                            {course.cumulative_gpa?.toFixed(2) || "N/A"}
-                          </a>
-                        </div>
-                      </div>
-
-                      {/* Recent GPA Card */}
-                      <div className="bg-white border rounded-lg p-4">
-                        <div className="flex items-center gap-2 text-gray-700 mb-2">
-                          <BarChart3 className="h-4 w-4 text-red-600" />
-                          <span className="font-medium text-sm">Recent GPA</span>
-                        </div>
-                        <div className="text-gray-900 font-semibold">
-                          {course.most_recent_gpa?.toFixed(2) || "N/A"}
-                        </div>
+                      <div className="text-gray-900 font-semibold">
+                        {course.minimum_credits === course.maximum_credits
+                          ? `${course.minimum_credits} credit${course.minimum_credits > 1 ? "s" : ""}`
+                          : `${course.minimum_credits}-${course.maximum_credits} credits`}
                       </div>
                     </div>
+
+                    {/* Level Card */}
+                    <div className="bg-white border rounded-lg p-4">
+                      <div className="flex items-center gap-2 text-gray-700 mb-2">
+                        {(() => {
+                          const levelInfo = getLevelInfo(course.level)
+                          const IconComponent = levelInfo.icon
+                          return (
+                            <>
+                              <IconComponent className="h-4 w-4 text-red-600" />
+                              <span className="font-medium text-sm">Level</span>
+                            </>
+                          )
+                        })()}
+                      </div>
+                      <div className="text-gray-900 font-semibold">
+                        {getLevelInfo(course.level).text}
+                      </div>
                     </div>
+
+                    {/* Median Grade Card */}
+                    <div className="bg-white border rounded-lg p-4">
+                      <div className="flex items-center gap-2 text-gray-700 mb-2">
+                        <Star className="h-4 w-4 text-red-600" />
+                        <span className="font-medium text-sm">Median Grade</span>
+                      </div>
+                      <div className="mt-1">
+                        {course.median_grade ? (
+                          <Badge className={`${getGradeColor(course.median_grade)} font-semibold`}>
+                            {course.median_grade}
+                          </Badge>
+                        ) : (
+                          <span className="text-gray-700 font-semibold">N/A</span>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Sections Card */}
+                    <div className="bg-white border rounded-lg p-4">
+                      <div className="flex items-center gap-2 text-gray-700 mb-2">
+                        <Users className="h-4 w-4 text-red-600" />
+                        <span className="font-medium text-sm">Sections</span>
+                      </div>
+                      <div className="text-gray-900 font-semibold">{course.sections.length}</div>
+                    </div>
+
+                    {/* Avg GPA Card */}
+                    <div className="bg-white border rounded-lg p-4">
+                      <div className="flex items-center gap-2 text-gray-700 mb-2">
+                        <TrendingUp className="h-4 w-4 text-red-600" />
+                        <span className="font-medium text-sm">Avg GPA</span>
+                      </div>
+                      <div className="mt-1">
+                        <a
+                          target="_blank"
+                          href={`https://madgrades.com/courses/${course.madgrades_course_uuid}`}
+                          className="text-red-600 font-bold hover:text-red-700 hover:underline"
+                          rel="noreferrer"
+                        >
+                          {course.cumulative_gpa?.toFixed(2) || "N/A"}
+                        </a>
+                      </div>
+                    </div>
+
+                    {/* Recent GPA Card */}
+                    <div className="bg-white border rounded-lg p-4">
+                      <div className="flex items-center gap-2 text-gray-700 mb-2">
+                        <BarChart3 className="h-4 w-4 text-red-600" />
+                        <span className="font-medium text-sm">Recent GPA</span>
+                      </div>
+                      <div className="text-gray-900 font-semibold">
+                        {course.most_recent_gpa?.toFixed(2) || "N/A"}
+                      </div>
+                    </div>
+                  </div>
+                </div>
 
                 {/* Grade Distribution Chart */}
                 <div className="mb-6 p-6 bg-white rounded-lg border">
@@ -420,26 +457,51 @@ export function CourseTable({
                         </div>
                       </div>
 
-                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-4">
-                        <div className="flex items-center gap-3 text-sm bg-gray-50 p-3 rounded-lg">
-                          <Clock className="h-4 w-4 text-red-600" />
-                          <span className="text-gray-700 font-medium">{section.meeting_time || "TBA"}</span>
-                        </div>
-                        <div className="flex items-center gap-3 text-sm bg-gray-50 p-3 rounded-lg">
-                          <MapPin className="h-4 w-4 text-red-600" />
-                          <span className="text-gray-700 font-medium">{section.location || "TBA"}</span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <Badge className="bg-red-600 text-white font-medium">
-                            {section.instruction_mode}
+                      {/* Section Info */}
+                      <div className="flex items-center gap-2 mb-4">
+                        <Badge className="bg-red-600 text-white font-medium">
+                          {section.instruction_mode}
+                        </Badge>
+                        {section.is_asynchronous && (
+                          <Badge className="bg-gray-600 text-white font-medium">
+                            Async
                           </Badge>
-                          {section.is_asynchronous && (
-                            <Badge className="bg-gray-600 text-white font-medium">
-                              Async
-                            </Badge>
-                          )}
-                        </div>
+                        )}
                       </div>
+
+                      {/* Meetings */}
+                      {section.meetings && section.meetings.length > 0 && (
+                        <div className="mb-4">
+                          <h6 className="font-bold mb-3 text-gray-900 flex items-center gap-2">
+                            <Calendar className="h-4 w-4 text-red-600" />
+                            Meeting Times
+                          </h6>
+                          <div className="space-y-2">
+                            {section.meetings.map((meeting, idx) => (
+                              <div key={idx} className="grid grid-cols-1 md:grid-cols-3 gap-3 p-3 bg-gray-50 rounded-lg border">
+                                <div className="flex items-center gap-2">
+                                  <Badge className={`${getMeetingTypeColor(meeting.meeting_type)} border font-medium text-xs`}>
+                                    {getMeetingTypeLabel(meeting.meeting_type)}
+                                  </Badge>
+                                </div>
+                                <div className="flex items-center gap-2 text-sm">
+                                  <Clock className="h-4 w-4 text-red-600" />
+                                  <span className="font-medium text-gray-700">
+                                    {meeting.meeting_days} {formatMeetingTime(meeting.start_time, meeting.end_time)}
+                                  </span>
+                                </div>
+                                <div className="flex items-center gap-2 text-sm">
+                                  <MapPin className="h-4 w-4 text-red-600" />
+                                  <span className="font-medium text-gray-700">
+                                    {meeting.location || `${meeting.building_name} ${meeting.room}`}
+                                  </span>
+                                </div>
+
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
 
                       {/* Section RMP Stats */}
                       {section.section_avg_rating && (
