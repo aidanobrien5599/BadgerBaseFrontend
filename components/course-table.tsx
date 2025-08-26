@@ -442,17 +442,31 @@ export function CourseTable({
                           </Badge>
                         </div>
                         <div className="text-right">
-                          <div className="flex items-center gap-2 text-gray-700 bg-gray-100 px-3 py-1 rounded-full">
-                            <Users className="h-4 w-4" />
-                            <span className="font-medium text-sm">
-                              {section.enrolled}/{section.capacity}
-                            </span>
-                            {section.available_seats > 0 && (
-                              <span className="text-green-600 font-medium text-sm">
-                                ({section.available_seats} available)
-                              </span>
-                            )}
-                          </div>
+                        <div className="text-right">
+  <div className="flex items-center gap-2 flex-wrap justify-end">
+    {/* Main enrollment badge */}
+    <div className="flex items-center gap-2 text-gray-700 bg-gray-100 px-3 py-1 rounded-full">
+      <Users className="h-4 w-4" />
+      <span className="font-medium text-sm">
+        {section.enrolled}/{section.capacity}
+      </span>
+    </div>
+    
+    {/* Available seats badge - separate and clean */}
+    {section.available_seats > 0 && (
+      <Badge className="bg-green-50 text-green-700 border-green-200 border font-medium">
+        {section.available_seats} available
+      </Badge>
+    )}
+    
+    {/* Waitlist badge if applicable */}
+    {section.waitlist_total > 0 && (
+      <Badge className="bg-yellow-50 text-yellow-700 border-yellow-200 border font-medium">
+        {section.waitlist_total} waitlisted
+      </Badge>
+    )}
+  </div>
+</div>
                         </div>
                       </div>
 
