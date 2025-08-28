@@ -1,14 +1,32 @@
 "use client"
-
 import Link from "next/link"
 import Image from "next/image"
+import { usePathname } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Menu, X } from "lucide-react"
 import { useState } from "react"
 
 export function Navigation() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
-
+  const pathname = usePathname()
+  
+  // Helper function to determine if link is active
+  const isActive = (path: string) => {
+    return pathname === path
+  }
+  
+  // Helper function to get link classes
+  const getLinkClasses = (path: string, isMobile = false) => {
+    const baseClasses = isMobile 
+      ? "block px-3 py-2 font-medium"
+      : "font-medium"
+    
+    const activeClasses = "text-red-700"
+    const inactiveClasses = "text-gray-700 hover:text-red-700"
+    
+    return `${baseClasses} ${isActive(path) ? activeClasses : inactiveClasses}`
+  }
+  
   return (
     <nav className="bg-white border-b border-gray-200 sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -25,17 +43,17 @@ export function Navigation() {
             />
             <span className="text-xl font-bold text-gray-900">BadgerBase</span>
           </Link>
-
+          
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-8">
-            <Link href="/" className="text-gray-700 hover:text-gray-900 font-medium">
+            <Link href="/" className={getLinkClasses("/")}>
               Search
             </Link>
-            <Link href="/about" className="text-gray-700 hover:text-gray-900 font-medium">
+            <Link href="/about" className={getLinkClasses("/about")}>
               About
             </Link>
           </div>
-
+          
           {/* Mobile menu button */}
           <div className="md:hidden">
             <Button variant="ghost" size="sm" onClick={() => setIsMenuOpen(!isMenuOpen)} aria-label="Toggle menu">
@@ -43,21 +61,21 @@ export function Navigation() {
             </Button>
           </div>
         </div>
-
+        
         {/* Mobile Navigation */}
         {isMenuOpen && (
           <div className="md:hidden">
             <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3 border-t border-gray-200">
               <Link
                 href="/"
-                className="block px-3 py-2 text-gray-700 hover:text-gray-900 font-medium"
+                className={getLinkClasses("/", true)}
                 onClick={() => setIsMenuOpen(false)}
               >
                 Search
               </Link>
               <Link
                 href="/about"
-                className="block px-3 py-2 text-gray-700 hover:text-gray-900 font-medium"
+                className={getLinkClasses("/about", true)}
                 onClick={() => setIsMenuOpen(false)}
               >
                 About
