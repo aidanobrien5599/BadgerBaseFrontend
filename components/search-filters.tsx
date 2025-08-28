@@ -187,73 +187,73 @@ export function SearchFilters({ filters, onFiltersChange, onSearch, loading }: S
           </Button>
         </CollapsibleTrigger>
         <CollapsibleContent className="space-y-4 mt-4">
-      <div className="space-y-4">
+          <div className="space-y-4">
 
-        <div className="space-y-2">
-          <Label htmlFor="median_grade">Median Grade</Label>
-          <Select value={filters.median_grade} onValueChange={(value) => updateFilter("median_grade", value)}>
-            <SelectTrigger>
-              <SelectValue placeholder="Any grade" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="any">Any grade</SelectItem>
-              <SelectItem value="A">A</SelectItem>
-              <SelectItem value="AB">AB</SelectItem>
-              <SelectItem value="B">B</SelectItem>
-              <SelectItem value="BC">BC</SelectItem>
-              <SelectItem value="C">C</SelectItem>
-              <SelectItem value="D">D</SelectItem>
-              <SelectItem value="F">F</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
+            <div className="space-y-2">
+              <Label htmlFor="median_grade">Median Grade</Label>
+              <Select value={filters.median_grade} onValueChange={(value) => updateFilter("median_grade", value)}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Any grade" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="any">Any grade</SelectItem>
+                  <SelectItem value="A">A</SelectItem>
+                  <SelectItem value="AB">AB</SelectItem>
+                  <SelectItem value="B">B</SelectItem>
+                  <SelectItem value="BC">BC</SelectItem>
+                  <SelectItem value="C">C</SelectItem>
+                  <SelectItem value="D">D</SelectItem>
+                  <SelectItem value="F">F</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
 
-        <div className="space-y-3">
-          <Label htmlFor="min_a_percent">
-            Min A Percentage:{" "}
-            {filters.min_a_percent ? `${Math.round(Number.parseFloat(filters.min_a_percent) * 100)}%` : "0%"}
-          </Label>
-          <Slider
-            id="min_a_percent"
-            min={0}
-            max={1}
-            step={0.01}
-            value={[Number.parseFloat(filters.min_a_percent) || 0]}
-            onValueChange={(value) => updateFilter("min_a_percent", value[0].toString())}
-            className="w-full"
-          />
-        </div>
+            <div className="space-y-3">
+              <Label htmlFor="min_a_percent">
+                Min A Percentage:{" "}
+                {filters.min_a_percent ? `${Math.round(Number.parseFloat(filters.min_a_percent) * 100)}%` : "0%"}
+              </Label>
+              <Slider
+                id="min_a_percent"
+                min={0}
+                max={1}
+                step={0.01}
+                value={[Number.parseFloat(filters.min_a_percent) || 0]}
+                onValueChange={(value) => updateFilter("min_a_percent", value[0].toString())}
+                className="w-full"
+              />
+            </div>
 
-        <div className="grid grid-cols-1 gap-4">
-          <div className="space-y-3">
-            <Label htmlFor="min_cum_gpa">Min Avg GPA: {filters.min_cumulative_gpa || "0.0"}</Label>
-            <Slider
-              id="min_cum_gpa"
-              min={0}
-              max={4}
-              step={0.01}
-              value={[Number.parseFloat(filters.min_cumulative_gpa) || 0]}
-              onValueChange={(value) => updateFilter("min_cumulative_gpa", value[0].toString())}
-              className="w-full"
-            />
+            <div className="grid grid-cols-1 gap-4">
+              <div className="space-y-3">
+                <Label htmlFor="min_cum_gpa">Min Avg GPA: {filters.min_cumulative_gpa || "0.0"}</Label>
+                <Slider
+                  id="min_cum_gpa"
+                  min={0}
+                  max={4}
+                  step={0.01}
+                  value={[Number.parseFloat(filters.min_cumulative_gpa) || 0]}
+                  onValueChange={(value) => updateFilter("min_cumulative_gpa", value[0].toString())}
+                  className="w-full"
+                />
+              </div>
+              <div className="space-y-3">
+                <Label htmlFor="min_recent_gpa">Min Recent GPA: {filters.min_most_recent_gpa || "0.0"}</Label>
+                <Slider
+                  id="min_recent_gpa"
+                  min={0}
+                  max={4}
+                  step={0.01}
+                  value={[Number.parseFloat(filters.min_most_recent_gpa) || 0]}
+                  onValueChange={(value) => updateFilter("min_most_recent_gpa", value[0].toString())}
+                  className="w-full"
+                />
+              </div>
+            </div>
           </div>
-          <div className="space-y-3">
-            <Label htmlFor="min_recent_gpa">Min Recent GPA: {filters.min_most_recent_gpa || "0.0"}</Label>
-            <Slider
-              id="min_recent_gpa"
-              min={0}
-              max={4}
-              step={0.01}
-              value={[Number.parseFloat(filters.min_most_recent_gpa) || 0]}
-              onValueChange={(value) => updateFilter("min_most_recent_gpa", value[0].toString())}
-              className="w-full"
-            />
-          </div>
-        </div>
-      </div>
-      </CollapsibleContent>
+        </CollapsibleContent>
       </Collapsible>
-      
+
 
       <Separator />
 
@@ -332,7 +332,7 @@ export function SearchFilters({ filters, onFiltersChange, onSearch, loading }: S
                     id={key}
                     checked={filters[key as keyof FilterState] as boolean}
                     onCheckedChange={(checked) => updateFilter(key as keyof FilterState, checked as boolean)}
-                  /> 
+                  />
                   <Label htmlFor={key} className="text-sm">
                     {label}
                   </Label>

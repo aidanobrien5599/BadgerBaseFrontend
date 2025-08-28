@@ -434,41 +434,34 @@ export function CourseTable({
                   </h4>
                   {course.sections.map((section) => (
                     <div key={section.section_id} className="border rounded-lg p-6 bg-white">
-                      <div className="flex items-start justify-between mb-4">
-                        <div className="flex items-center gap-3">
-                          <h5 className="font-bold text-gray-900">Section {section.section_id}</h5>
-                          <Badge className={`${getStatusColor(section.status)} border font-medium`}>
-                            {section.status}
-                          </Badge>
-                        </div>
-                        <div className="text-right">
-                        <div className="text-right">
-  <div className="flex items-center gap-2 flex-wrap justify-end">
-    {/* Main enrollment badge */}
-    <div className="flex items-center gap-2 text-gray-700 bg-gray-100 px-3 py-1 rounded-full">
-      <Users className="h-4 w-4" />
-      <span className="font-medium text-sm">
-        {section.enrolled}/{section.capacity}
-      </span>
+                       <div className="flex flex-row items-center justify-between gap-4 mb-4">
+    {/* Section title and status */}
+    <div className="flex items-center gap-3">
+      <h5 className="font-bold text-gray-900">Section {section.section_id}</h5>
+      <Badge className={`${getStatusColor(section.status)} border font-medium`}>
+        {section.status}
+      </Badge>
     </div>
     
-    {/* Available seats badge - separate and clean */}
-    {section.available_seats > 0 && (
-      <Badge className="bg-green-50 text-green-700 border-green-200 border font-medium">
-        {section.available_seats} available
-      </Badge>
-    )}
+    {/* Enrollment info */}
+    <div className="flex items-center gap-3 flex-wrap">
+      {/* Main enrollment badge */}
+      <div className="flex items-center gap-2 text-gray-700 bg-gray-100 px-3 py-1 rounded-full">
+        <Users className="h-4 w-4" />
+        <span className="font-medium text-sm">
+          {section.enrolled}/{section.capacity}
+        </span>
+      </div>
     
-    {/* Waitlist badge if applicable */}
-    {section.waitlist_total > 0 && (
-      <Badge className="bg-yellow-50 text-yellow-700 border-yellow-200 border font-medium">
-        {section.waitlist_total} waitlisted
-      </Badge>
-    )}
+      
+      {/* Waitlist badge if applicable */}
+      {section.waitlist_total > 0 && (
+        <Badge className="bg-yellow-50 text-yellow-700 border-yellow-200 border font-medium">
+          {section.waitlist_total} waitlisted
+        </Badge>
+      )}
+    </div>
   </div>
-</div>
-                        </div>
-                      </div>
 
                       {/* Section Info */}
                       <div className="flex items-center gap-2 mb-4">
@@ -516,7 +509,7 @@ export function CourseTable({
                         </div>
                       )}
 
-        
+
 
                       {/* Instructors */}
                       {section.instructors.length > 0 && (
@@ -524,7 +517,7 @@ export function CourseTable({
                           <h6 className="font-bold mb-3 text-gray-900">Instructors:</h6>
                           <div className="space-y-3">
                             {section.instructors.map((instructor, idx) => (
-                              <div key={idx} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg border">
+                              <div key={idx} className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-3 bg-gray-50 rounded-lg border gap-3">
                                 <span className="font-bold text-gray-900">
                                   {instructor.rmp_instructor_id ? (
                                     <a
@@ -540,15 +533,16 @@ export function CourseTable({
                                   )}
                                 </span>
                                 {instructor.avg_rating && (
-                                  <div className="flex items-center gap-4 text-sm">
-                                    <div className="flex items-center gap-1 bg-yellow-50 px-2 py-1 rounded border border-yellow-200">
-                                      <Star className="h-4 w-4 text-yellow-500 fill-current" />
-                                      <span className="font-medium text-yellow-700">{formatRating(instructor.avg_rating)}</span>
+                                  <div className="flex flex-wrap items-center gap-4 text-sm">
+                                    <div className="flex items-center gap-1.5">
+                                      <Star className="h-4 w-4 text-red-500 fill-current" />
+                                      <span className="font-semibold text-gray-900">{formatRating(instructor.avg_rating)}</span>
                                     </div>
-                                    <div className="bg-red-50 px-2 py-1 rounded border border-red-200">
-                                      <span className="font-medium text-red-700">Difficulty: {formatRating(instructor.avg_difficulty)}</span>
+                                    <div className="flex items-center gap-1.5">
+                                      <div className="w-2 h-2 rounded-full bg-red-400"></div>
+                                      <span className="text-gray-700 font-medium">Difficulty {formatRating(instructor.avg_difficulty)}</span>
                                     </div>
-                                    <div className="text-gray-600 font-medium text-xs">({instructor.num_ratings} ratings)</div>
+                                    <span className="text-gray-500 font-medium">({instructor.num_ratings} reviews)</span>
                                   </div>
                                 )}
                               </div>
@@ -564,7 +558,7 @@ export function CourseTable({
           </Collapsible>
         </Card>
       ))}
-       {courses.length > 5 && (
+      {courses.length > 5 && (
         <PaginationControls
           currentPage={currentPage}
           totalPages={totalPages}
