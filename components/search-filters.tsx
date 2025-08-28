@@ -36,6 +36,10 @@ interface FilterState {
   min_section_avg_difficulty: string
   min_section_total_ratings: string
   min_section_avg_would_take_again: string
+  no_prereqs: boolean
+  sophomore_standing: boolean
+  junior_standing: boolean
+  senior_standing: boolean
 }
 
 interface SearchFiltersProps {
@@ -79,6 +83,10 @@ export function SearchFilters({ filters, onFiltersChange, onSearch, loading }: S
       min_section_avg_difficulty: "",
       min_section_total_ratings: "",
       min_section_avg_would_take_again: "",
+      no_prereqs: false,
+      sophomore_standing: false,
+      junior_standing: false,
+      senior_standing: false,
     })
   }
 
@@ -302,6 +310,29 @@ export function SearchFilters({ filters, onFiltersChange, onSearch, loading }: S
                     checked={filters[key as keyof FilterState] != ""}
                     onCheckedChange={(checked) => updateFilter(key as keyof FilterState, checked ? value : "")}
                   />
+                  <Label htmlFor={key} className="text-sm">
+                    {label}
+                  </Label>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="space-y-3">
+            <Label>Prerequisite Filters</Label>
+            <div className="space-y-2">
+              {[
+                { key: "no_prereqs", label: "No Prerequisites", value: "No Prereqs" },
+                { key: "sophomore_standing", label: "Sophomore Standing", value: "Sophomore" },
+                { key: "junior_standing", label: "Junior Standing", value: "Junior" },
+                { key: "senior_standing", label: "Senior Standing", value: "Senior" },
+              ].map(({ key, label, value }) => (
+                <div key={key} className="flex items-center space-x-2">
+                  <Checkbox
+                    id={key}
+                    checked={filters[key as keyof FilterState] as boolean}
+                    onCheckedChange={(checked) => updateFilter(key as keyof FilterState, checked as boolean)}
+                  /> 
                   <Label htmlFor={key} className="text-sm">
                     {label}
                   </Label>
