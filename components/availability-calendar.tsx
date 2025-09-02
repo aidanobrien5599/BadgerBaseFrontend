@@ -4,7 +4,7 @@ import type React from "react"
 
 import { useState, useCallback } from "react"
 import { Button } from "@/components/ui/button"
-import { Clock, Trash2 } from "lucide-react"
+import { Clock, X } from "lucide-react"
 
 interface TimeSlot {
   start: number // minutes from midnight
@@ -66,7 +66,8 @@ export function AvailabilityCalendar({ onApply, initialAvailability }: Availabil
     const rect = dayElement.getBoundingClientRect()
     const y = e.clientY - rect.top
     const percentage = Math.max(0, Math.min(1, y / rect.height))
-    return Math.round(percentage * HOURS_IN_DAY * MINUTES_PER_HOUR)
+    const rawMinutes = Math.round(percentage * HOURS_IN_DAY * MINUTES_PER_HOUR)
+    return Math.round(rawMinutes / 5) * 5
   }
 
   const handleMouseDown = (e: React.MouseEvent, day: string) => {
@@ -198,11 +199,18 @@ export function AvailabilityCalendar({ onApply, initialAvailability }: Availabil
 
   const hasAvailability = DAYS.some((day) => availability[day as keyof WeeklyAvailability].length > 0)
 
+  const deleteTimeSlot = (day: string, slotIndex: number) => {
+    setAvailability((prev) => ({
+      ...prev,
+      [day]: prev[day as keyof WeeklyAvailability].filter((_, index) => index !== slotIndex),
+    }))
+  }
+
   return (
     <div className="space-y-4">
       <div className="text-sm text-gray-600 mb-4">
         Click and drag to select your available time slots. You can create multiple separate time blocks per day for
-        split availability (e.g., morning and evening classes). Times are in CST.
+        split availability (e.g., morning and evening classes). Times are in CST and snap to 5-minute intervals.
       </div>
 
       <div className="grid grid-cols-6 gap-1 border rounded-lg overflow-hidden bg-white" onMouseLeave={handleMouseUp}>
@@ -221,18 +229,8 @@ export function AvailabilityCalendar({ onApply, initialAvailability }: Availabil
 
         {DAYS.map((day, dayIndex) => (
           <div key={day} className="relative border-r last:border-r-0">
-            <div className="h-8 bg-gray-100 border-b flex items-center justify-between px-2">
+            <div className="h-8 bg-gray-100 border-b flex items-center justify-center px-2">
               <span className="text-xs font-medium">{DAY_LABELS[dayIndex]}</span>
-              {availability[day as keyof WeeklyAvailability].length > 0 && (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => clearDay(day)}
-                  className="h-4 w-4 p-0 hover:bg-red-100"
-                >
-                  <Trash2 className="h-3 w-3 text-red-500" />
-                </Button>
-              )}
             </div>
 
             <div
@@ -252,14 +250,25 @@ export function AvailabilityCalendar({ onApply, initialAvailability }: Availabil
                 return (
                   <div
                     key={slotIndex}
-                    className="absolute left-0 right-0 bg-blue-500 bg-opacity-70 border border-blue-600 rounded-sm"
+                    className="absolute left-0 right-0 bg-blue-500 bg-opacity-70 border border-blue-600 rounded-sm group hover:bg-opacity-80"
                     style={{
                       top: `${top}%`,
                       height: `${height}%`,
                       minHeight: "8px",
                     }}
                     title={`${minutesToTime(slot.start)} - ${minutesToTime(slot.end)}`}
-                  />
+                  >
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        deleteTimeSlot(day, slotIndex)
+                      }}
+                      className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center hover:bg-red-600"
+                      title="Delete this time slot"
+                    >
+                      <X className="h-2 w-2" />
+                    </button>
+                  </div>
                 )
               })}
             </div>
