@@ -11,6 +11,7 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/component
 import { ChevronDown } from "lucide-react"
 import { useState } from "react"
 import { Slider } from "@/components/ui/slider"
+import { AvailabilityCalendar } from "@/components/availability-calendar"
 
 interface FilterState {
   search_param: string
@@ -40,6 +41,16 @@ interface FilterState {
   sophomore_standing: boolean
   junior_standing: boolean
   senior_standing: boolean
+  mondayStartDate: string
+  mondayEndDate: string
+  tuesdayStartDate: string
+  tuesdayEndDate: string
+  wednesdayStartDate: string
+  wednesdayEndDate: string
+  thursdayStartDate: string
+  thursdayEndDate: string
+  fridayStartDate: string
+  fridayEndDate: string
 }
 
 interface SearchFiltersProps {
@@ -53,9 +64,25 @@ export function SearchFilters({ filters, onFiltersChange, onSearch, loading }: S
   const [advancedOpen, setAdvancedOpen] = useState(false)
   const [rmpOpen, setRmpOpen] = useState(false)
   const [gpaOpen, setGpaOpen] = useState(false)
+  const [availabilityOpen, setAvailabilityOpen] = useState(false)
 
   const updateFilter = (key: keyof FilterState, value: string | boolean) => {
     onFiltersChange({ ...filters, [key]: value })
+  }
+
+  const handleAvailabilityChange = (availability: {
+    mondayStartDate: string
+    mondayEndDate: string
+    tuesdayStartDate: string
+    tuesdayEndDate: string
+    wednesdayStartDate: string
+    wednesdayEndDate: string
+    thursdayStartDate: string
+    thursdayEndDate: string
+    fridayStartDate: string
+    fridayEndDate: string
+  }) => {
+    onFiltersChange({ ...filters, ...availability })
   }
 
   const resetFilters = () => {
@@ -87,6 +114,16 @@ export function SearchFilters({ filters, onFiltersChange, onSearch, loading }: S
       sophomore_standing: false,
       junior_standing: false,
       senior_standing: false,
+      mondayStartDate: "",
+      mondayEndDate: "",
+      tuesdayStartDate: "",
+      tuesdayEndDate: "",
+      wednesdayStartDate: "",
+      wednesdayEndDate: "",
+      thursdayStartDate: "",
+      thursdayEndDate: "",
+      fridayStartDate: "",
+      fridayEndDate: "",
     })
   }
 
@@ -177,8 +214,22 @@ export function SearchFilters({ filters, onFiltersChange, onSearch, loading }: S
 
       <Separator />
 
-      {/* Grade Filters */}
+      {/* Availability Calendar */}
+      <Collapsible open={availabilityOpen} onOpenChange={setAvailabilityOpen}>
+        <CollapsibleTrigger asChild>
+          <Button variant="ghost" className="w-full justify-between p-0">
+            Schedule Availability
+            <ChevronDown className={`h-4 w-4 transition-transform ${availabilityOpen ? "rotate-180" : ""}`} />
+          </Button>
+        </CollapsibleTrigger>
+        <CollapsibleContent className="space-y-4 mt-4">
+          <AvailabilityCalendar onAvailabilityChange={handleAvailabilityChange} />
+        </CollapsibleContent>
+      </Collapsible>
 
+      <Separator />
+
+      {/* Grade Filters */}
       <Collapsible open={gpaOpen} onOpenChange={setGpaOpen}>
         <CollapsibleTrigger asChild>
           <Button variant="ghost" className="w-full justify-between p-0">
@@ -188,7 +239,6 @@ export function SearchFilters({ filters, onFiltersChange, onSearch, loading }: S
         </CollapsibleTrigger>
         <CollapsibleContent className="space-y-4 mt-4">
           <div className="space-y-4">
-
             <div className="space-y-2">
               <Label htmlFor="median_grade">Median Grade</Label>
               <Select value={filters.median_grade} onValueChange={(value) => updateFilter("median_grade", value)}>
@@ -253,7 +303,6 @@ export function SearchFilters({ filters, onFiltersChange, onSearch, loading }: S
           </div>
         </CollapsibleContent>
       </Collapsible>
-
 
       <Separator />
 

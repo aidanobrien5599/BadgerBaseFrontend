@@ -98,6 +98,16 @@ interface FilterState {
   min_section_avg_difficulty: string
   min_section_total_ratings: string
   min_section_avg_would_take_again: string
+  mondayStartDate: string
+  mondayEndDate: string
+  tuesdayStartDate: string
+  tuesdayEndDate: string
+  wednesdayStartDate: string
+  wednesdayEndDate: string
+  thursdayStartDate: string
+  thursdayEndDate: string
+  fridayStartDate: string
+  fridayEndDate: string
 }
 
 export default function HomePage() {
@@ -131,6 +141,16 @@ export default function HomePage() {
     min_section_avg_difficulty: "",
     min_section_total_ratings: "",
     min_section_avg_would_take_again: "",
+    mondayStartDate: "",
+    mondayEndDate: "",
+    tuesdayStartDate: "",
+    tuesdayEndDate: "",
+    wednesdayStartDate: "",
+    wednesdayEndDate: "",
+    thursdayStartDate: "",
+    thursdayEndDate: "",
+    fridayStartDate: "",
+    fridayEndDate: "",
   })
 
   const searchCourses = async (page = 1) => {
