@@ -59,6 +59,14 @@ interface FilterState {
   sundayEndTime?: string
 }
 
+interface WeeklyAvailability {
+  monday: { start: number; end: number }[]
+  tuesday: { start: number; end: number }[]
+  wednesday: { start: number; end: number }[]
+  thursday: { start: number; end: number }[]
+  friday: { start: number; end: number }[]
+}
+
 interface SearchFiltersProps {
   filters: FilterState
   onFiltersChange: (filters: FilterState) => void
@@ -76,6 +84,46 @@ export function SearchFilters({ filters, onFiltersChange, onSearch, loading }: S
 
   const updateFilter = (key: keyof FilterState, value: string | boolean) => {
     onFiltersChange({ ...filters, [key]: value })
+  }
+
+  const getInitialAvailability = (): WeeklyAvailability => {
+    const availability: WeeklyAvailability = {
+      monday: [],
+      tuesday: [],
+      wednesday: [],
+      thursday: [],
+      friday: [],
+    }
+
+    DAYS.slice(0, 5).forEach((day) => {
+      // Only weekdays
+      const startTimes = filters[`${day}StartTime` as keyof FilterState]
+      const endTimes = filters[`${day}EndTime` as keyof FilterState]
+
+      if (startTimes && endTimes) {
+        const starts = startTimes.split(",").map(Number)
+        const ends = endTimes.split(",").map(Number)
+
+        // Convert UTC milliseconds back to CST minutes
+        const slots = starts.map((start, index) => {
+          const startMinutes = utcMillisecondsToMinutes(start)
+          const endMinutes = utcMillisecondsToMinutes(ends[index])
+          return { start: startMinutes, end: endMinutes }
+        })
+
+        availability[day as keyof WeeklyAvailability] = slots
+      }
+    })
+
+    return availability
+  }
+
+  const utcMillisecondsToMinutes = (utcMs: number): number => {
+    const today = new Date()
+    const utcMidnight = new Date(today.getFullYear(), today.getMonth(), today.getDate())
+    const utcTime = new Date(utcMidnight.getTime() + utcMs)
+    const cstTime = new Date(utcTime.getTime() - 6 * 60 * 60 * 1000) // Convert UTC to CST
+    return cstTime.getHours() * 60 + cstTime.getMinutes()
   }
 
   const resetFilters = () => {
@@ -173,7 +221,7 @@ export function SearchFilters({ filters, onFiltersChange, onSearch, loading }: S
                   Set Your Weekly Availability
                 </DialogTitle>
               </DialogHeader>
-              <AvailabilityCalendar onApply={handleAvailabilityApply} />
+              <AvailabilityCalendar onApply={handleAvailabilityApply} initialAvailability={getInitialAvailability()} />
             </DialogContent>
           </Dialog>
 
