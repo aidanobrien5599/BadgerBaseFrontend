@@ -17,8 +17,6 @@ interface WeeklyAvailability {
   wednesday: TimeSlot[]
   thursday: TimeSlot[]
   friday: TimeSlot[]
-  saturday: TimeSlot[]
-  sunday: TimeSlot[]
 }
 
 interface AvailabilityCalendarProps {
@@ -26,8 +24,8 @@ interface AvailabilityCalendarProps {
   initialAvailability?: WeeklyAvailability
 }
 
-const DAYS = ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"]
-const DAY_LABELS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
+const DAYS = ["monday", "tuesday", "wednesday", "thursday", "friday"]
+const DAY_LABELS = ["Mon", "Tue", "Wed", "Thu", "Fri"]
 const HOURS_IN_DAY = 24
 const MINUTES_PER_HOUR = 60
 
@@ -39,8 +37,6 @@ export function AvailabilityCalendar({ onApply, initialAvailability }: Availabil
       wednesday: [],
       thursday: [],
       friday: [],
-      saturday: [],
-      sunday: [],
     },
   )
 
@@ -167,8 +163,6 @@ export function AvailabilityCalendar({ onApply, initialAvailability }: Availabil
       wednesday: [],
       thursday: [],
       friday: [],
-      saturday: [],
-      sunday: [],
     })
   }
 
@@ -210,7 +204,7 @@ export function AvailabilityCalendar({ onApply, initialAvailability }: Availabil
         split availability (e.g., morning and evening classes). Times are in CST.
       </div>
 
-      <div className="grid grid-cols-8 gap-1 border rounded-lg overflow-hidden bg-white" onMouseLeave={handleMouseUp}>
+      <div className="grid grid-cols-6 gap-1 border rounded-lg overflow-hidden bg-white" onMouseLeave={handleMouseUp}>
         {/* Time labels column */}
         <div className="bg-gray-50 border-r">
           <div className="h-8 border-b bg-gray-100"></div>
