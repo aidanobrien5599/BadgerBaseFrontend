@@ -200,10 +200,18 @@ export function AvailabilityCalendar({ onApply, initialAvailability }: Availabil
   const hasAvailability = DAYS.some((day) => availability[day as keyof WeeklyAvailability].length > 0)
 
   const deleteTimeSlot = (day: string, slotIndex: number) => {
+    console.log("[v0] Deleting slot:", day, slotIndex) // Added debug logging
     setAvailability((prev) => ({
       ...prev,
       [day]: prev[day as keyof WeeklyAvailability].filter((_, index) => index !== slotIndex),
     }))
+  }
+
+  const handleDeleteClick = (e: React.MouseEvent, day: string, slotIndex: number) => {
+    e.preventDefault()
+    e.stopPropagation()
+    console.log("[v0] Delete button clicked:", day, slotIndex) // Added debug logging
+    deleteTimeSlot(day, slotIndex)
   }
 
   return (
@@ -259,14 +267,13 @@ export function AvailabilityCalendar({ onApply, initialAvailability }: Availabil
                     title={`${minutesToTime(slot.start)} - ${minutesToTime(slot.end)}`}
                   >
                     <button
-                      onClick={(e) => {
-                        e.stopPropagation()
-                        deleteTimeSlot(day, slotIndex)
-                      }}
-                      className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center hover:bg-red-600"
+                      onMouseDown={(e) => e.stopPropagation()}
+                      onMouseUp={(e) => e.stopPropagation()}
+                      onClick={(e) => handleDeleteClick(e, day, slotIndex)}
+                      className="absolute top-0 right-0 w-5 h-5 bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center hover:bg-red-600 z-10 transform translate-x-1 -translate-y-1"
                       title="Delete this time slot"
                     >
-                      <X className="h-2 w-2" />
+                      <X className="h-3 w-3" />
                     </button>
                   </div>
                 )
