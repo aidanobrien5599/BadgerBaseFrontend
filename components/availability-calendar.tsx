@@ -43,8 +43,8 @@ export function AvailabilityCalendar({ onApply, initialAvailability }: Availabil
   const [isDrawing, setIsDrawing] = useState(false)
   const [drawingDay, setDrawingDay] = useState<string | null>(null)
   const [drawingStart, setDrawingStart] = useState<number | null>(null)
+  const [currentSlotIndex, setCurrentSlotIndex] = useState<number | null>(null)
 
-  // Convert minutes from midnight to time string
   const minutesToTime = (minutes: number): string => {
     const hours = Math.floor(minutes / 60)
     const mins = minutes % 60
@@ -53,25 +53,15 @@ export function AvailabilityCalendar({ onApply, initialAvailability }: Availabil
     return `${displayHours}:${mins.toString().padStart(2, "0")} ${period}`
   }
 
-  // Convert CST time to UTC milliseconds
   const cstToUtcMilliseconds = (minutes: number): number => {
-    // Create a date object for today in CST
     const today = new Date()
     const cstDate = new Date(today.getFullYear(), today.getMonth(), today.getDate())
-
-    // Add the minutes from midnight
     cstDate.setMinutes(minutes)
-
-    // Convert to UTC by adding CST offset (CST is UTC-6, CDT is UTC-5)
-    // For simplicity, assuming CST (UTC-6) - you may want to handle DST
     const utcDate = new Date(cstDate.getTime() + 6 * 60 * 60 * 1000)
-
-    // Return milliseconds from midnight UTC
     const utcMidnight = new Date(utcDate.getFullYear(), utcDate.getMonth(), utcDate.getDate())
     return utcDate.getTime() - utcMidnight.getTime()
   }
 
-  // Get mouse position relative to day column and convert to minutes
   const getMinutesFromMousePosition = (e: React.MouseEvent, dayElement: HTMLElement): number => {
     const rect = dayElement.getBoundingClientRect()
     const y = e.clientY - rect.top
@@ -87,11 +77,20 @@ export function AvailabilityCalendar({ onApply, initialAvailability }: Availabil
     setIsDrawing(true)
     setDrawingDay(day)
     setDrawingStart(minutes)
+
+    setAvailability((prev) => {
+      const newSlots = [...prev[day as keyof WeeklyAvailability], { start: minutes, end: minutes }]
+      setCurrentSlotIndex(newSlots.length - 1)
+      return {
+        ...prev,
+        [day]: newSlots,
+      }
+    })
   }
 
   const handleMouseMove = useCallback(
     (e: React.MouseEvent, day: string) => {
-      if (!isDrawing || drawingDay !== day || drawingStart === null) return
+      if (!isDrawing || drawingDay !== day || drawingStart === null || currentSlotIndex === null) return
 
       const dayElement = e.currentTarget as HTMLElement
       const currentMinutes = getMinutesFromMousePosition(e, dayElement)
@@ -99,20 +98,23 @@ export function AvailabilityCalendar({ onApply, initialAvailability }: Availabil
       const start = Math.min(drawingStart, currentMinutes)
       const end = Math.max(drawingStart, currentMinutes)
 
-      if (end - start < 30) return // Minimum 30-minute slots
+      if (end - start < 30) return
 
-      setAvailability((prev) => ({
-        ...prev,
-        [day]: [...prev[day as keyof WeeklyAvailability].slice(0, -1), { start, end }],
-      }))
+      setAvailability((prev) => {
+        const daySlots = [...prev[day as keyof WeeklyAvailability]]
+        daySlots[currentSlotIndex] = { start, end }
+        return {
+          ...prev,
+          [day]: daySlots,
+        }
+      })
     },
-    [isDrawing, drawingDay, drawingStart],
+    [isDrawing, drawingDay, drawingStart, currentSlotIndex],
   )
 
   const handleMouseUp = () => {
     if (!isDrawing || !drawingDay || drawingStart === null) return
 
-    // Merge overlapping slots
     setAvailability((prev) => {
       const daySlots = prev[drawingDay as keyof WeeklyAvailability]
       const mergedSlots = mergeOverlappingSlots(daySlots)
@@ -126,6 +128,7 @@ export function AvailabilityCalendar({ onApply, initialAvailability }: Availabil
     setIsDrawing(false)
     setDrawingDay(null)
     setDrawingStart(null)
+    setCurrentSlotIndex(null)
   }
 
   const mergeOverlappingSlots = (slots: TimeSlot[]): TimeSlot[] => {
@@ -139,7 +142,6 @@ export function AvailabilityCalendar({ onApply, initialAvailability }: Availabil
       const last = merged[merged.length - 1]
 
       if (current.start <= last.end + 30) {
-        // Allow 30-minute gap
         last.end = Math.max(last.end, current.end)
       } else {
         merged.push(current)
@@ -188,7 +190,6 @@ export function AvailabilityCalendar({ onApply, initialAvailability }: Availabil
     onApply(params)
   }
 
-  // Generate hour labels
   const hourLabels = Array.from({ length: HOURS_IN_DAY }, (_, i) => {
     const hour = i === 0 ? 12 : i > 12 ? i - 12 : i
     const period = i < 12 ? "AM" : "PM"
@@ -205,7 +206,6 @@ export function AvailabilityCalendar({ onApply, initialAvailability }: Availabil
       </div>
 
       <div className="grid grid-cols-6 gap-1 border rounded-lg overflow-hidden bg-white" onMouseLeave={handleMouseUp}>
-        {/* Time labels column */}
         <div className="bg-gray-50 border-r">
           <div className="h-8 border-b bg-gray-100"></div>
           {hourLabels.map((hour, i) => (
@@ -219,10 +219,8 @@ export function AvailabilityCalendar({ onApply, initialAvailability }: Availabil
           ))}
         </div>
 
-        {/* Day columns */}
         {DAYS.map((day, dayIndex) => (
           <div key={day} className="relative border-r last:border-r-0">
-            {/* Day header */}
             <div className="h-8 bg-gray-100 border-b flex items-center justify-between px-2">
               <span className="text-xs font-medium">{DAY_LABELS[dayIndex]}</span>
               {availability[day as keyof WeeklyAvailability].length > 0 && (
@@ -237,19 +235,16 @@ export function AvailabilityCalendar({ onApply, initialAvailability }: Availabil
               )}
             </div>
 
-            {/* Time grid */}
             <div
               className="relative cursor-crosshair select-none"
               onMouseDown={(e) => handleMouseDown(e, day)}
               onMouseMove={(e) => handleMouseMove(e, day)}
               onMouseUp={handleMouseUp}
             >
-              {/* Hour grid lines */}
               {Array.from({ length: HOURS_IN_DAY }, (_, i) => (
                 <div key={i} className="h-4 border-b border-gray-200 hover:bg-blue-50" />
               ))}
 
-              {/* Availability slots */}
               {availability[day as keyof WeeklyAvailability].map((slot, slotIndex) => {
                 const top = (slot.start / (HOURS_IN_DAY * MINUTES_PER_HOUR)) * 100
                 const height = ((slot.end - slot.start) / (HOURS_IN_DAY * MINUTES_PER_HOUR)) * 100
@@ -272,7 +267,6 @@ export function AvailabilityCalendar({ onApply, initialAvailability }: Availabil
         ))}
       </div>
 
-      {/* Summary */}
       {hasAvailability && (
         <div className="space-y-2">
           <h4 className="text-sm font-medium">Selected Availability:</h4>
@@ -296,7 +290,6 @@ export function AvailabilityCalendar({ onApply, initialAvailability }: Availabil
         </div>
       )}
 
-      {/* Action buttons */}
       <div className="flex gap-2">
         <Button onClick={handleApplyAvailability} className="flex items-center gap-2">
           <Clock className="h-4 w-4" />
