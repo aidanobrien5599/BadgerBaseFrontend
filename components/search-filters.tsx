@@ -183,10 +183,6 @@ export function SearchFilters({ filters, onFiltersChange, onSearch, loading }: S
             </Button>
           )}
         </div>
-
-        {hasAvailabilityFilters && (
-          <div className="text-xs text-green-600 bg-green-50 px-2 py-1 rounded">Availability filter active</div>
-        )}
       </div>
 
       {/* Basic Filters */}
