@@ -98,6 +98,25 @@ interface FilterState {
   min_section_avg_difficulty: string
   min_section_total_ratings: string
   min_section_avg_would_take_again: string
+  no_prereqs: boolean
+  sophomore_standing: boolean
+  junior_standing: boolean
+  senior_standing: boolean
+  // Availability parameters
+  mondayStartTime?: string
+  mondayEndTime?: string
+  tuesdayStartTime?: string
+  tuesdayEndTime?: string
+  wednesdayStartTime?: string
+  wednesdayEndTime?: string
+  thursdayStartTime?: string
+  thursdayEndTime?: string
+  fridayStartTime?: string
+  fridayEndTime?: string
+  saturdayStartTime?: string
+  saturdayEndTime?: string
+  sundayStartTime?: string
+  sundayEndTime?: string
 }
 
 export default function HomePage() {
@@ -131,6 +150,24 @@ export default function HomePage() {
     min_section_avg_difficulty: "",
     min_section_total_ratings: "",
     min_section_avg_would_take_again: "",
+    no_prereqs: false,
+    sophomore_standing: false,
+    junior_standing: false,
+    senior_standing: false,
+    mondayStartTime: "",
+    mondayEndTime: "",
+    tuesdayStartTime: "",
+    tuesdayEndTime: "",
+    wednesdayStartTime: "",
+    wednesdayEndTime: "",
+    thursdayStartTime: "",
+    thursdayEndTime: "",
+    fridayStartTime: "",
+    fridayEndTime: "",
+    saturdayStartTime: "",
+    saturdayEndTime: "",
+    sundayStartTime: "",
+    sundayEndTime: "",
   })
 
   const searchCourses = async (page = 1) => {

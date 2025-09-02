@@ -1,3 +1,4 @@
+
 "use client"
 
 import { Input } from "@/components/ui/input"
@@ -6,11 +7,28 @@ import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Separator } from "@/components/ui/separator"
-import { Search, RotateCcw } from "lucide-react"
+import { Search, RotateCcw, Calendar, Clock, Trash2, X } from "lucide-react"
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible"
 import { ChevronDown } from "lucide-react"
-import { useState } from "react"
+import { useState, useRef, useCallback } from "react"
 import { Slider } from "@/components/ui/slider"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
+import { Card, CardContent } from "@/components/ui/card"
+
+interface TimeSlot {
+  start: number; // minutes from midnight
+  end: number;   // minutes from midnight
+}
+
+interface WeeklyAvailability {
+  monday: TimeSlot[];
+  tuesday: TimeSlot[];
+  wednesday: TimeSlot[];
+  thursday: TimeSlot[];
+  friday: TimeSlot[];
+  saturday: TimeSlot[];
+  sunday: TimeSlot[];
+}
 
 interface FilterState {
   search_param: string
@@ -40,6 +58,21 @@ interface FilterState {
   sophomore_standing: boolean
   junior_standing: boolean
   senior_standing: boolean
+  // Availability parameters
+  mondayStartTime?: string
+  mondayEndTime?: string
+  tuesdayStartTime?: string
+  tuesdayEndTime?: string
+  wednesdayStartTime?: string
+  wednesdayEndTime?: string
+  thursdayStartTime?: string
+  thursdayEndTime?: string
+  fridayStartTime?: string
+  fridayEndTime?: string
+  saturdayStartTime?: string
+  saturdayEndTime?: string
+  sundayStartTime?: string
+  sundayEndTime?: string
 }
 
 interface SearchFiltersProps {
@@ -49,10 +82,305 @@ interface SearchFiltersProps {
   loading: boolean
 }
 
+const DAYS = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
+const DAY_LABELS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+const HOURS_IN_DAY = 24;
+const MINUTES_PER_HOUR = 60;
+
+function AvailabilityCalendar({ onApply, initialAvailability }: { 
+  onApply: (params: Record<string, string>) => void
+  initialAvailability?: WeeklyAvailability 
+}) {
+  const [availability, setAvailability] = useState<WeeklyAvailability>(
+    initialAvailability || {
+      monday: [],
+      tuesday: [],
+      wednesday: [],
+      thursday: [],
+      friday: [],
+      saturday: [],
+      sunday: []
+    }
+  );
+  
+  const [isDrawing, setIsDrawing] = useState(false);
+  const [drawingDay, setDrawingDay] = useState<string | null>(null);
+  const [drawingStart, setDrawingStart] = useState<number | null>(null);
+
+  // Convert minutes from midnight to time string
+  const minutesToTime = (minutes: number): string => {
+    const hours = Math.floor(minutes / 60);
+    const mins = minutes % 60;
+    const period = hours >= 12 ? 'PM' : 'AM';
+    const displayHours = hours === 0 ? 12 : hours > 12 ? hours - 12 : hours;
+    return `${displayHours}:${mins.toString().padStart(2, '0')} ${period}`;
+  };
+
+  // Convert CST time to UTC milliseconds
+  const cstToUtcMilliseconds = (minutes: number): number => {
+    // Create a date object for today in CST
+    const today = new Date();
+    const cstDate = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+    
+    // Add the minutes from midnight
+    cstDate.setMinutes(minutes);
+    
+    // Convert to UTC by adding CST offset (CST is UTC-6, CDT is UTC-5)
+    // For simplicity, assuming CST (UTC-6) - you may want to handle DST
+    const utcDate = new Date(cstDate.getTime() + (6 * 60 * 60 * 1000));
+    
+    // Return milliseconds from midnight UTC
+    const utcMidnight = new Date(utcDate.getFullYear(), utcDate.getMonth(), utcDate.getDate());
+    return utcDate.getTime() - utcMidnight.getTime();
+  };
+
+  // Get mouse position relative to day column and convert to minutes
+  const getMinutesFromMousePosition = (e: React.MouseEvent, dayElement: HTMLElement): number => {
+    const rect = dayElement.getBoundingClientRect();
+    const y = e.clientY - rect.top;
+    const percentage = Math.max(0, Math.min(1, y / rect.height));
+    return Math.round(percentage * HOURS_IN_DAY * MINUTES_PER_HOUR);
+  };
+
+  const handleMouseDown = (e: React.MouseEvent, day: string) => {
+    e.preventDefault();
+    const dayElement = e.currentTarget as HTMLElement;
+    const minutes = getMinutesFromMousePosition(e, dayElement);
+    
+    setIsDrawing(true);
+    setDrawingDay(day);
+    setDrawingStart(minutes);
+  };
+
+  const handleMouseMove = useCallback((e: React.MouseEvent, day: string) => {
+    if (!isDrawing || drawingDay !== day || drawingStart === null) return;
+    
+    const dayElement = e.currentTarget as HTMLElement;
+    const currentMinutes = getMinutesFromMousePosition(e, dayElement);
+    
+    const start = Math.min(drawingStart, currentMinutes);
+    const end = Math.max(drawingStart, currentMinutes);
+    
+    if (end - start < 30) return; // Minimum 30-minute slots
+    
+    setAvailability(prev => ({
+      ...prev,
+      [day]: [...prev[day as keyof WeeklyAvailability].slice(0, -1), { start, end }]
+    }));
+  }, [isDrawing, drawingDay, drawingStart]);
+
+  const handleMouseUp = () => {
+    if (!isDrawing || !drawingDay || drawingStart === null) return;
+    
+    // Merge overlapping slots
+    setAvailability(prev => {
+      const daySlots = prev[drawingDay as keyof WeeklyAvailability];
+      const mergedSlots = mergeOverlappingSlots(daySlots);
+      
+      return {
+        ...prev,
+        [drawingDay]: mergedSlots
+      };
+    });
+    
+    setIsDrawing(false);
+    setDrawingDay(null);
+    setDrawingStart(null);
+  };
+
+  const mergeOverlappingSlots = (slots: TimeSlot[]): TimeSlot[] => {
+    if (slots.length <= 1) return slots;
+    
+    const sorted = [...slots].sort((a, b) => a.start - b.start);
+    const merged: TimeSlot[] = [sorted[0]];
+    
+    for (let i = 1; i < sorted.length; i++) {
+      const current = sorted[i];
+      const last = merged[merged.length - 1];
+      
+      if (current.start <= last.end + 30) { // Allow 30-minute gap
+        last.end = Math.max(last.end, current.end);
+      } else {
+        merged.push(current);
+      }
+    }
+    
+    return merged;
+  };
+
+  const clearDay = (day: string) => {
+    setAvailability(prev => ({
+      ...prev,
+      [day]: []
+    }));
+  };
+
+  const clearAll = () => {
+    setAvailability({
+      monday: [],
+      tuesday: [],
+      wednesday: [],
+      thursday: [],
+      friday: [],
+      saturday: [],
+      sunday: []
+    });
+  };
+
+  const generateApiParams = (): Record<string, string> => {
+    const params: Record<string, string> = {};
+    
+    DAYS.forEach(day => {
+      const slots = availability[day as keyof WeeklyAvailability];
+      if (slots.length > 0) {
+        const startTimes = slots.map(slot => cstToUtcMilliseconds(slot.start).toString());
+        const endTimes = slots.map(slot => cstToUtcMilliseconds(slot.end).toString());
+        
+        params[`${day}StartTime`] = startTimes.join(',');
+        params[`${day}EndTime`] = endTimes.join(',');
+      }
+    });
+    
+    return params;
+  };
+
+  const handleApplyAvailability = () => {
+    const params = generateApiParams();
+    onApply(params);
+  };
+
+  // Generate hour labels
+  const hourLabels = Array.from({ length: HOURS_IN_DAY }, (_, i) => {
+    const hour = i === 0 ? 12 : i > 12 ? i - 12 : i;
+    const period = i < 12 ? 'AM' : 'PM';
+    return `${hour}${period}`;
+  });
+
+  const hasAvailability = DAYS.some(day => availability[day as keyof WeeklyAvailability].length > 0);
+
+  return (
+    <div className="space-y-4">
+      <div className="text-sm text-gray-600 mb-4">
+        Click and drag to select your available time slots. Times are in CST.
+      </div>
+      
+      <div 
+        className="grid grid-cols-8 gap-1 border rounded-lg overflow-hidden bg-white"
+        onMouseLeave={handleMouseUp}
+      >
+        {/* Time labels column */}
+        <div className="bg-gray-50 border-r">
+          <div className="h-8 border-b bg-gray-100"></div>
+          {hourLabels.map((hour, i) => (
+            <div
+              key={i}
+              className="h-4 border-b text-xs text-gray-500 text-center leading-4 border-gray-200"
+              style={{ fontSize: '10px' }}
+            >
+              {i % 2 === 0 ? hour : ''}
+            </div>
+          ))}
+        </div>
+        
+        {/* Day columns */}
+        {DAYS.map((day, dayIndex) => (
+          <div key={day} className="relative border-r last:border-r-0">
+            {/* Day header */}
+            <div className="h-8 bg-gray-100 border-b flex items-center justify-between px-2">
+              <span className="text-xs font-medium">{DAY_LABELS[dayIndex]}</span>
+              {availability[day as keyof WeeklyAvailability].length > 0 && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => clearDay(day)}
+                  className="h-4 w-4 p-0 hover:bg-red-100"
+                >
+                  <Trash2 className="h-3 w-3 text-red-500" />
+                </Button>
+              )}
+            </div>
+            
+            {/* Time grid */}
+            <div
+              className="relative cursor-crosshair select-none"
+              onMouseDown={(e) => handleMouseDown(e, day)}
+              onMouseMove={(e) => handleMouseMove(e, day)}
+              onMouseUp={handleMouseUp}
+            >
+              {/* Hour grid lines */}
+              {Array.from({ length: HOURS_IN_DAY }, (_, i) => (
+                <div
+                  key={i}
+                  className="h-4 border-b border-gray-200 hover:bg-blue-50"
+                />
+              ))}
+              
+              {/* Availability slots */}
+              {availability[day as keyof WeeklyAvailability].map((slot, slotIndex) => {
+                const top = (slot.start / (HOURS_IN_DAY * MINUTES_PER_HOUR)) * 100;
+                const height = ((slot.end - slot.start) / (HOURS_IN_DAY * MINUTES_PER_HOUR)) * 100;
+                
+                return (
+                  <div
+                    key={slotIndex}
+                    className="absolute left-0 right-0 bg-blue-500 bg-opacity-70 border border-blue-600 rounded-sm"
+                    style={{
+                      top: `${top}%`,
+                      height: `${height}%`,
+                      minHeight: '8px'
+                    }}
+                    title={`${minutesToTime(slot.start)} - ${minutesToTime(slot.end)}`}
+                  />
+                );
+              })}
+            </div>
+          </div>
+        ))}
+      </div>
+      
+      {/* Summary */}
+      {hasAvailability && (
+        <div className="space-y-2">
+          <h4 className="text-sm font-medium">Selected Availability:</h4>
+          <div className="grid grid-cols-2 gap-2 text-xs max-h-32 overflow-y-auto">
+            {DAYS.map((day, index) => {
+              const slots = availability[day as keyof WeeklyAvailability];
+              if (slots.length === 0) return null;
+              
+              return (
+                <div key={day} className="space-y-1">
+                  <div className="font-medium text-gray-700">{DAY_LABELS[index]}</div>
+                  {slots.map((slot, i) => (
+                    <div key={i} className="text-gray-600">
+                      {minutesToTime(slot.start)} - {minutesToTime(slot.end)}
+                    </div>
+                  ))}
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+      
+      {/* Action buttons */}
+      <div className="flex gap-2">
+        <Button onClick={handleApplyAvailability} className="flex items-center gap-2">
+          <Clock className="h-4 w-4" />
+          Apply Availability
+        </Button>
+        <Button onClick={clearAll} variant="outline" disabled={!hasAvailability}>
+          Clear All
+        </Button>
+      </div>
+    </div>
+  );
+}
+
 export function SearchFilters({ filters, onFiltersChange, onSearch, loading }: SearchFiltersProps) {
   const [advancedOpen, setAdvancedOpen] = useState(false)
   const [rmpOpen, setRmpOpen] = useState(false)
   const [gpaOpen, setGpaOpen] = useState(false)
+  const [availabilityModalOpen, setAvailabilityModalOpen] = useState(false)
 
   const updateFilter = (key: keyof FilterState, value: string | boolean) => {
     onFiltersChange({ ...filters, [key]: value })
@@ -90,6 +418,37 @@ export function SearchFilters({ filters, onFiltersChange, onSearch, loading }: S
     })
   }
 
+  const handleAvailabilityApply = (params: Record<string, string>) => {
+    // Clear existing availability parameters
+    const clearedFilters = { ...filters };
+    DAYS.forEach(day => {
+      delete clearedFilters[`${day}StartTime` as keyof FilterState];
+      delete clearedFilters[`${day}EndTime` as keyof FilterState];
+    });
+
+    // Apply new availability parameters
+    onFiltersChange({
+      ...clearedFilters,
+      ...params
+    });
+    
+    setAvailabilityModalOpen(false);
+  };
+
+  // Check if any availability filters are set
+  const hasAvailabilityFilters = DAYS.some(day => 
+    filters[`${day}StartTime` as keyof FilterState] || filters[`${day}EndTime` as keyof FilterState]
+  );
+
+  const clearAvailabilityFilters = () => {
+    const clearedFilters = { ...filters };
+    DAYS.forEach(day => {
+      delete clearedFilters[`${day}StartTime` as keyof FilterState];
+      delete clearedFilters[`${day}EndTime` as keyof FilterState];
+    });
+    onFiltersChange(clearedFilters);
+  };
+
   return (
     <div className="space-y-4">
       {/* Search */}
@@ -102,6 +461,47 @@ export function SearchFilters({ filters, onFiltersChange, onSearch, loading }: S
           onChange={(e) => updateFilter("search_param", e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && onSearch()}
         />
+      </div>
+
+      {/* Availability Filter */}
+      <div className="space-y-2">
+        <Label>Schedule Availability</Label>
+        <div className="flex gap-2">
+          <Dialog open={availabilityModalOpen} onOpenChange={setAvailabilityModalOpen}>
+            <DialogTrigger asChild>
+              <Button variant="outline" className="flex-1">
+                <Calendar className="h-4 w-4 mr-2" />
+                {hasAvailabilityFilters ? 'Edit Availability' : 'Set Availability'}
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+              <DialogHeader>
+                <DialogTitle className="flex items-center gap-2">
+                  <Calendar className="h-5 w-5" />
+                  Set Your Weekly Availability
+                </DialogTitle>
+              </DialogHeader>
+              <AvailabilityCalendar onApply={handleAvailabilityApply} />
+            </DialogContent>
+          </Dialog>
+          
+          {hasAvailabilityFilters && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={clearAvailabilityFilters}
+              className="px-2"
+            >
+              <X className="h-4 w-4" />
+            </Button>
+          )}
+        </div>
+        
+        {hasAvailabilityFilters && (
+          <div className="text-xs text-green-600 bg-green-50 px-2 py-1 rounded">
+            Availability filter active
+          </div>
+        )}
       </div>
 
       {/* Basic Filters */}
@@ -178,7 +578,6 @@ export function SearchFilters({ filters, onFiltersChange, onSearch, loading }: S
       <Separator />
 
       {/* Grade Filters */}
-
       <Collapsible open={gpaOpen} onOpenChange={setGpaOpen}>
         <CollapsibleTrigger asChild>
           <Button variant="ghost" className="w-full justify-between p-0">
@@ -188,7 +587,6 @@ export function SearchFilters({ filters, onFiltersChange, onSearch, loading }: S
         </CollapsibleTrigger>
         <CollapsibleContent className="space-y-4 mt-4">
           <div className="space-y-4">
-
             <div className="space-y-2">
               <Label htmlFor="median_grade">Median Grade</Label>
               <Select value={filters.median_grade} onValueChange={(value) => updateFilter("median_grade", value)}>
@@ -253,7 +651,6 @@ export function SearchFilters({ filters, onFiltersChange, onSearch, loading }: S
           </div>
         </CollapsibleContent>
       </Collapsible>
-
 
       <Separator />
 
