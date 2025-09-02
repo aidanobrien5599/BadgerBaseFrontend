@@ -258,7 +258,7 @@ export function AvailabilityCalendar({ onApply, initialAvailability }: Availabil
                 return (
                   <div
                     key={slotIndex}
-                    className="absolute left-0 right-0 bg-blue-500 bg-opacity-70 border border-blue-600 rounded-sm group hover:bg-opacity-80"
+                    className="absolute left-0 right-0 bg-red-500 bg-opacity-70 border border-red-600 rounded-sm group hover:bg-opacity-80"
                     style={{
                       top: `${top}%`,
                       height: `${height}%`,
