@@ -191,6 +191,8 @@ export default function HomePage() {
         }
       })
 
+      console.log(params.toString());
+
       const response = await fetch(`/api/proxy?${params.toString()}`, {
         headers: {
           "x-client-secret": process.env.NEXT_PUBLIC_CLIENT_SECRET ?? "",
