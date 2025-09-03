@@ -143,6 +143,11 @@ export function CourseHeader({ course, isExpanded }: { course: any; isExpanded: 
                             Literature
                           </Badge>
                         )}
+                        {course.general_education && (
+                          <Badge className="bg-red-50 text-red-700 border-red-200 font-medium">
+                            {course.general_education}
+                          </Badge> 
+                        )}
                       </div>
                     </div>
 

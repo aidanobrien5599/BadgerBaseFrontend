@@ -52,6 +52,7 @@ interface Course {
   enrollment_prerequisites: string | null
   sections: Section[]
   madgrades_course_uuid: string
+  general_education: string | null
 }
 
 interface Section {
