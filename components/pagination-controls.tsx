@@ -68,7 +68,7 @@ export function PaginationControls({
   return (
     <div className="flex flex-col sm:flex-row items-center justify-between ">
       {/* Results info */}
-      <div className="text-sm text-gray-700">
+      <div className="text-md text-gray-700">
         Showing {startResult.toLocaleString()} to {endResult.toLocaleString()} of {totalCount.toLocaleString()} results
       </div>
 
