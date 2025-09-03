@@ -57,6 +57,7 @@ interface FilterState {
   saturdayEndTime?: string
   sundayStartTime?: string
   sundayEndTime?: string
+  gen_ed?: string
 }
 
 interface WeeklyAvailability {
@@ -155,6 +156,7 @@ export function SearchFilters({ filters, onFiltersChange, onSearch, loading }: S
       sophomore_standing: false,
       junior_standing: false,
       senior_standing: false,
+      gen_ed: "",
     })
   }
 
@@ -187,6 +189,14 @@ export function SearchFilters({ filters, onFiltersChange, onSearch, loading }: S
       delete clearedFilters[`${day}EndTime` as keyof FilterState]
     })
     onFiltersChange(clearedFilters)
+  }
+
+  const handleGenEdChange = (value: string, checked: boolean) => {
+    if (checked) {
+      updateFilter("gen_ed", value)
+    } else {
+      updateFilter("gen_ed", "")
+    }
   }
 
   return (
@@ -416,6 +426,29 @@ export function SearchFilters({ filters, onFiltersChange, onSearch, loading }: S
                 <SelectItem value="Online (some classroom)">Hybrid</SelectItem>
               </SelectContent>
             </Select>
+          </div>
+
+          <div className="space-y-3">
+            <Label>General Education Requirements</Label>
+            <div className="space-y-2">
+              {[
+                { value: "COM A", label: "Communication Part A" },
+                { value: "COM B", label: "Communication Part B" },
+                { value: "QR-A", label: "Quantitative Reasoning Part A" },
+                { value: "QR-B", label: "Quantitative Reasoning Part B" },
+              ].map(({ value, label }) => (
+                <div key={value} className="flex items-center space-x-2">
+                  <Checkbox
+                    id={`gen_ed_${value}`}
+                    checked={filters.gen_ed === value}
+                    onCheckedChange={(checked) => handleGenEdChange(value, checked as boolean)}
+                  />
+                  <Label htmlFor={`gen_ed_${value}`} className="text-sm">
+                    {label}
+                  </Label>
+                </div>
+              ))}
+            </div>
           </div>
 
           <div className="space-y-3">
