@@ -217,8 +217,7 @@ export function AvailabilityCalendar({ onApply, initialAvailability }: Availabil
   return (
     <div className="space-y-4">
       <div className="text-sm text-gray-600 mb-4">
-        Click and drag to select your available time slots. You can create multiple separate time blocks per day for
-        split availability (e.g., morning and evening classes). Times are in CST and snap to 5-minute intervals.
+        Click and drag to select your available time slots. You can create multiple separate time blocks per day, and time is in CST.
       </div>
 
       <div className="grid grid-cols-6 gap-1 border rounded-lg overflow-hidden bg-white" onMouseLeave={handleMouseUp}>
