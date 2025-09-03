@@ -106,7 +106,7 @@ export function SearchFilters({ filters, onFiltersChange, onSearch, loading }: S
         const ends = endTimes.split(",").map(Number)
 
         // Convert UTC milliseconds back to CST minutes
-        const slots = starts.map((start, index) => {
+        const slots = starts.map((start: number, index: number) => {
           const startMinutes = utcMillisecondsToMinutes(start)
           const endMinutes = utcMillisecondsToMinutes(ends[index])
           return { start: startMinutes, end: endMinutes }

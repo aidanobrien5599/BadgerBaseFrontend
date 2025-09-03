@@ -37,7 +37,7 @@ interface Course {
   enrollment_prerequisites: string | null
   sections: Section[]
   madgrades_course_uuid: string
-  gen_ed: string | null
+  general_education: string | null
 }
 
 interface Section {
@@ -114,10 +114,8 @@ interface FilterState {
   thursdayEndTime?: string
   fridayStartTime?: string
   fridayEndTime?: string
-  saturdayStartTime?: string
-  saturdayEndTime?: string
-  sundayStartTime?: string
-  sundayEndTime?: string
+  gen_ed?: string
+
 }
 
 export default function HomePage() {
@@ -165,10 +163,7 @@ export default function HomePage() {
     thursdayEndTime: "",
     fridayStartTime: "",
     fridayEndTime: "",
-    saturdayStartTime: "",
-    saturdayEndTime: "",
-    sundayStartTime: "",
-    sundayEndTime: "",
+    gen_ed: "",
   })
 
   const searchCourses = async (page = 1) => {
