@@ -330,10 +330,19 @@ export function AvailabilityCalendar({ onApply, initialAvailability }: Availabil
                     }}
                     title={`${minutesToTime(slot.start)} - ${minutesToTime(slot.end)}`}
                     onClick={(e) => handleSlotTap(e, day, slotIndex)}
+                    onTouchStart={(e) => {
+                      e.stopPropagation()
+                      handleSlotTap(e, day, slotIndex)
+                    }}
+                    onMouseDown={(e) => {
+                      e.stopPropagation()
+                    }}
                   >
                     <button
                       onMouseDown={(e) => e.stopPropagation()}
                       onMouseUp={(e) => e.stopPropagation()}
+                      onTouchStart={(e) => e.stopPropagation()}
+                      onTouchEnd={(e) => e.stopPropagation()}
                       onClick={(e) => handleDeleteClick(e, day, slotIndex)}
                       className={`absolute top-0 right-0 bg-red-500 text-white rounded-full transition-opacity flex items-center justify-center hover:bg-red-600 z-10 transform translate-x-1 -translate-y-1 ${
                         isSelected ? "opacity-100 w-8 h-8 md:w-5 md:h-5" : "opacity-0 group-hover:opacity-100 w-5 h-5"
