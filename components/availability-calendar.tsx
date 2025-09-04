@@ -62,18 +62,16 @@ export function AvailabilityCalendar({ onApply, initialAvailability }: Availabil
     return utcDate.getTime() - utcMidnight.getTime()
   }
 
-  const getMinutesFromMousePosition = (e: React.MouseEvent, dayElement: HTMLElement): number => {
+  const getMinutesFromPosition = (clientY: number, dayElement: HTMLElement): number => {
     const rect = dayElement.getBoundingClientRect()
-    const y = e.clientY - rect.top
+    const y = clientY - rect.top
     const percentage = Math.max(0, Math.min(1, y / rect.height))
     const rawMinutes = Math.round(percentage * HOURS_IN_DAY * MINUTES_PER_HOUR)
     return Math.round(rawMinutes / 5) * 5
   }
 
-  const handleMouseDown = (e: React.MouseEvent, day: string) => {
-    e.preventDefault()
-    const dayElement = e.currentTarget as HTMLElement
-    const minutes = getMinutesFromMousePosition(e, dayElement)
+  const handleStart = (clientY: number, day: string, dayElement: HTMLElement) => {
+    const minutes = getMinutesFromPosition(clientY, dayElement)
 
     setIsDrawing(true)
     setDrawingDay(day)
@@ -89,12 +87,11 @@ export function AvailabilityCalendar({ onApply, initialAvailability }: Availabil
     })
   }
 
-  const handleMouseMove = useCallback(
-    (e: React.MouseEvent, day: string) => {
+  const handleMove = useCallback(
+    (clientY: number, day: string, dayElement: HTMLElement) => {
       if (!isDrawing || drawingDay !== day || drawingStart === null || currentSlotIndex === null) return
 
-      const dayElement = e.currentTarget as HTMLElement
-      const currentMinutes = getMinutesFromMousePosition(e, dayElement)
+      const currentMinutes = getMinutesFromPosition(clientY, dayElement)
 
       const start = Math.min(drawingStart, currentMinutes)
       const end = Math.max(drawingStart, currentMinutes)
@@ -113,7 +110,40 @@ export function AvailabilityCalendar({ onApply, initialAvailability }: Availabil
     [isDrawing, drawingDay, drawingStart, currentSlotIndex],
   )
 
-  const handleMouseUp = () => {
+  const handleMouseDown = (e: React.MouseEvent, day: string) => {
+    e.preventDefault()
+    const dayElement = e.currentTarget as HTMLElement
+    handleStart(e.clientY, day, dayElement)
+  }
+
+  const handleMouseMove = useCallback(
+    (e: React.MouseEvent, day: string) => {
+      const dayElement = e.currentTarget as HTMLElement
+      handleMove(e.clientY, day, dayElement)
+    },
+    [handleMove],
+  )
+
+  const handleTouchStart = (e: React.TouchEvent, day: string) => {
+    e.preventDefault()
+    const dayElement = e.currentTarget as HTMLElement
+    const touch = e.touches[0]
+    handleStart(touch.clientY, day, dayElement)
+  }
+
+  const handleTouchMove = useCallback(
+    (e: React.TouchEvent, day: string) => {
+      e.preventDefault()
+      const dayElement = e.currentTarget as HTMLElement
+      const touch = e.touches[0]
+      if (touch) {
+        handleMove(touch.clientY, day, dayElement)
+      }
+    },
+    [handleMove],
+  )
+
+  const handleEnd = () => {
     if (!isDrawing || !drawingDay || drawingStart === null) return
 
     setAvailability((prev) => {
@@ -130,6 +160,15 @@ export function AvailabilityCalendar({ onApply, initialAvailability }: Availabil
     setDrawingDay(null)
     setDrawingStart(null)
     setCurrentSlotIndex(null)
+  }
+
+  const handleMouseUp = () => {
+    handleEnd()
+  }
+
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    e.preventDefault()
+    handleEnd()
   }
 
   const mergeOverlappingSlots = (slots: TimeSlot[]): TimeSlot[] => {
@@ -200,7 +239,7 @@ export function AvailabilityCalendar({ onApply, initialAvailability }: Availabil
   const hasAvailability = DAYS.some((day) => availability[day as keyof WeeklyAvailability].length > 0)
 
   const deleteTimeSlot = (day: string, slotIndex: number) => {
-    console.log("[v0] Deleting slot:", day, slotIndex) // Added debug logging
+    console.log("[v0] Deleting slot:", day, slotIndex)
     setAvailability((prev) => ({
       ...prev,
       [day]: prev[day as keyof WeeklyAvailability].filter((_, index) => index !== slotIndex),
@@ -210,17 +249,22 @@ export function AvailabilityCalendar({ onApply, initialAvailability }: Availabil
   const handleDeleteClick = (e: React.MouseEvent, day: string, slotIndex: number) => {
     e.preventDefault()
     e.stopPropagation()
-    console.log("[v0] Delete button clicked:", day, slotIndex) // Added debug logging
+    console.log("[v0] Delete button clicked:", day, slotIndex)
     deleteTimeSlot(day, slotIndex)
   }
 
   return (
     <div className="space-y-4">
       <div className="text-sm text-gray-600 mb-4">
-        Click and drag to select your available time slots. You can create multiple separate time blocks per day, and time is in CST.
+        Click and drag to select your available time slots. You can create multiple separate time blocks per day, and
+        time is in CST.
       </div>
 
-      <div className="grid grid-cols-6 gap-1 border rounded-lg overflow-hidden bg-white" onMouseLeave={handleMouseUp}>
+      <div
+        className="grid grid-cols-6 gap-1 border rounded-lg overflow-hidden bg-white"
+        onMouseLeave={handleMouseUp}
+        onTouchEnd={handleTouchEnd}
+      >
         <div className="bg-gray-50 border-r">
           <div className="h-8 border-b bg-gray-100"></div>
           {hourLabels.map((hour, i) => (
@@ -241,10 +285,13 @@ export function AvailabilityCalendar({ onApply, initialAvailability }: Availabil
             </div>
 
             <div
-              className="relative cursor-crosshair select-none"
+              className="relative cursor-crosshair select-none touch-none"
               onMouseDown={(e) => handleMouseDown(e, day)}
               onMouseMove={(e) => handleMouseMove(e, day)}
               onMouseUp={handleMouseUp}
+              onTouchStart={(e) => handleTouchStart(e, day)}
+              onTouchMove={(e) => handleTouchMove(e, day)}
+              onTouchEnd={handleTouchEnd}
             >
               {Array.from({ length: HOURS_IN_DAY }, (_, i) => (
                 <div key={i} className="h-4 border-b border-gray-200 hover:bg-blue-50" />
