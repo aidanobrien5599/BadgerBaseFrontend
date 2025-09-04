@@ -344,12 +344,12 @@ export function AvailabilityCalendar({ onApply, initialAvailability }: Availabil
                       onTouchStart={(e) => e.stopPropagation()}
                       onTouchEnd={(e) => e.stopPropagation()}
                       onClick={(e) => handleDeleteClick(e, day, slotIndex)}
-                      className={`absolute top-0 right-0 bg-red-500 text-white rounded-full transition-opacity flex items-center justify-center hover:bg-red-600 z-10 transform translate-x-1 -translate-y-1 ${
-                        isSelected ? "opacity-100 w-8 h-8 md:w-5 md:h-5" : "opacity-0 group-hover:opacity-100 w-5 h-5"
+                      className={`absolute top-0 right-0 bg-red-500 text-white rounded-full transition-opacity flex items-center justify-center hover:bg-red-600 z-10 transform translate-x-1 -translate-y-1 w-5 h-5 ${
+                        isSelected ? "opacity-100" : "opacity-0 group-hover:opacity-100"
                       }`}
                       title="Delete this time slot"
                     >
-                      <X className={isSelected ? "h-4 w-4 md:h-3 md:w-3" : "h-3 w-3"} />
+                      <X className="h-3 w-3" />
                     </button>
                   </div>
                 )
