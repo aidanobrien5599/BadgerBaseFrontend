@@ -115,6 +115,7 @@ interface FilterState {
   fridayStartTime?: string
   fridayEndTime?: string
   gen_ed?: string
+  l_and_s?: boolean
 
 }
 

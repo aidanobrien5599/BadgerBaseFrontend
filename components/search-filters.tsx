@@ -42,6 +42,7 @@ interface FilterState {
   sophomore_standing: boolean
   junior_standing: boolean
   senior_standing: boolean
+  l_and_s: boolean
   // Availability parameters
   mondayStartTime?: string
   mondayEndTime?: string
@@ -140,6 +141,7 @@ export function SearchFilters({ filters, onFiltersChange, onSearch, loading }: S
       ethnic_studies: "",
       social_science: "",
       humanities: "",
+      l_and_s: false,
       biological_science: "",
       physical_science: "",
       natural_science: "",
@@ -426,6 +428,22 @@ export function SearchFilters({ filters, onFiltersChange, onSearch, loading }: S
                 <SelectItem value="Online (some classroom)">Hybrid</SelectItem>
               </SelectContent>
             </Select>
+          </div>
+
+
+          <div className="space-y-3">
+            <div className="space-y-2">
+                <div className="flex items-center space-x-2">
+                  <Checkbox
+                    id={`l_and_s`}
+                    checked={filters.l_and_s}
+                    onCheckedChange={(checked) => updateFilter("l_and_s", checked as boolean)}
+                  />
+                  <Label htmlFor={`l_and_s`} className="text-sm">
+                    L&S Credit
+                  </Label>
+                </div>
+            </div>
           </div>
 
           <div className="space-y-3">
