@@ -44,6 +44,7 @@ export function AvailabilityCalendar({ onApply, initialAvailability }: Availabil
   const [drawingDay, setDrawingDay] = useState<string | null>(null)
   const [drawingStart, setDrawingStart] = useState<number | null>(null)
   const [currentSlotIndex, setCurrentSlotIndex] = useState<number | null>(null)
+  const [selectedSlot, setSelectedSlot] = useState<{ day: string; index: number } | null>(null)
 
   const minutesToTime = (minutes: number): string => {
     const hours = Math.floor(minutes / 60)
@@ -239,25 +240,41 @@ export function AvailabilityCalendar({ onApply, initialAvailability }: Availabil
   const hasAvailability = DAYS.some((day) => availability[day as keyof WeeklyAvailability].length > 0)
 
   const deleteTimeSlot = (day: string, slotIndex: number) => {
-    console.log("[v0] Deleting slot:", day, slotIndex)
     setAvailability((prev) => ({
       ...prev,
       [day]: prev[day as keyof WeeklyAvailability].filter((_, index) => index !== slotIndex),
     }))
+    setSelectedSlot(null)
   }
 
   const handleDeleteClick = (e: React.MouseEvent, day: string, slotIndex: number) => {
     e.preventDefault()
     e.stopPropagation()
-    console.log("[v0] Delete button clicked:", day, slotIndex)
     deleteTimeSlot(day, slotIndex)
   }
 
+  const handleSlotTap = (e: React.MouseEvent | React.TouchEvent, day: string, slotIndex: number) => {
+    e.preventDefault()
+    e.stopPropagation()
+
+    if (selectedSlot?.day === day && selectedSlot?.index === slotIndex) {
+      setSelectedSlot(null)
+    } else {
+      setSelectedSlot({ day, index: slotIndex })
+    }
+  }
+
+  const handleBackgroundClick = () => {
+    setSelectedSlot(null)
+  }
+
   return (
-    <div className="space-y-4">
+    <div className="space-y-4" onClick={handleBackgroundClick}>
       <div className="text-sm text-gray-600 mb-4">
         Click and drag to select your available time slots. You can create multiple separate time blocks per day, and
         time is in CST.
+        <br />
+        <span className="text-xs">On mobile: Tap a time slot to show delete button.</span>
       </div>
 
       <div
@@ -300,6 +317,7 @@ export function AvailabilityCalendar({ onApply, initialAvailability }: Availabil
               {availability[day as keyof WeeklyAvailability].map((slot, slotIndex) => {
                 const top = (slot.start / (HOURS_IN_DAY * MINUTES_PER_HOUR)) * 100
                 const height = ((slot.end - slot.start) / (HOURS_IN_DAY * MINUTES_PER_HOUR)) * 100
+                const isSelected = selectedSlot?.day === day && selectedSlot?.index === slotIndex
 
                 return (
                   <div
@@ -311,12 +329,15 @@ export function AvailabilityCalendar({ onApply, initialAvailability }: Availabil
                       minHeight: "8px",
                     }}
                     title={`${minutesToTime(slot.start)} - ${minutesToTime(slot.end)}`}
+                    onClick={(e) => handleSlotTap(e, day, slotIndex)}
                   >
                     <button
                       onMouseDown={(e) => e.stopPropagation()}
                       onMouseUp={(e) => e.stopPropagation()}
                       onClick={(e) => handleDeleteClick(e, day, slotIndex)}
-                      className="absolute top-0 right-0 w-5 h-5 bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center hover:bg-red-600 z-10 transform translate-x-1 -translate-y-1"
+                      className={`absolute top-0 right-0 w-5 h-5 bg-red-500 text-white rounded-full transition-opacity flex items-center justify-center hover:bg-red-600 z-10 transform translate-x-1 -translate-y-1 ${
+                        isSelected ? "opacity-100" : "opacity-0 group-hover:opacity-100"
+                      }`}
                       title="Delete this time slot"
                     >
                       <X className="h-3 w-3" />
