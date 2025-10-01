@@ -1,3 +1,4 @@
+
 "use client"
 
 import type React from "react"
@@ -26,8 +27,11 @@ interface AvailabilityCalendarProps {
 
 const DAYS = ["monday", "tuesday", "wednesday", "thursday", "friday"]
 const DAY_LABELS = ["Mon", "Tue", "Wed", "Thu", "Fri"]
-const HOURS_IN_DAY = 24
+const START_HOUR = 7 // 7 AM
+const END_HOUR = 22 // 10 PM
+const HOURS_IN_DAY = END_HOUR - START_HOUR
 const MINUTES_PER_HOUR = 60
+const START_MINUTES = START_HOUR * MINUTES_PER_HOUR
 
 export function AvailabilityCalendar({ onApply, initialAvailability }: AvailabilityCalendarProps) {
   const [availability, setAvailability] = useState<WeeklyAvailability>(
@@ -67,7 +71,7 @@ export function AvailabilityCalendar({ onApply, initialAvailability }: Availabil
     const rect = dayElement.getBoundingClientRect()
     const y = clientY - rect.top
     const percentage = Math.max(0, Math.min(1, y / rect.height))
-    const rawMinutes = Math.round(percentage * HOURS_IN_DAY * MINUTES_PER_HOUR)
+    const rawMinutes = START_MINUTES + Math.round(percentage * HOURS_IN_DAY * MINUTES_PER_HOUR)
     return Math.round(rawMinutes / 5) * 5
   }
 
@@ -232,8 +236,9 @@ export function AvailabilityCalendar({ onApply, initialAvailability }: Availabil
   }
 
   const hourLabels = Array.from({ length: HOURS_IN_DAY }, (_, i) => {
-    const hour = i === 0 ? 12 : i > 12 ? i - 12 : i
-    const period = i < 12 ? "AM" : "PM"
+    const actualHour = START_HOUR + i
+    const hour = actualHour === 0 ? 12 : actualHour > 12 ? actualHour - 12 : actualHour
+    const period = actualHour < 12 ? "AM" : "PM"
     return `${hour}${period}`
   })
 
@@ -287,10 +292,10 @@ export function AvailabilityCalendar({ onApply, initialAvailability }: Availabil
           {hourLabels.map((hour, i) => (
             <div
               key={i}
-              className="h-4 border-b text-xs text-gray-500 text-center leading-4 border-gray-200"
+              className="h-8 border-b text-xs text-gray-500 flex items-start justify-center pt-0.5 border-gray-200"
               style={{ fontSize: "10px" }}
             >
-              {i % 2 === 0 ? hour : ""}
+              {hour}
             </div>
           ))}
         </div>
@@ -311,11 +316,11 @@ export function AvailabilityCalendar({ onApply, initialAvailability }: Availabil
               onTouchEnd={handleTouchEnd}
             >
               {Array.from({ length: HOURS_IN_DAY }, (_, i) => (
-                <div key={i} className="h-4 border-b border-gray-200 hover:bg-blue-50" />
+                <div key={i} className="h-8 border-b border-gray-200 hover:bg-blue-50" />
               ))}
 
               {availability[day as keyof WeeklyAvailability].map((slot, slotIndex) => {
-                const top = (slot.start / (HOURS_IN_DAY * MINUTES_PER_HOUR)) * 100
+                const top = ((slot.start - START_MINUTES) / (HOURS_IN_DAY * MINUTES_PER_HOUR)) * 100
                 const height = ((slot.end - slot.start) / (HOURS_IN_DAY * MINUTES_PER_HOUR)) * 100
                 const isSelected = selectedSlot?.day === day && selectedSlot?.index === slotIndex
 
