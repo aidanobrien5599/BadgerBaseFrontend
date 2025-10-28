@@ -2,6 +2,7 @@
 
 import { Button } from "@/components/ui/button"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, ArrowUpDown } from "lucide-react"
 
 interface PaginationControlsProps {
@@ -34,19 +35,16 @@ export function PaginationControls({
     const maxVisiblePages = 7
 
     if (totalPages <= maxVisiblePages) {
-      // Show all pages if total is small
       for (let i = 1; i <= totalPages; i++) {
         pages.push(i)
       }
     } else {
-      // Always show first page
       pages.push(1)
 
       if (currentPage > 4) {
         pages.push("...")
       }
 
-      // Show pages around current page
       const start = Math.max(2, currentPage - 1)
       const end = Math.min(totalPages - 1, currentPage + 1)
 
@@ -58,7 +56,6 @@ export function PaginationControls({
         pages.push("...")
       }
 
-      // Always show last page
       if (totalPages > 1) {
         pages.push(totalPages)
       }
@@ -69,36 +66,27 @@ export function PaginationControls({
 
   const pageNumbers = getPageNumbers()
 
+  const getSortLabel = () => {
+    switch (currentSort) {
+      case "cumulative_gpa":
+        return "Cumulative GPA"
+      case "recent_gpa":
+        return "Recent GPA"
+      default:
+        return "Catalog #"
+    }
+  }
+
   return (
-    <div className="flex flex-col gap-4">
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pb-3 border-b">
-        <div className="flex items-center gap-2">
-          <ArrowUpDown className="h-4 w-4 text-gray-500" />
-          <span className="text-sm font-medium text-gray-700">Sort by:</span>
-          <Select value={currentSort} onValueChange={onSortChange}>
-            <SelectTrigger className="w-[180px] h-9">
-              <SelectValue placeholder="Catalog Number" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="catalog_number">Catalog Number</SelectItem>
-              <SelectItem value="cumulative_gpa">Cumulative GPA</SelectItem>
-              <SelectItem value="recent_gpa">Recent GPA</SelectItem>
-            </SelectContent>
-          </Select>
+    <div className="space-y-4">
+      <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
+        {/* Left: Results info */}
+        <div className="text-sm text-gray-600">
+          Showing {startResult.toLocaleString()}-{endResult.toLocaleString()} of {totalCount.toLocaleString()}
         </div>
 
-        {/* Results info */}
-        <div className="text-sm text-gray-700">
-          Showing {startResult.toLocaleString()} to {endResult.toLocaleString()} of {totalCount.toLocaleString()}{" "}
-          results
-        </div>
-      </div>
-
-      {/* Pagination controls */}
-      <div className="flex flex-col sm:flex-row items-center justify-between">
-        {/* Desktop pagination */}
-        <div className="hidden sm:flex items-center gap-2">
-          {/* First page button */}
+        {/* Center: Desktop pagination */}
+        <div className="hidden md:flex items-center gap-1">
           <Button
             variant="outline"
             size="sm"
@@ -109,7 +97,6 @@ export function PaginationControls({
             <ChevronsLeft className="h-4 w-4" />
           </Button>
 
-          {/* Previous page button */}
           <Button
             variant="outline"
             size="sm"
@@ -120,7 +107,6 @@ export function PaginationControls({
             <ChevronLeft className="h-4 w-4" />
           </Button>
 
-          {/* Page number buttons */}
           {pageNumbers.map((page, index) => (
             <div key={index}>
               {page === "..." ? (
@@ -138,7 +124,6 @@ export function PaginationControls({
             </div>
           ))}
 
-          {/* Next page button */}
           <Button
             variant="outline"
             size="sm"
@@ -149,7 +134,6 @@ export function PaginationControls({
             <ChevronRight className="h-4 w-4" />
           </Button>
 
-          {/* Last page button */}
           <Button
             variant="outline"
             size="sm"
@@ -162,7 +146,7 @@ export function PaginationControls({
         </div>
 
         {/* Mobile pagination */}
-        <div className="flex sm:hidden items-center gap-2">
+        <div className="flex md:hidden items-center gap-2">
           <Button
             variant="outline"
             size="sm"
@@ -198,6 +182,21 @@ export function PaginationControls({
             <ChevronRight className="h-4 w-4 ml-1" />
           </Button>
         </div>
+
+        {/* Right: Compact sort dropdown */}
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="outline" size="sm" className="h-8 gap-1.5 bg-transparent">
+              <ArrowUpDown className="h-3.5 w-3.5" />
+              <span className="text-xs">{getSortLabel()}</span>
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuItem onClick={() => onSortChange("")}>Catalog Number</DropdownMenuItem>
+            <DropdownMenuItem onClick={() => onSortChange("cumulative_gpa")}>Cumulative GPA</DropdownMenuItem>
+            <DropdownMenuItem onClick={() => onSortChange("recent_gpa")}>Recent GPA</DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
     </div>
   )
