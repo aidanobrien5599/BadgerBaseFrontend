@@ -116,7 +116,7 @@ interface FilterState {
   fridayEndTime?: string
   gen_ed?: string
   l_and_s?: boolean
-
+  sort?: string
 }
 
 export default function HomePage() {
@@ -165,6 +165,7 @@ export default function HomePage() {
     fridayStartTime: "",
     fridayEndTime: "",
     gen_ed: "",
+    sort: "",
   })
 
   const searchCourses = async (page = 1) => {
@@ -188,13 +189,9 @@ export default function HomePage() {
         }
       })
 
-      console.log(params.toString());
+      console.log(params.toString())
 
-      const response = await fetch(`/api/proxy?${params.toString()}`, {
-        headers: {
-          "x-client-secret": process.env.NEXT_PUBLIC_CLIENT_SECRET ?? "",
-        },
-      })
+      const response = await fetch(`/api/proxy?${params.toString()}`)
 
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`)
@@ -227,6 +224,13 @@ export default function HomePage() {
 
   const handleSearch = () => {
     setCurrentPage(1)
+    searchCourses(1)
+  }
+
+  const handleSortChange = (newSort: string) => {
+    setFilters((prev) => ({ ...prev, sort: newSort }))
+    setCurrentPage(1)
+    // Trigger search with new sort
     searchCourses(1)
   }
 
@@ -272,6 +276,8 @@ export default function HomePage() {
                 hasMore={hasMore}
                 onPageChange={handlePageChange}
                 resultsPerPage={Number.parseInt(filters.limit)}
+                currentSort={filters.sort || ""}
+                onSortChange={handleSortChange}
               />
             </div>
           )}

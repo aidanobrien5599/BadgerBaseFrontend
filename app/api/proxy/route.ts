@@ -1,40 +1,25 @@
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url)
 
-
-
-  const clientSecret = request.headers.get("x-client-secret")
-
-  if (clientSecret !== process.env.CLIENT_SECRET) {
-    return new Response("Unauthorized", { status: 401 })
-  }
-
-
-
-  const origin = request.headers.get("origin") || request.headers.get("referer");
+  const origin = request.headers.get("origin") || request.headers.get("referer")
 
   const ALLOWED_ORIGINS = [
     "https://sconniegrades.com",
-    "https:/badgerbase.app",
+    "https://badgerbase.app",
     "https://www.badgerbase.app",
     "http://localhost:3000", // for local dev
-    "http://localhost:3001" // for local dev
-  ];
+    "http://localhost:3001", // for local dev
+  ]
 
-  const isAllowed = ALLOWED_ORIGINS.some((allowed) =>
-    origin?.startsWith(allowed)
-  );
+  const isAllowed = ALLOWED_ORIGINS.some((allowed) => origin?.startsWith(allowed))
 
   if (!isAllowed) {
-    return new Response("Forbidden: Invalid origin", { status: 403 });
+    return new Response("Forbidden: Invalid origin", { status: 403 })
   }
-
-
 
   // You'll need to replace this with your actual API endpoint and API key
   const API_BASE_URL = process.env.API_BASE_URL || "http://localhost:3000"
   const API_KEY = process.env.API_KEY || ""
-
 
   try {
     const response = await fetch(`${API_BASE_URL}/api/query?${searchParams.toString()}`, {

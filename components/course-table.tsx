@@ -1,14 +1,25 @@
 "use client"
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible"
-import { ChevronDown, Users, Clock, MapPin, Star, TrendingUp, BarChart3, BookOpen, Award, GraduationCap, Calendar, Filter } from "lucide-react"
+import { Collapsible, CollapsibleContent } from "@/components/ui/collapsible"
+import {
+  Users,
+  Clock,
+  MapPin,
+  Star,
+  TrendingUp,
+  BarChart3,
+  BookOpen,
+  Award,
+  GraduationCap,
+  Calendar,
+  Filter,
+} from "lucide-react"
 import { useState } from "react"
 import { PaginationControls } from "./pagination-controls"
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart"
 import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis } from "recharts"
-import { DisplayText } from "./display-text"
 import { CourseHeader } from "./course-header"
 
 interface Meeting {
@@ -90,6 +101,8 @@ interface CourseTableProps {
   hasMore: boolean
   onPageChange: (page: number) => void
   resultsPerPage: number
+  currentSort: string
+  onSortChange: (sort: string) => void
 }
 
 export function CourseTable({
@@ -100,6 +113,8 @@ export function CourseTable({
   hasMore,
   onPageChange,
   resultsPerPage,
+  currentSort,
+  onSortChange,
 }: CourseTableProps) {
   const [expandedCourses, setExpandedCourses] = useState<Set<number>>(new Set())
   const [hideClosedSections, setHideClosedSections] = useState(false)
@@ -266,7 +281,6 @@ export function CourseTable({
 
   return (
     <div className="space-y-6">
-
       {courses.length > 0 && (
         <PaginationControls
           currentPage={currentPage}
@@ -275,21 +289,25 @@ export function CourseTable({
           hasMore={hasMore}
           onPageChange={onPageChange}
           resultsPerPage={resultsPerPage}
+          currentSort={currentSort}
+          onSortChange={onSortChange}
         />
       )}
 
       {courses.map((course) => {
         const filteredSections = filterSections(course.sections)
-        
+
         return (
           <Card key={course.course_id} className="shadow-sm hover:shadow-md transition-shadow border">
-            <Collapsible open={expandedCourses.has(course.course_id)} onOpenChange={() => toggleCourse(course.course_id)}>
+            <Collapsible
+              open={expandedCourses.has(course.course_id)}
+              onOpenChange={() => toggleCourse(course.course_id)}
+            >
               <CourseHeader course={course} isExpanded={expandedCourses.has(course.course_id)} />
 
               <CollapsibleContent>
                 <CardContent className="pt-0 bg-white">
                   <div className="flex flex-col gap-4 pb-4">
-
                     {course.enrollment_prerequisites && (
                       <div className="bg-red-50 border border-red-200 rounded-lg p-4">
                         <p className="text-sm text-red-800">
@@ -331,9 +349,7 @@ export function CourseTable({
                             )
                           })()}
                         </div>
-                        <div className="text-gray-900 font-semibold">
-                          {getLevelInfo(course.level).text}
-                        </div>
+                        <div className="text-gray-900 font-semibold">{getLevelInfo(course.level).text}</div>
                       </div>
 
                       {/* Median Grade Card */}
@@ -386,9 +402,7 @@ export function CourseTable({
                           <BarChart3 className="h-4 w-4 text-red-600" />
                           <span className="font-medium text-sm">Recent GPA</span>
                         </div>
-                        <div className="text-gray-900 font-semibold">
-                          {course.most_recent_gpa?.toFixed(2) || "N/A"}
-                        </div>
+                        <div className="text-gray-900 font-semibold">{course.most_recent_gpa?.toFixed(2) || "N/A"}</div>
                       </div>
                     </div>
                   </div>
@@ -421,12 +435,12 @@ export function CourseTable({
                             dataKey="grade"
                             axisLine={false}
                             tickLine={false}
-                            tick={{ fontSize: 14, fontWeight: 600, fill: '#374151' }}
+                            tick={{ fontSize: 14, fontWeight: 600, fill: "#374151" }}
                           />
                           <YAxis
                             axisLine={false}
                             tickLine={false}
-                            tick={{ fontSize: 12, fill: '#374151' }}
+                            tick={{ fontSize: 12, fill: "#374151" }}
                             tickFormatter={(value) => `${value}%`}
                           />
                           <ChartTooltip
@@ -447,7 +461,7 @@ export function CourseTable({
                         <Users className="h-5 w-5 text-red-600" />
                         Sections
                       </h4>
-                      
+
                       {/* Filter Controls */}
                       <div className="flex flex-wrap items-center gap-3 text-sm">
                         <div className="flex items-center gap-1">
@@ -474,7 +488,7 @@ export function CourseTable({
                         </label>
                       </div>
                     </div>
-                    
+
                     {filteredSections.length === 0 ? (
                       <div className="text-center py-8 text-gray-500 border rounded-lg bg-gray-50">
                         No sections match the current filters.
@@ -490,7 +504,7 @@ export function CourseTable({
                                 {section.status}
                               </Badge>
                             </div>
-                            
+
                             {/* Enrollment info */}
                             <div className="flex items-center gap-3 flex-wrap">
                               {/* Main enrollment badge */}
@@ -500,8 +514,7 @@ export function CourseTable({
                                   {section.enrolled}/{section.capacity}
                                 </span>
                               </div>
-                            
-                              
+
                               {/* Waitlist badge if applicable */}
                               {section.waitlist_total > 0 && (
                                 <Badge className="bg-yellow-50 text-yellow-700 border-yellow-200 border font-medium">
@@ -513,13 +526,9 @@ export function CourseTable({
 
                           {/* Section Info */}
                           <div className="flex items-center gap-2 mb-4">
-                            <Badge className="bg-red-600 text-white font-medium">
-                              {section.instruction_mode}
-                            </Badge>
+                            <Badge className="bg-red-600 text-white font-medium">{section.instruction_mode}</Badge>
                             {section.is_asynchronous && (
-                              <Badge className="bg-gray-600 text-white font-medium">
-                                Async
-                              </Badge>
+                              <Badge className="bg-gray-600 text-white font-medium">Async</Badge>
                             )}
                           </div>
 
@@ -532,7 +541,10 @@ export function CourseTable({
                               </h6>
                               <div className="space-y-2">
                                 {section.meetings.map((meeting, idx) => (
-                                  <div key={idx} className="grid grid-cols-1 md:grid-cols-3 gap-3 p-3 bg-gray-50 rounded-lg border">
+                                  <div
+                                    key={idx}
+                                    className="grid grid-cols-1 md:grid-cols-3 gap-3 p-3 bg-gray-50 rounded-lg border"
+                                  >
                                     <div className="flex items-center gap-2">
                                       <span className="font-semibold text-gray-900 text-sm">
                                         {getMeetingTypeLabel(meeting.meeting_type)}
@@ -550,7 +562,6 @@ export function CourseTable({
                                         {meeting.location || `${meeting.building_name} ${meeting.room}`}
                                       </span>
                                     </div>
-
                                   </div>
                                 ))}
                               </div>
@@ -563,7 +574,10 @@ export function CourseTable({
                               <h6 className="font-bold mb-3 text-gray-900">Instructors:</h6>
                               <div className="space-y-3">
                                 {section.instructors.map((instructor, idx) => (
-                                  <div key={idx} className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-3 bg-gray-50 rounded-lg border gap-3">
+                                  <div
+                                    key={idx}
+                                    className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-3 bg-gray-50 rounded-lg border gap-3"
+                                  >
                                     <span className="font-bold text-gray-900">
                                       {instructor.rmp_instructor_id ? (
                                         <a
@@ -582,13 +596,19 @@ export function CourseTable({
                                       <div className="flex flex-wrap items-center gap-4 text-sm">
                                         <div className="flex items-center gap-1.5">
                                           <Star className="h-4 w-4 text-red-500 fill-current" />
-                                          <span className="font-semibold text-gray-900">{formatRating(instructor.avg_rating)}</span>
+                                          <span className="font-semibold text-gray-900">
+                                            {formatRating(instructor.avg_rating)}
+                                          </span>
                                         </div>
                                         <div className="flex items-center gap-1.5">
                                           <div className="w-2 h-2 rounded-full bg-red-400"></div>
-                                          <span className="text-gray-700 font-medium">Difficulty {formatRating(instructor.avg_difficulty)}</span>
+                                          <span className="text-gray-700 font-medium">
+                                            Difficulty {formatRating(instructor.avg_difficulty)}
+                                          </span>
                                         </div>
-                                        <span className="text-gray-500 font-medium">({instructor.num_ratings} reviews)</span>
+                                        <span className="text-gray-500 font-medium">
+                                          ({instructor.num_ratings} reviews)
+                                        </span>
                                       </div>
                                     )}
                                   </div>
@@ -614,6 +634,8 @@ export function CourseTable({
           hasMore={hasMore}
           onPageChange={onPageChange}
           resultsPerPage={resultsPerPage}
+          currentSort={currentSort}
+          onSortChange={onSortChange}
         />
       )}
     </div>
