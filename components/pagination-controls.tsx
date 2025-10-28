@@ -2,7 +2,7 @@
 
 import { Button } from "@/components/ui/button"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from "lucide-react"
+import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, ArrowUpDown } from "lucide-react"
 
 interface PaginationControlsProps {
   currentPage: number
@@ -11,6 +11,8 @@ interface PaginationControlsProps {
   hasMore: boolean
   onPageChange: (page: number) => void
   resultsPerPage: number
+  currentSort: string
+  onSortChange: (sort: string) => void
 }
 
 export function PaginationControls({
@@ -20,6 +22,8 @@ export function PaginationControls({
   hasMore,
   onPageChange,
   resultsPerPage,
+  currentSort,
+  onSortChange,
 }: PaginationControlsProps) {
   const startResult = (currentPage - 1) * resultsPerPage + 1
   const endResult = Math.min(currentPage * resultsPerPage, totalCount)
@@ -66,108 +70,134 @@ export function PaginationControls({
   const pageNumbers = getPageNumbers()
 
   return (
-    <div className="flex flex-col sm:flex-row items-center justify-between ">
-      {/* Results info */}
-      <div className="text-md text-gray-700">
-        Showing {startResult.toLocaleString()} to {endResult.toLocaleString()} of {totalCount.toLocaleString()} results
+    <div className="flex flex-col gap-4">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pb-3 border-b">
+        <div className="flex items-center gap-2">
+          <ArrowUpDown className="h-4 w-4 text-gray-500" />
+          <span className="text-sm font-medium text-gray-700">Sort by:</span>
+          <Select value={currentSort} onValueChange={onSortChange}>
+            <SelectTrigger className="w-[180px] h-9">
+              <SelectValue placeholder="Catalog Number" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="catalog_number">Catalog Number</SelectItem>
+              <SelectItem value="cumulative_gpa">Cumulative GPA</SelectItem>
+              <SelectItem value="recent_gpa">Recent GPA</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+
+        {/* Results info */}
+        <div className="text-sm text-gray-700">
+          Showing {startResult.toLocaleString()} to {endResult.toLocaleString()} of {totalCount.toLocaleString()}{" "}
+          results
+        </div>
       </div>
 
-      {/* Desktop pagination */}
-      <div className="hidden sm:flex items-center gap-2">
-        {/* First page button */}
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => onPageChange(1)}
-          disabled={currentPage === 1}
-          className="h-8 w-8 p-0"
-        >
-          <ChevronsLeft className="h-4 w-4" />
-        </Button>
+      {/* Pagination controls */}
+      <div className="flex flex-col sm:flex-row items-center justify-between">
+        {/* Desktop pagination */}
+        <div className="hidden sm:flex items-center gap-2">
+          {/* First page button */}
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => onPageChange(1)}
+            disabled={currentPage === 1}
+            className="h-8 w-8 p-0"
+          >
+            <ChevronsLeft className="h-4 w-4" />
+          </Button>
 
-        {/* Previous page button */}
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => onPageChange(currentPage - 1)}
-          disabled={currentPage === 1}
-          className="h-8 w-8 p-0"
-        >
-          <ChevronLeft className="h-4 w-4" />
-        </Button>
+          {/* Previous page button */}
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => onPageChange(currentPage - 1)}
+            disabled={currentPage === 1}
+            className="h-8 w-8 p-0"
+          >
+            <ChevronLeft className="h-4 w-4" />
+          </Button>
 
-        {/* Page number buttons */}
-        {pageNumbers.map((page, index) => (
-          <div key={index}>
-            {page === "..." ? (
-              <span className="px-2 py-1 text-sm text-gray-500">...</span>
-            ) : (
-              <Button
-                variant={currentPage === page ? "default" : "outline"}
-                size="sm"
-                onClick={() => onPageChange(page as number)}
-                className="h-8 w-8 p-0"
-              >
-                {page}
-              </Button>
-            )}
-          </div>
-        ))}
+          {/* Page number buttons */}
+          {pageNumbers.map((page, index) => (
+            <div key={index}>
+              {page === "..." ? (
+                <span className="px-2 py-1 text-sm text-gray-500">...</span>
+              ) : (
+                <Button
+                  variant={currentPage === page ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => onPageChange(page as number)}
+                  className="h-8 w-8 p-0"
+                >
+                  {page}
+                </Button>
+              )}
+            </div>
+          ))}
 
-        {/* Next page button */}
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => onPageChange(currentPage + 1)}
-          disabled={!hasMore || currentPage === totalPages}
-          className="h-8 w-8 p-0"
-        >
-          <ChevronRight className="h-4 w-4" />
-        </Button>
+          {/* Next page button */}
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => onPageChange(currentPage + 1)}
+            disabled={!hasMore || currentPage === totalPages}
+            className="h-8 w-8 p-0"
+          >
+            <ChevronRight className="h-4 w-4" />
+          </Button>
 
-        {/* Last page button */}
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => onPageChange(totalPages)}
-          disabled={currentPage === totalPages}
-          className="h-8 w-8 p-0"
-        >
-          <ChevronsRight className="h-4 w-4" />
-        </Button>
-      </div>
+          {/* Last page button */}
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => onPageChange(totalPages)}
+            disabled={currentPage === totalPages}
+            className="h-8 w-8 p-0"
+          >
+            <ChevronsRight className="h-4 w-4" />
+          </Button>
+        </div>
 
-      {/* Mobile pagination */}
-      <div className="flex sm:hidden items-center gap-2">
-        <Button variant="outline" size="sm" onClick={() => onPageChange(currentPage - 1)} disabled={currentPage === 1}>
-          <ChevronLeft className="h-4 w-4 mr-1" />
-          Previous
-        </Button>
+        {/* Mobile pagination */}
+        <div className="flex sm:hidden items-center gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => onPageChange(currentPage - 1)}
+            disabled={currentPage === 1}
+          >
+            <ChevronLeft className="h-4 w-4 mr-1" />
+            Previous
+          </Button>
 
-        <Select value={currentPage.toString()} onValueChange={(value) => onPageChange(Number.parseInt(value))}>
-          <SelectTrigger className="w-20 h-8">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-              <SelectItem key={page} value={page.toString()}>
-                {page}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+          <Select value={currentPage.toString()} onValueChange={(value) => onPageChange(Number.parseInt(value))}>
+            <SelectTrigger className="w-20 h-8">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                <SelectItem key={page} value={page.toString()}>
+                  {page}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
 
-        <span className="text-sm text-gray-500">of {totalPages}</span>
+          <span className="text-sm text-gray-500">of {totalPages}</span>
 
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => onPageChange(currentPage + 1)}
-          disabled={!hasMore || currentPage === totalPages}
-        >
-          Next
-          <ChevronRight className="h-4 w-4 ml-1" />
-        </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => onPageChange(currentPage + 1)}
+            disabled={!hasMore || currentPage === totalPages}
+          >
+            Next
+            <ChevronRight className="h-4 w-4 ml-1" />
+          </Button>
+        </div>
       </div>
     </div>
   )
