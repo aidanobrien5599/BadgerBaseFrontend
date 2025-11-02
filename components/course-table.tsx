@@ -401,31 +401,35 @@ export function CourseTable({
                         <div className="text-gray-900 font-semibold">{course.most_recent_gpa?.toFixed(2) || "N/A"}</div>
                       </div>
 
-                      {course.typically_offered && (
-                        <div className="bg-white border rounded-lg p-4">
-                          <div className="flex items-center gap-2 text-gray-700 mb-2">
-                            <Calendar className="h-4 w-4 text-red-600" />
-                            <span className="font-medium text-sm">Offered</span>
-                          </div>
-                          <div className="text-gray-900 font-semibold text-sm">{course.typically_offered}</div>
-                        </div>
-                      )}
 
                     </div>
 
                     {/* Course Attributes Section */}
                     {((course.workplace_experience_description && course.workplace_experience_description !== "STUDENT OPT") || 
-                      (course.repeatable_for_credit === "Y")) && (
-                      <div className="mt-4 p-4 bg-gray-50 rounded-lg border">
-                        <h4 className="font-medium text-gray-900 mb-2">Course Attributes:</h4>
-                        <div className="space-y-1 text-sm text-gray-700">
+                      (course.repeatable_for_credit === "Y") || 
+                      (course.typically_offered && course.typically_offered !== "Not Applicable")) && (
+                      <div className="mt-4 p-4 bg-white rounded-lg border">
+                        <h4 className="font-semibold text-gray-900 mb-3">Course attributes:</h4>
+                        <ul className="space-y-2 text-sm text-gray-700">
                           {course.workplace_experience_description && course.workplace_experience_description !== "STUDENT OPT" && (
-                            <div>Workplace Experience Course</div>
+                            <li className="flex items-start gap-2">
+                              <span className="text-red-600 font-bold mt-0.5">•</span>
+                              <span>Workplace Experience Course</span>
+                            </li>
                           )}
                           {course.repeatable_for_credit === "Y" && (
-                            <div>Repeatable for Credit</div>
+                            <li className="flex items-start gap-2">
+                              <span className="text-red-600 font-bold mt-0.5">•</span>
+                              <span>Repeatable for Credit</span>
+                            </li>
                           )}
-                        </div>
+                          {course.typically_offered && course.typically_offered !== "Not Applicable" && (
+                            <li className="flex items-start gap-2">
+                              <span className="text-red-600 font-bold mt-0.5">•</span>
+                              <span>Typically offered in {course.typically_offered}</span>
+                            </li>
+                          )}
+                        </ul>
                       </div>
                     )}
                   </div>
@@ -556,12 +560,9 @@ export function CourseTable({
                           </div>
 
                           {section.section_requisites && (
-                            <div className="mb-4 bg-yellow-50 border border-yellow-200 rounded-lg p-3">
-                              <p className="text-sm text-yellow-800">
-                                <span className="font-bold">Section Requirement: </span>
-                                {section.section_requisites}
-                              </p>
-                            </div>
+                            <p className="mb-4 text-sm text-gray-700">
+                              <span className="font-semibold">Requirement:</span> {section.section_requisites}
+                            </p>
                           )}
 
                           {/* Meetings */}
