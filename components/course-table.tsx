@@ -21,6 +21,7 @@ import { PaginationControls } from "./pagination-controls"
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart"
 import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis } from "recharts"
 import { CourseHeader } from "./course-header"
+import { HierarchicalSections } from "./hierarchical-sections"
 // Instructor interface defined locally
 interface Instructor {
   name: string
@@ -481,7 +482,7 @@ export function CourseTable({
                     </ChartContainer>
                   </div>
 
-                  {/* Section Filters and Sections */}
+                  {/* Hierarchical Sections */}
                   <div className="space-y-4">
                     <div className="flex items-center justify-between flex-wrap gap-3">
                       <h4 className="font-bold text-gray-900 flex items-center gap-2">
@@ -516,142 +517,7 @@ export function CourseTable({
                       </div>
                     </div>
 
-                    {filteredSections.length === 0 ? (
-                      <div className="text-center py-8 text-gray-500 border rounded-lg bg-gray-50">
-                        No sections match the current filters.
-                      </div>
-                    ) : (
-                      filteredSections.map((section) => (
-                        <div key={section.section_id} className="border rounded-lg p-6 bg-white">
-                          <div className="flex flex-row items-center justify-between gap-4 mb-4">
-                            {/* Section title and status */}
-                            <div className="flex items-center gap-3">
-                              <h5 className="font-bold text-gray-900">Section {section.section_id}</h5>
-                              <Badge className={`${getStatusColor(section.status)} border font-medium`}>
-                                {section.status}
-                              </Badge>
-                            </div>
-
-                            {/* Enrollment info */}
-                            <div className="flex items-center gap-3 flex-wrap">
-                              {/* Main enrollment badge */}
-                              <div className="flex items-center gap-2 text-gray-700 bg-gray-100 px-3 py-1 rounded-full">
-                                <Users className="h-4 w-4" />
-                                <span className="font-medium text-sm">
-                                  {section.enrolled}/{section.capacity}
-                                </span>
-                              </div>
-
-                              {/* Waitlist badge if applicable */}
-                              {section.waitlist_total > 0 && (
-                                <Badge className="bg-yellow-50 text-yellow-700 border-yellow-200 border font-medium">
-                                  {section.waitlist_total} waitlisted
-                                </Badge>
-                              )}
-                            </div>
-                          </div>
-
-                          {/* Section Info */}
-                          <div className="flex items-center gap-2 mb-4">
-                            <Badge className="bg-red-600 text-white font-medium">{section.instruction_mode}</Badge>
-                            {section.is_asynchronous && (
-                              <Badge className="bg-gray-600 text-white font-medium">Async</Badge>
-                            )}
-                          </div>
-
-                          {section.section_requisites && (
-                            <p className="mb-4 text-sm text-gray-700">
-                              <span className="font-semibold">Requirement:</span> {section.section_requisites}
-                            </p>
-                          )}
-
-                          {/* Meetings */}
-                          {section.meetings && section.meetings.length > 0 && (
-                            <div className="mb-4">
-                              <h6 className="font-bold mb-3 text-gray-900 flex items-center gap-2">
-                                <Calendar className="h-4 w-4 text-red-600" />
-                                Meeting Times
-                              </h6>
-                              <div className="space-y-2">
-                                {section.meetings.map((meeting, idx) => (
-                                  <div
-                                    key={idx}
-                                    className="grid grid-cols-1 md:grid-cols-3 gap-3 p-3 bg-gray-50 rounded-lg border"
-                                  >
-                                    <div className="flex items-center gap-2">
-                                      <span className="font-semibold text-gray-900 text-sm">
-                                        {getMeetingTypeLabel(meeting.meeting_type)}
-                                      </span>
-                                    </div>
-                                    <div className="flex items-center gap-2 text-sm">
-                                      <Clock className="h-4 w-4 text-red-600" />
-                                      <span className="font-medium text-gray-700">
-                                        {meeting.meeting_days} {formatMeetingTime(meeting.start_time, meeting.end_time)}
-                                      </span>
-                                    </div>
-                                    <div className="flex items-center gap-2 text-sm">
-                                      <MapPin className="h-4 w-4 text-red-600" />
-                                      <span className="font-medium text-gray-700">
-                                        {meeting.location || `${meeting.building_name} ${meeting.room}`}
-                                      </span>
-                                    </div>
-                                  </div>
-                                ))}
-                              </div>
-                            </div>
-                          )}
-
-                          {/* Instructors */}
-                          {section.instructors.length > 0 && (
-                            <div>
-                              <h6 className="font-bold mb-3 text-gray-900">Instructors:</h6>
-                              <div className="space-y-3">
-                                {section.instructors.map((instructor, idx) => (
-                                  <div
-                                    key={idx}
-                                    className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-3 bg-gray-50 rounded-lg border gap-3"
-                                  >
-                                    <span className="font-bold text-gray-900">
-                                      {instructor.rmp_instructor_id ? (
-                                        <a
-                                          target="_blank"
-                                          className="hover:text-red-600 hover:underline"
-                                          href={`https://www.ratemyprofessors.com/professor/${instructor.rmp_instructor_id}`}
-                                          rel="noreferrer"
-                                        >
-                                          {instructor.name}
-                                        </a>
-                                      ) : (
-                                        instructor.name
-                                      )}
-                                    </span>
-                                    {instructor.avg_rating && (
-                                      <div className="flex flex-wrap items-center gap-4 text-sm">
-                                        <div className="flex items-center gap-1.5">
-                                          <Star className="h-4 w-4 text-red-500 fill-current" />
-                                          <span className="font-semibold text-gray-900">
-                                            {formatRating(instructor.avg_rating)}
-                                          </span>
-                                        </div>
-                                        <div className="flex items-center gap-1.5">
-                                          <div className="w-2 h-2 rounded-full bg-red-400"></div>
-                                          <span className="text-gray-700 font-medium">
-                                            Difficulty {formatRating(instructor.avg_difficulty)}
-                                          </span>
-                                        </div>
-                                        <span className="text-gray-500 font-medium">
-                                          ({instructor.num_ratings} reviews)
-                                        </span>
-                                      </div>
-                                    )}
-                                  </div>
-                                ))}
-                              </div>
-                            </div>
-                          )}
-                        </div>
-                      ))
-                    )}
+                    <HierarchicalSections sections={filteredSections} />
                   </div>
                 </CardContent>
               </CollapsibleContent>
