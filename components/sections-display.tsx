@@ -3,7 +3,7 @@
 import { useState } from "react"
 import { Badge } from "@/components/ui/badge"
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible"
-import { Users, Clock, MapPin, Star, Calendar, ChevronDown } from "lucide-react"
+import { Clock, MapPin, Star, Calendar, ChevronDown, Users } from "lucide-react"
 
 interface Instructor {
   name: string
@@ -42,6 +42,12 @@ interface Section {
   section_requisites: string | null
 }
 
+interface HierarchicalSection {
+  type: "Lecture" | "Discussion" | "Lab" | "Seminar"
+  section: Section
+  children: HierarchicalSection[]
+}
+
 interface SectionsDisplayProps {
   sections: Section[]
   hideClosedSections: boolean
@@ -73,41 +79,81 @@ export function SectionsDisplay({ sections, hideClosedSections, hideWaitlistedSe
     })
   }
 
-  const groupSectionsByLecture = (sects: Section[]) => {
-    const grouped: { [key: number]: { lecture: Section; discussions: Section[] } } = {}
-    const nonTiered: Section[] = []
+  const buildHierarchy = (sects: Section[]) => {
+    const hierarchy: HierarchicalSection[] = []
+    const processedIds = new Set<number>()
 
+    // First pass: Find all lectures and create parent nodes
     sects.forEach((section) => {
       const lectureMeeting = section.meetings?.find((m) => m.meeting_type.toUpperCase() === "LEC")
+      if (lectureMeeting && !processedIds.has(section.section_id)) {
+        const sectionType: "Lecture" | "Discussion" | "Lab" | "Seminar" = "Lecture"
+        const children: HierarchicalSection[] = []
 
-      if (lectureMeeting) {
-        // This section has a lecture
-        const lectureId = section.section_id
-        if (!grouped[lectureId]) {
-          grouped[lectureId] = { lecture: section, discussions: [] }
-        }
-      } else {
-        // Non-tiered section (no lecture)
-        nonTiered.push(section)
+        // Find all discussions/labs that might be associated with this lecture
+        // Since we don't have explicit parent IDs, we group by proximity or just add non-lecture sections after
+        sects.forEach((childSection) => {
+          if (childSection.section_id !== section.section_id && !processedIds.has(childSection.section_id)) {
+            const childMeetings = childSection.meetings?.filter((m) => !["LEC"].includes(m.meeting_type.toUpperCase()))
+            if (childMeetings && childMeetings.length > 0) {
+              const childType = getMeetingTypeAsLabel(childMeetings[0]?.meeting_type || "") as
+                | "Lecture"
+                | "Discussion"
+                | "Lab"
+                | "Seminar"
+              children.push({
+                type: childType,
+                section: childSection,
+                children: [],
+              })
+              processedIds.add(childSection.section_id)
+            }
+          }
+        })
+
+        hierarchy.push({
+          type: sectionType,
+          section,
+          children,
+        })
+        processedIds.add(section.section_id)
       }
     })
 
-    // Also group discussions/labs with their lectures
+    // Second pass: Add any non-tiered sections (those without lectures)
     sects.forEach((section) => {
-      const lectureMeeting = section.meetings?.find((m) => m.meeting_type.toUpperCase() === "LEC")
-      if (!lectureMeeting) {
-        // This is a discussion/lab - find its parent lecture
-        // In a real scenario, we'd have a parent_section_id field
-        // For now, we'll check if this is a discussion/lab without a lecture
-        const hasDissOrLab = section.meetings?.some((m) => ["DIS", "LAB", "SEM"].includes(m.meeting_type.toUpperCase()))
-        if (hasDissOrLab && Object.keys(grouped).length > 0) {
-          // Try to associate with the first lecture (this would need better logic with parent IDs)
-          nonTiered.push(section)
-        }
+      if (!processedIds.has(section.section_id)) {
+        const primaryMeeting = section.meetings?.[0]
+        const sectionType = (getMeetingTypeAsLabel(primaryMeeting?.meeting_type || "") || "Lecture") as
+          | "Lecture"
+          | "Discussion"
+          | "Lab"
+          | "Seminar"
+        hierarchy.push({
+          type: sectionType,
+          section,
+          children: [],
+        })
+        processedIds.add(section.section_id)
       }
     })
 
-    return { grouped, nonTiered }
+    return hierarchy
+  }
+
+  const getMeetingTypeAsLabel = (type: string): "Lecture" | "Discussion" | "Lab" | "Seminar" | null => {
+    switch (type.toUpperCase()) {
+      case "LEC":
+        return "Lecture"
+      case "DIS":
+        return "Discussion"
+      case "LAB":
+        return "Lab"
+      case "SEM":
+        return "Seminar"
+      default:
+        return null
+    }
   }
 
   const getStatusColor = (status: string) => {
@@ -131,23 +177,23 @@ export function SectionsDisplay({ sections, hideClosedSections, hideWaitlistedSe
     return `${startTime} - ${endTime}`
   }
 
-  const getMeetingTypeLabel = (type: string) => {
-    switch (type.toUpperCase()) {
-      case "LEC":
-        return "Lecture"
-      case "DIS":
-        return "Discussion"
-      case "LAB":
-        return "Lab"
-      case "SEM":
-        return "Seminar"
+  const getTypeColor = (type: string) => {
+    switch (type) {
+      case "Lecture":
+        return "bg-blue-50 text-blue-700 border-blue-200"
+      case "Discussion":
+        return "bg-green-50 text-green-700 border-green-200"
+      case "Lab":
+        return "bg-purple-50 text-purple-700 border-purple-200"
+      case "Seminar":
+        return "bg-orange-50 text-orange-700 border-orange-200"
       default:
-        return type
+        return "bg-gray-50 text-gray-700 border-gray-200"
     }
   }
 
   const filteredSections = filterSections(sections)
-  const { grouped, nonTiered } = groupSectionsByLecture(filteredSections)
+  const hierarchy = buildHierarchy(filteredSections)
 
   if (filteredSections.length === 0) {
     return (
@@ -157,348 +203,178 @@ export function SectionsDisplay({ sections, hideClosedSections, hideWaitlistedSe
     )
   }
 
-  return (
-    <div className="space-y-2">
-      {Object.entries(grouped).map(([_, { lecture, discussions }]) => (
-        <Collapsible
-          key={lecture.section_id}
-          open={expandedSections.has(lecture.section_id)}
-          onOpenChange={() => toggleSection(lecture.section_id)}
-        >
-          {/* Lecture Header Row - Compact Display */}
-          <CollapsibleTrigger asChild>
-            <button className="w-full text-left border rounded-lg p-4 bg-white hover:bg-gray-50 transition-colors">
-              <div className="flex flex-col lg:flex-row lg:items-center gap-3 lg:gap-4">
-                {/* Section ID and Status */}
-                <div className="flex items-center gap-3 min-w-fit">
-                  <ChevronDown
-                    className={`h-5 w-5 text-gray-600 transition-transform ${
-                      expandedSections.has(lecture.section_id) ? "rotate-180" : ""
-                    }`}
-                  />
-                  <span className="font-semibold text-gray-900">Section {lecture.section_id}</span>
-                  <Badge className={`${getStatusColor(lecture.status)} border font-medium text-xs`}>
-                    {lecture.status}
-                  </Badge>
-                </div>
+  const renderSection = (hierarchical: HierarchicalSection, depth = 0) => {
+    const { type, section, children } = hierarchical
+    const isChild = depth > 0
+    const primaryMeeting = section.meetings?.[0]
+    const isExpanded = expandedSections.has(section.section_id)
 
-                {/* Meeting Times - Compact */}
-                <div className="flex items-center gap-2 text-sm text-gray-700 flex-wrap">
-                  {lecture.meetings
-                    ?.filter((m) => m.meeting_type.toUpperCase() === "LEC")
-                    .map((meeting, idx) => (
-                      <div key={idx} className="flex items-center gap-1.5">
-                        <Clock className="h-4 w-4 text-red-600 flex-shrink-0" />
-                        <span className="font-medium whitespace-nowrap">
+    return (
+      <Collapsible
+        key={section.section_id}
+        open={isExpanded}
+        onOpenChange={() => toggleSection(section.section_id)}
+        className={isChild ? "ml-4" : ""}
+      >
+        <CollapsibleTrigger asChild>
+          <button
+            className={`w-full text-left border rounded-lg p-3 transition-colors ${
+              isChild ? "bg-gray-50 hover:bg-gray-100" : "bg-white hover:bg-gray-50"
+            }`}
+          >
+            <div className="flex flex-col lg:flex-row lg:items-center gap-3 lg:gap-4">
+              {/* Type Label and Status */}
+              <div className="flex items-center gap-2 min-w-fit">
+                <ChevronDown
+                  className={`h-4 w-4 text-gray-600 transition-transform ${isExpanded ? "rotate-180" : ""}`}
+                />
+                <Badge className={`${getTypeColor(type)} border font-medium text-xs`}>{type}</Badge>
+                <Badge className={`${getStatusColor(section.status)} border font-medium text-xs`}>
+                  {section.status}
+                </Badge>
+              </div>
+
+              {/* Meeting Times - Compact */}
+              {primaryMeeting && (
+                <div className="flex items-center gap-2 text-sm text-gray-700">
+                  <Clock className="h-4 w-4 text-red-600 flex-shrink-0" />
+                  <span className="font-medium whitespace-nowrap">
+                    {primaryMeeting.meeting_days}{" "}
+                    {formatMeetingTime(primaryMeeting.start_time, primaryMeeting.end_time)}
+                  </span>
+                </div>
+              )}
+
+              {/* Location - Compact */}
+              {primaryMeeting && (
+                <div className="flex items-center gap-2 text-sm text-gray-700">
+                  <MapPin className="h-4 w-4 text-red-600 flex-shrink-0" />
+                  <span className="font-medium whitespace-nowrap">
+                    {primaryMeeting.location || `${primaryMeeting.building_name} ${primaryMeeting.room}`}
+                  </span>
+                </div>
+              )}
+
+              {/* Enrollment - Right Aligned */}
+              <div className="flex items-center gap-2 ml-auto text-sm">
+                <div className="flex items-center gap-1.5 text-gray-700 bg-gray-100 px-2.5 py-1 rounded-full">
+                  <Users className="h-3.5 w-3.5" />
+                  <span className="font-medium text-xs">
+                    {section.enrolled}/{section.capacity}
+                  </span>
+                </div>
+                {section.waitlist_total > 0 && (
+                  <Badge className="bg-yellow-50 text-yellow-700 border-yellow-200 border font-medium text-xs">
+                    {section.waitlist_total} wait
+                  </Badge>
+                )}
+              </div>
+            </div>
+          </button>
+        </CollapsibleTrigger>
+
+        <CollapsibleContent>
+          <div className={`border border-t-0 rounded-b-lg p-4 space-y-4 ${isChild ? "bg-white" : "bg-gray-50"}`}>
+            {/* Mode and Async Badge */}
+            <div className="flex items-center gap-2">
+              <Badge className="bg-red-600 text-white font-medium text-xs">{section.instruction_mode}</Badge>
+              {section.is_asynchronous && <Badge className="bg-gray-600 text-white font-medium text-xs">Async</Badge>}
+            </div>
+
+            {/* Section Requisites */}
+            {section.section_requisites && (
+              <p className="text-sm text-gray-700">
+                <span className="font-semibold">Requirement:</span> {section.section_requisites}
+              </p>
+            )}
+
+            {/* Meeting Times (Expanded) */}
+            {section.meetings && section.meetings.length > 0 && (
+              <div>
+                <h6 className="font-bold mb-2 text-sm text-gray-900 flex items-center gap-2">
+                  <Calendar className="h-4 w-4 text-red-600" />
+                  Meeting Times
+                </h6>
+                <div className="space-y-2">
+                  {section.meetings.map((meeting, idx) => (
+                    <div key={idx} className="grid grid-cols-1 md:grid-cols-3 gap-3 p-2 bg-white rounded text-sm">
+                      <div className="font-semibold text-gray-900">{getMeetingTypeAsLabel(meeting.meeting_type)}</div>
+                      <div className="flex items-center gap-1.5 text-gray-700">
+                        <Clock className="h-3.5 w-3.5 text-red-600 flex-shrink-0" />
+                        <span>
                           {meeting.meeting_days} {formatMeetingTime(meeting.start_time, meeting.end_time)}
                         </span>
                       </div>
-                    ))}
-                </div>
-
-                {/* Location - Compact */}
-                <div className="flex items-center gap-2 text-sm text-gray-700">
-                  {lecture.meetings
-                    ?.filter((m) => m.meeting_type.toUpperCase() === "LEC")
-                    .map((meeting, idx) => (
-                      <div key={idx} className="flex items-center gap-1.5">
-                        <MapPin className="h-4 w-4 text-red-600 flex-shrink-0" />
-                        <span className="font-medium whitespace-nowrap">
-                          {meeting.location || `${meeting.building_name} ${meeting.room}`}
-                        </span>
-                      </div>
-                    ))}
-                </div>
-
-                {/* Enrollment Info - Right Aligned */}
-                <div className="flex items-center gap-2 ml-auto text-sm">
-                  <div className="flex items-center gap-1.5 text-gray-700 bg-gray-100 px-2.5 py-1 rounded-full">
-                    <Users className="h-3.5 w-3.5" />
-                    <span className="font-medium text-xs">
-                      {lecture.enrolled}/{lecture.capacity}
-                    </span>
-                  </div>
-                  {lecture.waitlist_total > 0 && (
-                    <Badge className="bg-yellow-50 text-yellow-700 border-yellow-200 border font-medium text-xs">
-                      {lecture.waitlist_total} wait
-                    </Badge>
-                  )}
-                </div>
-              </div>
-            </button>
-          </CollapsibleTrigger>
-
-          {/* Expandable Details */}
-          <CollapsibleContent>
-            <div className="border border-t-0 rounded-b-lg p-4 bg-gray-50 space-y-4">
-              {/* Mode and Async Badge */}
-              <div className="flex items-center gap-2">
-                <Badge className="bg-red-600 text-white font-medium text-xs">{lecture.instruction_mode}</Badge>
-                {lecture.is_asynchronous && <Badge className="bg-gray-600 text-white font-medium text-xs">Async</Badge>}
-              </div>
-
-              {/* Section Requisites */}
-              {lecture.section_requisites && (
-                <p className="text-sm text-gray-700">
-                  <span className="font-semibold">Requirement:</span> {lecture.section_requisites}
-                </p>
-              )}
-
-              {/* Meeting Times (Expanded) */}
-              {lecture.meetings && lecture.meetings.length > 0 && (
-                <div>
-                  <h6 className="font-bold mb-2 text-sm text-gray-900 flex items-center gap-2">
-                    <Calendar className="h-4 w-4 text-red-600" />
-                    Meeting Times
-                  </h6>
-                  <div className="space-y-2">
-                    {lecture.meetings.map((meeting, idx) => (
-                      <div key={idx} className="grid grid-cols-1 md:grid-cols-3 gap-3 p-2 bg-white rounded text-sm">
-                        <div className="font-semibold text-gray-900">{getMeetingTypeLabel(meeting.meeting_type)}</div>
-                        <div className="flex items-center gap-1.5 text-gray-700">
-                          <Clock className="h-3.5 w-3.5 text-red-600 flex-shrink-0" />
-                          <span>
-                            {meeting.meeting_days} {formatMeetingTime(meeting.start_time, meeting.end_time)}
-                          </span>
-                        </div>
-                        <div className="flex items-center gap-1.5 text-gray-700">
-                          <MapPin className="h-3.5 w-3.5 text-red-600 flex-shrink-0" />
-                          <span>{meeting.location || `${meeting.building_name} ${meeting.room}`}</span>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {/* Instructors */}
-              {lecture.instructors.length > 0 && (
-                <div>
-                  <h6 className="font-bold mb-2 text-sm text-gray-900">Instructors:</h6>
-                  <div className="space-y-2">
-                    {lecture.instructors.map((instructor, idx) => (
-                      <div
-                        key={idx}
-                        className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-2 bg-white rounded gap-2 text-sm"
-                      >
-                        <span className="font-semibold text-gray-900">
-                          {instructor.rmp_instructor_id ? (
-                            <a
-                              target="_blank"
-                              className="hover:text-red-600 hover:underline"
-                              href={`https://www.ratemyprofessors.com/professor/${instructor.rmp_instructor_id}`}
-                              rel="noreferrer"
-                            >
-                              {instructor.name}
-                            </a>
-                          ) : (
-                            instructor.name
-                          )}
-                        </span>
-                        {instructor.avg_rating && (
-                          <div className="flex flex-wrap items-center gap-3 text-xs">
-                            <div className="flex items-center gap-1">
-                              <Star className="h-3.5 w-3.5 text-red-500 fill-current" />
-                              <span className="font-semibold text-gray-900">{formatRating(instructor.avg_rating)}</span>
-                            </div>
-                            <div className="flex items-center gap-1">
-                              <div className="w-1.5 h-1.5 rounded-full bg-red-400"></div>
-                              <span className="text-gray-700">Diff {formatRating(instructor.avg_difficulty)}</span>
-                            </div>
-                            <span className="text-gray-500">({instructor.num_ratings})</span>
-                          </div>
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div>
-
-            {/* Discussion/Lab Sections */}
-            {discussions.length > 0 && (
-              <div className="border border-t-0 border-l-4 border-l-red-300 rounded-b-lg p-4 bg-white space-y-2">
-                <h6 className="font-semibold text-gray-900 text-sm mb-3">Associated Sections:</h6>
-                {discussions.map((section) => (
-                  <div key={section.section_id} className="border rounded p-3 bg-gray-50 text-sm">
-                    <div className="flex flex-col lg:flex-row lg:items-center gap-2 lg:gap-3">
-                      <div className="flex items-center gap-2">
-                        <span className="font-semibold text-gray-900">
-                          {section.meetings?.[0]?.meeting_type
-                            ? getMeetingTypeLabel(section.meetings[0].meeting_type)
-                            : "Section"}{" "}
-                          {section.section_id}
-                        </span>
-                        <Badge className={`${getStatusColor(section.status)} border font-medium text-xs`}>
-                          {section.status}
-                        </Badge>
-                      </div>
-                      <div className="flex items-center gap-2 text-gray-700">
-                        {section.meetings?.map((meeting, idx) => (
-                          <div key={idx} className="flex items-center gap-1 text-xs">
-                            <Clock className="h-3 w-3 text-red-600" />
-                            <span>
-                              {meeting.meeting_days} {formatMeetingTime(meeting.start_time, meeting.end_time)}
-                            </span>
-                          </div>
-                        ))}
-                      </div>
-                      <div className="flex items-center gap-1 text-gray-700 text-xs ml-auto">
-                        <Users className="h-3 w-3" />
-                        <span className="font-medium">
-                          {section.enrolled}/{section.capacity}
-                        </span>
+                      <div className="flex items-center gap-1.5 text-gray-700">
+                        <MapPin className="h-3.5 w-3.5 text-red-600 flex-shrink-0" />
+                        <span>{meeting.location || `${meeting.building_name} ${meeting.room}`}</span>
                       </div>
                     </div>
-                  </div>
-                ))}
+                  ))}
+                </div>
               </div>
             )}
-          </CollapsibleContent>
-        </Collapsible>
-      ))}
 
-      {nonTiered.map((section) => (
-        <Collapsible
-          key={section.section_id}
-          open={expandedSections.has(section.section_id)}
-          onOpenChange={() => toggleSection(section.section_id)}
-        >
-          <CollapsibleTrigger asChild>
-            <button className="w-full text-left border rounded-lg p-4 bg-white hover:bg-gray-50 transition-colors">
-              <div className="flex flex-col lg:flex-row lg:items-center gap-3 lg:gap-4">
-                <div className="flex items-center gap-3 min-w-fit">
-                  <ChevronDown
-                    className={`h-5 w-5 text-gray-600 transition-transform ${
-                      expandedSections.has(section.section_id) ? "rotate-180" : ""
-                    }`}
-                  />
-                  <span className="font-semibold text-gray-900">
-                    {section.meetings?.[0]?.meeting_type
-                      ? getMeetingTypeLabel(section.meetings[0].meeting_type)
-                      : "Section"}{" "}
-                    {section.section_id}
-                  </span>
-                  <Badge className={`${getStatusColor(section.status)} border font-medium text-xs`}>
-                    {section.status}
-                  </Badge>
-                </div>
-                <div className="flex items-center gap-2 text-sm text-gray-700 flex-wrap">
-                  {section.meetings?.map((meeting, idx) => (
-                    <div key={idx} className="flex items-center gap-1.5">
-                      <Clock className="h-4 w-4 text-red-600 flex-shrink-0" />
-                      <span className="font-medium whitespace-nowrap">
-                        {meeting.meeting_days} {formatMeetingTime(meeting.start_time, meeting.end_time)}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-                <div className="flex items-center gap-2 text-sm text-gray-700">
-                  {section.meetings?.map((meeting, idx) => (
-                    <div key={idx} className="flex items-center gap-1.5">
-                      <MapPin className="h-4 w-4 text-red-600 flex-shrink-0" />
-                      <span className="font-medium whitespace-nowrap">
-                        {meeting.location || `${meeting.building_name} ${meeting.room}`}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-                <div className="flex items-center gap-2 ml-auto text-sm">
-                  <div className="flex items-center gap-1.5 text-gray-700 bg-gray-100 px-2.5 py-1 rounded-full">
-                    <Users className="h-3.5 w-3.5" />
-                    <span className="font-medium text-xs">
-                      {section.enrolled}/{section.capacity}
-                    </span>
-                  </div>
-                  {section.waitlist_total > 0 && (
-                    <Badge className="bg-yellow-50 text-yellow-700 border-yellow-200 border font-medium text-xs">
-                      {section.waitlist_total} wait
-                    </Badge>
-                  )}
-                </div>
-              </div>
-            </button>
-          </CollapsibleTrigger>
-          <CollapsibleContent>
-            <div className="border border-t-0 rounded-b-lg p-4 bg-gray-50 space-y-4">
-              <div className="flex items-center gap-2">
-                <Badge className="bg-red-600 text-white font-medium text-xs">{section.instruction_mode}</Badge>
-                {section.is_asynchronous && <Badge className="bg-gray-600 text-white font-medium text-xs">Async</Badge>}
-              </div>
-              {section.section_requisites && (
-                <p className="text-sm text-gray-700">
-                  <span className="font-semibold">Requirement:</span> {section.section_requisites}
-                </p>
-              )}
-              {section.meetings && section.meetings.length > 0 && (
-                <div>
-                  <h6 className="font-bold mb-2 text-sm text-gray-900 flex items-center gap-2">
-                    <Calendar className="h-4 w-4 text-red-600" />
-                    Meeting Times
-                  </h6>
-                  <div className="space-y-2">
-                    {section.meetings.map((meeting, idx) => (
-                      <div key={idx} className="grid grid-cols-1 md:grid-cols-3 gap-3 p-2 bg-white rounded text-sm">
-                        <div className="font-semibold text-gray-900">{getMeetingTypeLabel(meeting.meeting_type)}</div>
-                        <div className="flex items-center gap-1.5 text-gray-700">
-                          <Clock className="h-3.5 w-3.5 text-red-600 flex-shrink-0" />
-                          <span>
-                            {meeting.meeting_days} {formatMeetingTime(meeting.start_time, meeting.end_time)}
-                          </span>
-                        </div>
-                        <div className="flex items-center gap-1.5 text-gray-700">
-                          <MapPin className="h-3.5 w-3.5 text-red-600 flex-shrink-0" />
-                          <span>{meeting.location || `${meeting.building_name} ${meeting.room}`}</span>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-              {section.instructors.length > 0 && (
-                <div>
-                  <h6 className="font-bold mb-2 text-sm text-gray-900">Instructors:</h6>
-                  <div className="space-y-2">
-                    {section.instructors.map((instructor, idx) => (
-                      <div
-                        key={idx}
-                        className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-2 bg-white rounded gap-2 text-sm"
-                      >
-                        <span className="font-semibold text-gray-900">
-                          {instructor.rmp_instructor_id ? (
-                            <a
-                              target="_blank"
-                              className="hover:text-red-600 hover:underline"
-                              href={`https://www.ratemyprofessors.com/professor/${instructor.rmp_instructor_id}`}
-                              rel="noreferrer"
-                            >
-                              {instructor.name}
-                            </a>
-                          ) : (
-                            instructor.name
-                          )}
-                        </span>
-                        {instructor.avg_rating && (
-                          <div className="flex flex-wrap items-center gap-3 text-xs">
-                            <div className="flex items-center gap-1">
-                              <Star className="h-3.5 w-3.5 text-red-500 fill-current" />
-                              <span className="font-semibold text-gray-900">{formatRating(instructor.avg_rating)}</span>
-                            </div>
-                            <div className="flex items-center gap-1">
-                              <div className="w-1.5 h-1.5 rounded-full bg-red-400"></div>
-                              <span className="text-gray-700">Diff {formatRating(instructor.avg_difficulty)}</span>
-                            </div>
-                            <span className="text-gray-500">({instructor.num_ratings})</span>
-                          </div>
+            {/* Instructors */}
+            {section.instructors.length > 0 && (
+              <div>
+                <h6 className="font-bold mb-2 text-sm text-gray-900">Instructors:</h6>
+                <div className="space-y-2">
+                  {section.instructors.map((instructor, idx) => (
+                    <div
+                      key={idx}
+                      className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-2 bg-white rounded gap-2 text-sm"
+                    >
+                      <span className="font-semibold text-gray-900">
+                        {instructor.rmp_instructor_id ? (
+                          <a
+                            target="_blank"
+                            className="hover:text-red-600 hover:underline"
+                            href={`https://www.ratemyprofessors.com/professor/${instructor.rmp_instructor_id}`}
+                            rel="noreferrer"
+                          >
+                            {instructor.name}
+                          </a>
+                        ) : (
+                          instructor.name
                         )}
-                      </div>
-                    ))}
-                  </div>
+                      </span>
+                      {instructor.avg_rating && (
+                        <div className="flex flex-wrap items-center gap-3 text-xs">
+                          <div className="flex items-center gap-1">
+                            <Star className="h-3.5 w-3.5 text-red-500 fill-current" />
+                            <span className="font-semibold text-gray-900">{formatRating(instructor.avg_rating)}</span>
+                          </div>
+                          <div className="flex items-center gap-1">
+                            <div className="w-1.5 h-1.5 rounded-full bg-red-400"></div>
+                            <span className="text-gray-700">Diff {formatRating(instructor.avg_difficulty)}</span>
+                          </div>
+                          <span className="text-gray-500">({instructor.num_ratings})</span>
+                        </div>
+                      )}
+                    </div>
+                  ))}
                 </div>
-              )}
-            </div>
-          </CollapsibleContent>
-        </Collapsible>
+              </div>
+            )}
+
+            {/* Child Sections (Discussions/Labs under Lectures) */}
+            {children.length > 0 && (
+              <div className="mt-4 pt-4 border-t border-gray-200">
+                <h6 className="font-semibold text-gray-900 text-sm mb-3">Associated Sections:</h6>
+                <div className="space-y-2">{children.map((child) => renderSection(child, depth + 1))}</div>
+              </div>
+            )}
+          </div>
+        </CollapsibleContent>
+      </Collapsible>
+    )
+  }
+
+  return (
+    <div className="space-y-2">
+      {hierarchy.map((hierarchical) => (
+        <div key={hierarchical.section.section_id}>{renderSection(hierarchical)}</div>
       ))}
     </div>
   )
