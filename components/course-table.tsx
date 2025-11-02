@@ -21,7 +21,14 @@ import { PaginationControls } from "./pagination-controls"
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart"
 import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis } from "recharts"
 import { CourseHeader } from "./course-header"
-import type { Instructor } from "@/types/instructor" // Declare the Instructor variable
+// Instructor interface defined locally
+interface Instructor {
+  name: string
+  rmp_instructor_id: string | null
+  avg_rating: number | null
+  avg_difficulty: number | null
+  num_ratings: number | null
+}
 
 interface Meeting {
   meeting_number: number
@@ -404,38 +411,23 @@ export function CourseTable({
                         </div>
                       )}
 
-                      {course.workplace_experience_description && (
-                        <div className="bg-white border rounded-lg p-4">
-                          <div className="flex items-center gap-2 text-gray-700 mb-2">
-                            <BookOpen className="h-4 w-4 text-red-600" />
-                            <span className="font-medium text-sm">Experience</span>
-                          </div>
-                          <div className="text-gray-900 font-semibold text-sm">
-                            {course.workplace_experience_description}
-                          </div>
-                        </div>
-                      )}
-
-                      {course.repeatable_for_credit && (
-                        <div className="bg-white border rounded-lg p-4">
-                          <div className="flex items-center gap-2 text-gray-700 mb-2">
-                            <BarChart3 className="h-4 w-4 text-red-600" />
-                            <span className="font-medium text-sm">Repeatable</span>
-                          </div>
-                          <div className="text-gray-900 font-semibold">
-                            <Badge
-                              className={
-                                course.repeatable_for_credit === "Y"
-                                  ? "bg-green-100 text-green-800 border-green-200"
-                                  : "bg-gray-100 text-gray-800 border-gray-200"
-                              }
-                            >
-                              {course.repeatable_for_credit === "Y" ? "Yes" : "No"}
-                            </Badge>
-                          </div>
-                        </div>
-                      )}
                     </div>
+
+                    {/* Course Attributes Section */}
+                    {((course.workplace_experience_description && course.workplace_experience_description !== "STUDENT OPT") || 
+                      (course.repeatable_for_credit === "Y")) && (
+                      <div className="mt-4 p-4 bg-gray-50 rounded-lg border">
+                        <h4 className="font-medium text-gray-900 mb-2">Course Attributes:</h4>
+                        <div className="space-y-1 text-sm text-gray-700">
+                          {course.workplace_experience_description && course.workplace_experience_description !== "STUDENT OPT" && (
+                            <div>Workplace Experience Course</div>
+                          )}
+                          {course.repeatable_for_credit === "Y" && (
+                            <div>Repeatable for Credit</div>
+                          )}
+                        </div>
+                      </div>
+                    )}
                   </div>
 
                   {/* Grade Distribution Chart */}
