@@ -38,6 +38,9 @@ interface Course {
   sections: Section[]
   madgrades_course_uuid: string
   general_education: string | null
+  typically_offered: string | null
+  workplace_experience_description: string | null
+  repeatable_for_credit: string | null
 }
 
 interface Section {
@@ -116,7 +119,6 @@ interface FilterState {
   fridayEndTime?: string
   gen_ed?: string
   l_and_s?: boolean
-
 }
 
 export default function HomePage() {
@@ -188,7 +190,7 @@ export default function HomePage() {
         }
       })
 
-      console.log(params.toString());
+      console.log(params.toString())
 
       const response = await fetch(`/api/proxy?${params.toString()}`, {
         headers: {
