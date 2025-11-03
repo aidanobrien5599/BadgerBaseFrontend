@@ -81,7 +81,7 @@ interface HierarchicalSectionsProps {
 }
 
 export function HierarchicalSections({ sections }: HierarchicalSectionsProps) {
-  const [expandedLectures, setExpandedLectures] = useState<Set<number>>(new Set())
+  const [expandedLectures, setExpandedLectures] = useState<Set<string>>(new Set())
   const [expandedSections, setExpandedSections] = useState<Set<string>>(new Set())
 
   // Helper functions
@@ -133,6 +133,26 @@ export function HierarchicalSections({ sections }: HierarchicalSectionsProps) {
     return types.map(getMeetingTypeLabel).join(" + ")
   }
 
+  // Helper function to get aggregated status for lecture
+  const getAggregatedStatus = (children: SectionGroup[]): string => {
+    if (children.length === 0) return "CLOSED"
+    
+    const statuses = children.map(child => child.section.status.toUpperCase())
+    
+    // If any child is open, lecture is open
+    if (statuses.some(status => status === "OPEN")) {
+      return "OPEN"
+    }
+    
+    // If no open but at least one waitlist, lecture is waitlist
+    if (statuses.some(status => status === "WAITLIST")) {
+      return "WAITLIST"
+    }
+    
+    // Otherwise, lecture is closed
+    return "CLOSED"
+  }
+
   // Group sections into hierarchy
   const groupSections = (): HierarchicalSection[] => {
     const lectureMap = new Map<string, LectureSection>()
@@ -142,24 +162,25 @@ export function HierarchicalSections({ sections }: HierarchicalSectionsProps) {
       const lectureMeeting = section.meetings?.find(m => m.meeting_type.toUpperCase() === "LEC")
       
       if (lectureMeeting) {
-        // This section has a lecture - create lecture group
-        const lectureKey = `lecture-${section.section_id}`
+        // Create a unique key for this lecture based on time and location
+        const lectureKey = `${lectureMeeting.meeting_days}-${lectureMeeting.start_time}-${lectureMeeting.end_time}-${lectureMeeting.location || `${lectureMeeting.building_name} ${lectureMeeting.room}`}`
         
-        lectureMap.set(lectureKey, {
-          type: "lecture",
-          section,
-          lectureMeeting,
-          children: []
-        })
+        // If this lecture doesn't exist yet, create it
+        if (!lectureMap.has(lectureKey)) {
+          lectureMap.set(lectureKey, {
+            type: "lecture",
+            section, // Use the first section we encounter for the lecture
+            lectureMeeting,
+            children: []
+          })
+        }
 
-        // Group non-lecture meetings as children
+        // Add non-lecture meetings as children
         const nonLectureMeetings = section.meetings?.filter(m => m.meeting_type.toUpperCase() !== "LEC") || []
         if (nonLectureMeetings.length > 0) {
-          // Group by meeting type combinations within the same section
           const types = [...new Set(nonLectureMeetings.map(m => m.meeting_type))]
           const instructorsByType: Record<string, Instructor[]> = {}
           
-          // Assign all instructors to all types (could be refined with more specific data)
           types.forEach(type => {
             instructorsByType[type.toUpperCase()] = section.instructors
           })
@@ -187,12 +208,12 @@ export function HierarchicalSections({ sections }: HierarchicalSectionsProps) {
     return [...Array.from(lectureMap.values()), ...standaloneSection]
   }
 
-  const toggleLecture = (sectionId: number) => {
+  const toggleLecture = (lectureKey: string) => {
     const newExpanded = new Set(expandedLectures)
-    if (newExpanded.has(sectionId)) {
-      newExpanded.delete(sectionId)
+    if (newExpanded.has(lectureKey)) {
+      newExpanded.delete(lectureKey)
     } else {
-      newExpanded.add(sectionId)
+      newExpanded.add(lectureKey)
     }
     setExpandedLectures(newExpanded)
   }
@@ -222,17 +243,19 @@ export function HierarchicalSections({ sections }: HierarchicalSectionsProps) {
       {hierarchicalSections.map((hierarchicalSection, index) => {
         if (hierarchicalSection.type === "lecture") {
           const lecture = hierarchicalSection as LectureSection
-          const isLectureExpanded = expandedLectures.has(lecture.section.section_id)
+          const lectureKey = `${lecture.lectureMeeting.meeting_days}-${lecture.lectureMeeting.start_time}-${lecture.lectureMeeting.end_time}-${lecture.lectureMeeting.location || `${lecture.lectureMeeting.building_name} ${lecture.lectureMeeting.room}`}`
+          const isLectureExpanded = expandedLectures.has(lectureKey)
+          const aggregatedStatus = lecture.children.length > 0 ? getAggregatedStatus(lecture.children) : lecture.section.status
 
           return (
-            <div key={`lecture-${lecture.section.section_id}`} className="border rounded-lg bg-white">
+            <div key={lectureKey} className="border rounded-lg bg-white">
               {/* Lecture Row */}
               <Collapsible
                 open={isLectureExpanded}
-                onOpenChange={() => toggleLecture(lecture.section.section_id)}
+                onOpenChange={() => toggleLecture(lectureKey)}
               >
                 <CollapsibleTrigger asChild>
-                  <div className="flex items-center justify-between p-4 cursor-pointer hover:bg-red-50 transition-colors border-b border-red-100">
+                  <div className="flex items-center justify-between p-4 cursor-pointer transition-colors border-b border-red-100">
                     <div className="flex items-center gap-4 flex-1">
                       <div className="flex items-center gap-2">
                         {isLectureExpanded ? (
@@ -245,8 +268,8 @@ export function HierarchicalSections({ sections }: HierarchicalSectionsProps) {
                         </span>
                       </div>
 
-                      <Badge className={`${getStatusColor(lecture.section.status)} border font-medium`}>
-                        {lecture.section.status}
+                      <Badge className={`${getStatusColor(aggregatedStatus)} border font-medium`}>
+                        {aggregatedStatus}
                       </Badge>
 
                       <div className="flex items-center gap-2 text-sm text-gray-700">
@@ -278,7 +301,7 @@ export function HierarchicalSections({ sections }: HierarchicalSectionsProps) {
 
                     {/* Child Sections */}
                     {lecture.children.map((child, childIndex) => {
-                      const childKey = `${lecture.section.section_id}-child-${childIndex}`
+                      const childKey = `${lectureKey}-child-${childIndex}`
                       const isChildExpanded = expandedSections.has(childKey)
 
                       return (
@@ -288,7 +311,7 @@ export function HierarchicalSections({ sections }: HierarchicalSectionsProps) {
                             onOpenChange={() => toggleSection(childKey)}
                           >
                             <CollapsibleTrigger asChild>
-                              <div className="flex items-center justify-between p-3 cursor-pointer hover:bg-red-50 transition-colors border rounded-lg bg-white">
+                              <div className="flex items-center justify-between p-3 cursor-pointer transition-colors border rounded-lg bg-white">
                                 <div className="flex items-center gap-3 flex-1">
                                   <div className="flex items-center gap-2">
                                     {isChildExpanded ? (
@@ -301,6 +324,10 @@ export function HierarchicalSections({ sections }: HierarchicalSectionsProps) {
                                     </span>
                                   </div>
 
+                                  <Badge className={`${getStatusColor(child.section.status)} border font-medium`}>
+                                    {child.section.status}
+                                  </Badge>
+
                                   <div className="text-sm text-gray-700 flex-1 ml-4">
                                     {formatMeetingDisplay(child.meetings)}
                                   </div>
@@ -309,7 +336,7 @@ export function HierarchicalSections({ sections }: HierarchicalSectionsProps) {
                             </CollapsibleTrigger>
 
                             <CollapsibleContent>
-                              <div className="mt-2 p-4 bg-red-50 rounded-lg border border-red-200">
+                              <div className="mt-2 p-4  rounded-lg border">
                                 <SectionDetails section={child.section} />
                               </div>
                             </CollapsibleContent>
