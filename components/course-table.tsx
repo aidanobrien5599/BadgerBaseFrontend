@@ -21,7 +21,7 @@ import { PaginationControls } from "./pagination-controls"
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart"
 import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis } from "recharts"
 import { CourseHeader } from "./course-header"
-import { HierarchicalSections } from "./hierarchical-sections"
+import { HierarchicalSections } from "./sections"
 // Instructor interface defined locally
 interface Instructor {
   name: string
