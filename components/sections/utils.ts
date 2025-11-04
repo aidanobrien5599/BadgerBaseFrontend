@@ -66,12 +66,12 @@ export const formatRating = (rating: number | null) => {
 /**
  * Creates a display string for multiple meetings
  * @param meetings - Array of meeting objects
- * @returns Comma-separated string of meeting times and locations
+ * @returns Comma-separated string of meeting times and locations with section numbers
  */
 export const formatMeetingDisplay = (meetings: any[]) => {
-  return meetings.map(meeting => 
-    `${meeting.meeting_days} ${formatMeetingTime(meeting.start_time, meeting.end_time)} (${meeting.location || `${meeting.building_name} ${meeting.room}`})`
-  ).join(", ")
+  return meetings.map(meeting => {
+    return `${meeting.meeting_days} ${formatMeetingTime(meeting.start_time, meeting.end_time)} (${meeting.location || `${meeting.building_name} ${meeting.room}`})`
+  }).join(", ")
 }
 
 /**

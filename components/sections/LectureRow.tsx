@@ -37,7 +37,7 @@ export function LectureRow({
                   <ChevronRight className="h-5 w-5 text-red-600" />
                 )}
                 <span className="font-bold text-gray-900 text-lg">
-                  Lecture 
+                  Lecture {lecture.lectureMeeting?.section_number || ""}
                 </span>
               </div>
 
@@ -89,7 +89,7 @@ export function LectureRow({
                               <ChevronRight className="h-4 w-4 text-red-600" />
                             )}
                             <span className="font-medium text-gray-900">
-                              {getDynamicSectionLabel(child.types)} 
+                              {getDynamicSectionLabel(child.types)} {child.meetings[0]?.section_number || ""}
                             </span>
                           </div>
 
