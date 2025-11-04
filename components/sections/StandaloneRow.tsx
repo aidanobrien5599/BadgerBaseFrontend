@@ -1,8 +1,8 @@
 import { Badge } from "@/components/ui/badge"
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible"
-import { ChevronDown, ChevronRight } from "lucide-react"
+import { ChevronDown, ChevronRight, Clock, MapPin } from "lucide-react"
 import { StandaloneSection } from "./types"
-import { getStatusColor, getDynamicSectionLabel, formatMeetingDisplay } from "./utils"
+import { getStatusColor, getDynamicSectionLabel, formatMeetingTime, formatMeetingDisplay } from "./utils"
 import { StandaloneDetails } from "./SectionDetails"
 
 interface StandaloneRowProps {
@@ -34,9 +34,23 @@ export function StandaloneRow({ standalone, standaloneKey, isExpanded, onToggle 
                 {standalone.section.status}
               </Badge>
 
-              <div className="text-sm text-gray-700 font-medium flex-1 ml-4">
-                {formatMeetingDisplay(standalone.meetings)}
-              </div>
+              {standalone.meetings.length > 0 && (
+                <>
+                  <div className="flex items-center gap-2 text-sm text-gray-700">
+                    <Clock className="h-4 w-4 text-red-600" />
+                    <span className="font-medium">
+                      {standalone.meetings[0].meeting_days} {formatMeetingTime(standalone.meetings[0].start_time, standalone.meetings[0].end_time)}
+                    </span>
+                  </div>
+
+                  <div className="flex items-center gap-2 text-sm text-gray-700">
+                    <MapPin className="h-4 w-4 text-red-600" />
+                    <span className="font-medium">
+                      {standalone.meetings[0].location || `${standalone.meetings[0].building_name} ${standalone.meetings[0].room}`}
+                    </span>
+                  </div>
+                </>
+              )}
             </div>
           </div>
         </CollapsibleTrigger>
