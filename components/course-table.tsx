@@ -94,6 +94,7 @@ interface Course {
   typically_offered: string | null
   workplace_experience_description: string | null
   repeatable_for_credit: string | null
+  subject_footnotes: string | null
 }
 
 interface CourseTableProps {
@@ -196,6 +197,30 @@ export function CourseTable({
 
   const formatMeetingTime = (startTime: string, endTime: string) => {
     return `${startTime} - ${endTime}`
+  }
+
+  function ExpandableText({ text, maxChars = 230 }: { text: string; maxChars?: number }) {
+    const [expanded, setExpanded] = useState(false)
+
+    if (text.length <= maxChars) {
+      return <p className="text-sm text-gray-600">{text}</p>
+    }
+
+    return (
+      <div className="text-sm text-gray-600">
+        {expanded ? text : `${text.substring(0, maxChars)}...`}
+        <button
+          type="button"
+          onClick={(e) => {
+            e.stopPropagation()
+            setExpanded(!expanded)
+          }}
+          className="ml-2 text-red-600 hover:text-red-700 text-xs font-medium hover:underline"
+        >
+          {expanded ? "Show less" : "Show more"}
+        </button>
+      </div>
+    )
   }
 
   const getMeetingTypeColor = (type: string) => {
@@ -431,6 +456,14 @@ export function CourseTable({
                             </li>
                           )}
                         </ul>
+                      </div>
+                    )}
+
+                    {/* Subject Notes Section */}
+                    {course.subject_footnotes && (
+                      <div className="mt-4 p-4 bg-white rounded-lg border">
+                        <h4 className="font-semibold text-gray-900 mb-3">Subject Notes:</h4>
+                        <ExpandableText text={course.subject_footnotes} maxChars={230} />
                       </div>
                     )}
                   </div>

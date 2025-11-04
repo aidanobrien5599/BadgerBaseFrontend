@@ -41,6 +41,7 @@ interface Course {
   typically_offered: string | null
   workplace_experience_description: string | null
   repeatable_for_credit: string | null
+  subject_footnotes: string | null
 }
 
 interface Section {
