@@ -9,7 +9,7 @@ interface SectionDetailsProps {
 // Component for lecture-only details
 export function LectureDetails({ section }: SectionDetailsProps) {
   return (
-    <div className="space-y-3 mt-2">
+    <div className="space-y-3 mt-2 mt-[-20px]">
       {section.instructors.length > 0 && (
         <div>
           <h6 className="font-bold mb-2 text-gray-900">Instructors:</h6>
@@ -64,7 +64,7 @@ export function SectionDetails({ section }: SectionDetailsProps) {
 // Component for standalone section details
 export function StandaloneDetails({ section }: SectionDetailsProps) {
   return (
-    <div className="space-y-3 mt-2">
+    <div className="space-y-3  mt-[-20px]">
       {section.instructors.length > 0 && (
         <div>
           <h6 className="font-bold mb-2 text-gray-900">Instructors:</h6>

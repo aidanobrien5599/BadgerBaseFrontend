@@ -41,7 +41,7 @@ export function LectureRow({
                 </span>
               </div>
 
-              <Badge className={`${getStatusColor(aggregatedStatus)} border font-medium`}>
+              <Badge className={`${getStatusColor(aggregatedStatus)} font-medium`}>
                 {aggregatedStatus}
               </Badge>
 
@@ -63,10 +63,10 @@ export function LectureRow({
         </CollapsibleTrigger>
 
         <CollapsibleContent>
-          <div className="px-4 pb-4 space-y-3">
+          <div className="space-y-3">
             {/* Lecture-only details (if no children) */}
             {lecture.children.length === 0 && (
-              <div className="ml-6 rounded-lg">
+              <div className="p-4 rounded-lg mx-4 mb-4">
                 <LectureDetails section={lecture.section} />
               </div>
             )}
@@ -77,7 +77,7 @@ export function LectureRow({
               const isChildExpanded = expandedSections.has(childKey)
 
               return (
-                <div key={childKey} className="ml-4 pl-4 border-l-2 border-red-100">
+                <div key={childKey} className="mx-4 pl-4 border-l-2 border-red-100">
                   <Collapsible className="border rounded-lg" open={isChildExpanded} onOpenChange={() => onToggleSection(childKey)}>
                     <CollapsibleTrigger asChild>
                       <div className="flex items-center justify-between p-3 cursor-pointer transition-colors bg-white">
