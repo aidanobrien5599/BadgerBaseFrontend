@@ -26,7 +26,7 @@ export function StandaloneRow({ standalone, standaloneKey, isExpanded, onToggle 
                   <ChevronRight className="h-5 w-5 text-red-600" />
                 )}
                 <span className="font-bold text-gray-900 text-lg">
-                  {getDynamicSectionLabel(standalone.dynamicTypes)} 
+                  {getDynamicSectionLabel(standalone.dynamicTypes)} {standalone.meetings[0]?.section_number || ""}
                 </span>
               </div>
 

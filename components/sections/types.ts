@@ -38,6 +38,8 @@ export interface Meeting {
   room: string
   /** Full location string (building + room or custom location) */
   location: string
+  /** Section number for this meeting (e.g., "001", "321") */
+  section_number?: string
 }
 
 export interface Section {
