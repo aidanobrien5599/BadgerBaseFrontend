@@ -85,64 +85,81 @@ export function PaginationControls({
           Showing {startResult.toLocaleString()}-{endResult.toLocaleString()} of {totalCount.toLocaleString()}
         </div>
 
-        {/* Center: Desktop pagination */}
-        <div className="hidden md:flex items-center gap-1">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => onPageChange(1)}
-            disabled={currentPage === 1}
-            className="h-8 w-8 p-0"
-          >
-            <ChevronsLeft className="h-4 w-4" />
-          </Button>
+        {/* Center: Desktop pagination with sort filter */}
+        <div className="hidden md:flex items-center gap-3">
+          <div className="flex items-center gap-1">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => onPageChange(1)}
+              disabled={currentPage === 1}
+              className="h-8 w-8 p-0"
+            >
+              <ChevronsLeft className="h-4 w-4" />
+            </Button>
 
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => onPageChange(currentPage - 1)}
-            disabled={currentPage === 1}
-            className="h-8 w-8 p-0"
-          >
-            <ChevronLeft className="h-4 w-4" />
-          </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => onPageChange(currentPage - 1)}
+              disabled={currentPage === 1}
+              className="h-8 w-8 p-0"
+            >
+              <ChevronLeft className="h-4 w-4" />
+            </Button>
 
-          {pageNumbers.map((page, index) => (
-            <div key={index}>
-              {page === "..." ? (
-                <span className="px-2 py-1 text-sm text-gray-500">...</span>
-              ) : (
-                <Button
-                  variant={currentPage === page ? "default" : "outline"}
-                  size="sm"
-                  onClick={() => onPageChange(page as number)}
-                  className="h-8 w-8 p-0"
-                >
-                  {page}
-                </Button>
-              )}
-            </div>
-          ))}
+            {pageNumbers.map((page, index) => (
+              <div key={index}>
+                {page === "..." ? (
+                  <span className="px-2 py-1 text-sm text-gray-500">...</span>
+                ) : (
+                  <Button
+                    variant={currentPage === page ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => onPageChange(page as number)}
+                    className="h-8 w-8 p-0"
+                  >
+                    {page}
+                  </Button>
+                )}
+              </div>
+            ))}
 
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => onPageChange(currentPage + 1)}
-            disabled={!hasMore || currentPage === totalPages}
-            className="h-8 w-8 p-0"
-          >
-            <ChevronRight className="h-4 w-4" />
-          </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => onPageChange(currentPage + 1)}
+              disabled={!hasMore || currentPage === totalPages}
+              className="h-8 w-8 p-0"
+            >
+              <ChevronRight className="h-4 w-4" />
+            </Button>
 
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => onPageChange(totalPages)}
-            disabled={currentPage === totalPages}
-            className="h-8 w-8 p-0"
-          >
-            <ChevronsRight className="h-4 w-4" />
-          </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => onPageChange(totalPages)}
+              disabled={currentPage === totalPages}
+              className="h-8 w-8 p-0"
+            >
+              <ChevronsRight className="h-4 w-4" />
+            </Button>
+          </div>
+
+          {/* Sort dropdown right next to pagination */}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" size="sm" className="h-8 gap-1.5 bg-white">
+                <ArrowUpDown className="h-3.5 w-3.5" />
+                <span className="text-xs">{getSortLabel()}</span>
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem onClick={() => onSortChange("")}>Catalog Number</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => onSortChange("cumulative_gpa")}>Cumulative GPA</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => onSortChange("recent_gpa")}>Recent GPA</DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
 
         {/* Mobile pagination */}
@@ -181,22 +198,21 @@ export function PaginationControls({
             Next
             <ChevronRight className="h-4 w-4 ml-1" />
           </Button>
-        </div>
 
-        {/* Right: Compact sort dropdown */}
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="outline" size="sm" className="h-8 gap-1.5 bg-transparent">
-              <ArrowUpDown className="h-3.5 w-3.5" />
-              <span className="text-xs">{getSortLabel()}</span>
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuItem onClick={() => onSortChange("")}>Catalog Number</DropdownMenuItem>
-            <DropdownMenuItem onClick={() => onSortChange("cumulative_gpa")}>Cumulative GPA</DropdownMenuItem>
-            <DropdownMenuItem onClick={() => onSortChange("recent_gpa")}>Recent GPA</DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+          {/* Mobile sort filter - icon only */}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" size="sm" className="h-8 w-8 p-0 bg-white">
+                <ArrowUpDown className="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem onClick={() => onSortChange("")}>Catalog Number</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => onSortChange("cumulative_gpa")}>Cumulative GPA</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => onSortChange("recent_gpa")}>Recent GPA</DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
       </div>
     </div>
   )
