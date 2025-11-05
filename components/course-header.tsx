@@ -86,7 +86,15 @@ export function CourseHeader({ course, isExpanded }: { course: any; isExpanded: 
                     {/* Title + Code */}
                     <div className="space-y-2">
                       <CardTitle className="text-xl font-bold text-gray-900">
-                        {course.course_title}
+                        <a
+                          href={`https://public.enroll.wisc.edu/search?keywords=${encodeURIComponent(course.course_designation)}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="hover:text-red-600 hover:underline"
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          {course.course_title}
+                        </a>
                       </CardTitle>
                       <div className="flex items-center gap-2 flex-wrap">
                         <Badge className="bg-red-600 text-white font-semibold">

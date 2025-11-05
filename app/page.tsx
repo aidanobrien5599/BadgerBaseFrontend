@@ -38,6 +38,9 @@ interface Course {
   sections: Section[]
   madgrades_course_uuid: string
   general_education: string | null
+  typically_offered: string | null
+  workplace_experience_description: string | null
+  repeatable_for_credit: string | null
 }
 
 interface Section {
