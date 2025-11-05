@@ -119,6 +119,7 @@ interface FilterState {
   fridayEndTime?: string
   gen_ed?: string
   l_and_s?: boolean
+  sort?: string
 }
 
 export default function HomePage() {
@@ -167,6 +168,7 @@ export default function HomePage() {
     fridayStartTime: "",
     fridayEndTime: "",
     gen_ed: "",
+    sort: "",
   })
 
   const searchCourses = async (page = 1) => {
@@ -192,11 +194,7 @@ export default function HomePage() {
 
       console.log(params.toString())
 
-      const response = await fetch(`/api/proxy?${params.toString()}`, {
-        headers: {
-          "x-client-secret": process.env.NEXT_PUBLIC_CLIENT_SECRET ?? "",
-        },
-      })
+      const response = await fetch(`/api/proxy?${params.toString()}`)
 
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`)
@@ -230,6 +228,54 @@ export default function HomePage() {
   const handleSearch = () => {
     setCurrentPage(1)
     searchCourses(1)
+  }
+
+  const handleSortChange = (newSort: string) => {
+    setFilters((prev) => ({ ...prev, sort: newSort }))
+    setCurrentPage(1)
+    // Create updated filters with new sort value
+    const updatedFilters = { ...filters, sort: newSort }
+
+    // Build params with updated sort
+    const params = new URLSearchParams()
+    params.append("page", "1")
+
+    Object.entries(updatedFilters).forEach(([key, value]) => {
+      if (value && value !== "" && value !== false) {
+        if (typeof value === "boolean") {
+          params.append(key, "true")
+        } else {
+          params.append(key, value.toString())
+        }
+      }
+    })
+
+    setLoading(true)
+    setError(null)
+
+    fetch(`/api/proxy?${params.toString()}`)
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`)
+        }
+        return response.json()
+      })
+      .then((data: ApiResponse) => {
+        setCourses(data.data || [])
+        setCurrentPage(1)
+        setTotalCount(data.total_count || 0)
+        setHasMore(data.has_more || false)
+      })
+      .catch((err) => {
+        setError(err instanceof Error ? err.message : "An error occurred")
+        setCourses([])
+        setCurrentPage(1)
+        setTotalCount(0)
+        setHasMore(false)
+      })
+      .finally(() => {
+        setLoading(false)
+      })
   }
 
   const totalPages = Math.ceil(totalCount / Number.parseInt(filters.limit))
@@ -274,6 +320,8 @@ export default function HomePage() {
                 hasMore={hasMore}
                 onPageChange={handlePageChange}
                 resultsPerPage={Number.parseInt(filters.limit)}
+                currentSort={filters.sort || ""}
+                onSortChange={handleSortChange}
               />
             </div>
           )}

@@ -10,7 +10,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Loader2, Sparkles, Zap, TrendingUp, Users, FlameIcon as Fire } from "lucide-react"
+import { Loader2, Sparkles, Zap, TrendingUp, Users, File as Fire } from "lucide-react"
 import { useIsMobile } from "@/hooks/use-mobile"
 
 interface Course {
@@ -186,11 +186,7 @@ export default function HomePage() {
           }
         }
       })
-      const response = await fetch(`/api/proxy?${params.toString()}`, {
-        headers: {
-          "x-client-secret": process.env.NEXT_PUBLIC_CLIENT_SECRET ?? "",
-        },
-      })
+      const response = await fetch(`/api/proxy?${params.toString()}`)
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`)
       }
@@ -229,26 +225,34 @@ export default function HomePage() {
 
   return (
     <div className="min-h-screen relative overflow-hidden">
-  {/* Video Background */}
-  <video
-    autoPlay
-    muted
-    loop
-    playsInline
-    className="absolute inset-0 w-full h-full object-cover z-0"
-  >
-    {isMobile ? (
-      <source src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/git-blob/prj_2Uw13M88jvJCMJN6OjPlqwC7dTHl/tUzt_8JRUom5ryoq3JgGC1/public/videos/background-video-mobile.mp4" type="video/mp4" />
-    ) : (
-      <source src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/git-blob/prj_2Uw13M88jvJCMJN6OjPlqwC7dTHl/5zf3UQPkaMC5E4i--ejFzm/public/videos/background-video.mp4" type="video/mp4" />
-    )}
-  </video>
+      {/* Video Background */}
+      <video autoPlay muted loop playsInline className="absolute inset-0 w-full h-full object-cover z-0">
+        {isMobile ? (
+          <source
+            src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/git-blob/prj_2Uw13M88jvJCMJN6OjPlqwC7dTHl/tUzt_8JRUom5ryoq3JgGC1/public/videos/background-video-mobile.mp4"
+            type="video/mp4"
+          />
+        ) : (
+          <source
+            src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/git-blob/prj_2Uw13M88jvJCMJN6OjPlqwC7dTHl/5zf3UQPkaMC5E4i--ejFzm/public/videos/background-video.mp4"
+            type="video/mp4"
+          />
+        )}
+      </video>
       {/* Audio elements for sounds - these are used as templates for cloning */}
-      <audio ref={bellSoundRef} src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/git-blob/prj_2Uw13M88jvJCMJN6OjPlqwC7dTHl/B0g4cHw2pSmuN9cDtf_you/public/sounds/bell-sound.mp3" preload="auto" />
-      <audio ref={clickSoundRef} src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/git-blob/prj_2Uw13M88jvJCMJN6OjPlqwC7dTHl/B0g4cHw2pSmuN9cDtf_you/public/sounds/bell-sound.mp3" preload="auto" />
+      <audio
+        ref={bellSoundRef}
+        src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/git-blob/prj_2Uw13M88jvJCMJN6OjPlqwC7dTHl/B0g4cHw2pSmuN9cDtf_you/public/sounds/bell-sound.mp3"
+        preload="auto"
+      />
+      <audio
+        ref={clickSoundRef}
+        src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/git-blob/prj_2Uw13M88jvJCMJN6OjPlqwC7dTHl/B0g4cHw2pSmuN9cDtf_you/public/sounds/bell-sound.mp3"
+        preload="auto"
+      />
 
       {/* Extreme flashing background overlay */}
-      
+
       <div className="relative z-10">
         <NotificationTicker />
         {/* Live Stats Header */}
