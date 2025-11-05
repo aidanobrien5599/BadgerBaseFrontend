@@ -104,6 +104,8 @@ interface CourseTableProps {
   hasMore: boolean
   onPageChange: (page: number) => void
   resultsPerPage: number
+  currentSort: string
+  onSortChange: (sort: string) => void
 }
 
 export function CourseTable({
@@ -114,6 +116,8 @@ export function CourseTable({
   hasMore,
   onPageChange,
   resultsPerPage,
+  currentSort,
+  onSortChange,
 }: CourseTableProps) {
   const [expandedCourses, setExpandedCourses] = useState<Set<number>>(new Set())
   const [hideClosedSections, setHideClosedSections] = useState(false)
@@ -288,6 +292,8 @@ export function CourseTable({
           hasMore={hasMore}
           onPageChange={onPageChange}
           resultsPerPage={resultsPerPage}
+          currentSort={currentSort}
+          onSortChange={onSortChange}
         />
       )}
 
@@ -533,6 +539,8 @@ export function CourseTable({
           hasMore={hasMore}
           onPageChange={onPageChange}
           resultsPerPage={resultsPerPage}
+          currentSort={currentSort}
+          onSortChange={onSortChange}
         />
       )}
     </div>
