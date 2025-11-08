@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Menu, X } from "lucide-react"
 import { useState } from "react"
+import { AuthButton } from "@/components/auth-button"
 
 export function Navigation() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
@@ -52,10 +53,12 @@ export function Navigation() {
             <Link href="/about" className={getLinkClasses("/about")}>
               About
             </Link>
+            <AuthButton />
           </div>
           
-          {/* Mobile menu button */}
-          <div className="md:hidden">
+          {/* Mobile menu button and auth */}
+          <div className="md:hidden flex items-center space-x-2">
+            <AuthButton />
             <Button variant="ghost" size="sm" onClick={() => setIsMenuOpen(!isMenuOpen)} aria-label="Toggle menu">
               {isMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
             </Button>
