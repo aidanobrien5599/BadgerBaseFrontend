@@ -4,7 +4,7 @@ import { useEffect, useState } from "react"
 import { createClient } from "@/lib/supabase/client"
 import { Button } from "@/components/ui/button"
 import { User } from "@supabase/supabase-js"
-import { LoginDialog } from "./login-dialog"
+import Link from "next/link"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -14,12 +14,11 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
-import { LogOut, User as UserIcon } from "lucide-react"
+import { LogOut } from "lucide-react"
 
 export function AuthButton() {
   const [user, setUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
-  const [isLoginOpen, setIsLoginOpen] = useState(false)
   const supabase = createClient()
 
   useEffect(() => {
@@ -53,24 +52,32 @@ export function AuthButton() {
   }
 
   if (user) {
-    const initials = user.email
-      ?.split("@")[0]
-      .substring(0, 2)
-      .toUpperCase() ?? "U"
+    // Try to get display name from metadata, fallback to email
+    const displayName = user.user_metadata?.display_name || user.user_metadata?.full_name
+    const initials = displayName
+      ? displayName
+          .split(" ")
+          .map((n: string) => n[0])
+          .join("")
+          .toUpperCase()
+          .slice(0, 2)
+      : user.email?.split("@")[0].substring(0, 2).toUpperCase() ?? "U"
 
     return (
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button variant="ghost" className="relative h-10 w-10 rounded-full">
             <Avatar>
-              <AvatarFallback>{initials}</AvatarFallback>
+              <AvatarFallback className="bg-red-700 text-white">{initials}</AvatarFallback>
             </Avatar>
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent className="w-56" align="end" forceMount>
           <DropdownMenuLabel className="font-normal">
             <div className="flex flex-col space-y-1">
-              <p className="text-sm font-medium leading-none">Account</p>
+              <p className="text-sm font-medium leading-none">
+                {displayName || "Account"}
+              </p>
               <p className="text-xs leading-none text-muted-foreground">
                 {user.email}
               </p>
@@ -87,15 +94,12 @@ export function AuthButton() {
   }
 
   return (
-    <>
-      <Button
-        variant="default"
-        onClick={() => setIsLoginOpen(true)}
-        className="bg-red-700 hover:bg-red-800 text-white"
-      >
-        Login
-      </Button>
-      <LoginDialog open={isLoginOpen} onOpenChange={setIsLoginOpen} />
-    </>
+    <Button
+      asChild
+      variant="default"
+      className="bg-red-700 hover:bg-red-800 text-white"
+    >
+      <Link href="/login">Login</Link>
+    </Button>
   )
 }
