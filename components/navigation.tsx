@@ -6,10 +6,12 @@ import { Button } from "@/components/ui/button"
 import { Menu, X } from "lucide-react"
 import { useState } from "react"
 import { AuthButton } from "@/components/auth-button"
+import { useAuth } from "@/hooks/use-auth"
 
 export function Navigation() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const pathname = usePathname()
+  const { isAuthenticated } = useAuth()
   
   // Helper function to determine if link is active
   const isActive = (path: string) => {
@@ -50,6 +52,11 @@ export function Navigation() {
             <Link href="/" className={getLinkClasses("/")}>
               Search
             </Link>
+            {isAuthenticated && (
+              <Link href="/dashboard" className={getLinkClasses("/dashboard")}>
+                Dashboard
+              </Link>
+            )}
             <Link href="/about" className={getLinkClasses("/about")}>
               About
             </Link>
@@ -76,6 +83,15 @@ export function Navigation() {
               >
                 Search
               </Link>
+              {isAuthenticated && (
+                <Link
+                  href="/dashboard"
+                  className={getLinkClasses("/dashboard", true)}
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  Dashboard
+                </Link>
+              )}
               <Link
                 href="/about"
                 className={getLinkClasses("/about", true)}
