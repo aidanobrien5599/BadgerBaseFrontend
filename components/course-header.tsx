@@ -10,6 +10,7 @@ import { TrendingUp } from "lucide-react"
 import { BarChart3 } from "lucide-react"
 import { useState } from "react"
 import { Award } from "lucide-react"
+import { NotificationButton } from "./notification-button"
 
 export function CourseHeader({ course, isExpanded }: { course: any; isExpanded: boolean }) {
 
@@ -85,17 +86,28 @@ export function CourseHeader({ course, isExpanded }: { course: any; isExpanded: 
                   <div className="space-y-4">
                     {/* Title + Code */}
                     <div className="space-y-2">
-                      <CardTitle className="text-xl font-bold text-gray-900">
-                        <a
-                          href={`https://public.enroll.wisc.edu/search?keywords=${encodeURIComponent(course.course_designation)}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="hover:text-red-600 hover:underline"
-                          onClick={(e) => e.stopPropagation()}
-                        >
-                          {course.course_title}
-                        </a>
-                      </CardTitle>
+                      <div className="flex items-start justify-between gap-4">
+                        <CardTitle className="text-xl font-bold text-gray-900">
+                          <a
+                            href={`https://public.enroll.wisc.edu/search?keywords=${encodeURIComponent(course.course_designation)}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="hover:text-red-600 hover:underline"
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            {course.course_title}
+                          </a>
+                        </CardTitle>
+                        {course.status === 0 && (
+                          <div onClick={(e) => e.stopPropagation()}>
+                            <NotificationButton
+                              type="course"
+                              id={course.course_id}
+                              isEnabled={course.status === 0}
+                            />
+                          </div>
+                        )}
+                      </div>
                       <div className="flex items-center gap-2 flex-wrap">
                         <Badge className="bg-red-600 text-white font-semibold">
                           {course.course_designation}
