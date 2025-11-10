@@ -8,6 +8,7 @@ import { Analytics } from "@vercel/analytics/react"
 import { PostHogProvider } from "@/components/PostHogProvider"
 import { MaintenanceBanner } from "@/components/maintenance-banner" // Import the new component
 import { Suspense } from "react"
+import { Toaster } from "sonner"
 
 const inter = Inter({ subsets: ["latin"] })
 
@@ -35,6 +36,7 @@ export default function RootLayout({
             <main className="min-h-screen bg-gray-50">{children}</main>
             <Footer />
             <Analytics />
+            <Toaster />
           </PostHogProvider>
         </Suspense>
       </body>

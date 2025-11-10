@@ -4,6 +4,7 @@ import { ChevronDown, ChevronRight, Clock, MapPin } from "lucide-react"
 import { StandaloneSection } from "./types"
 import { getStatusColor, getDynamicSectionLabel, formatMeetingTime, formatMeetingDisplay } from "./utils"
 import { StandaloneDetails } from "./SectionDetails"
+import { NotificationButton } from "@/components/notification-button"
 
 interface StandaloneRowProps {
   standalone: StandaloneSection
@@ -50,6 +51,16 @@ export function StandaloneRow({ standalone, standaloneKey, isExpanded, onToggle 
                     </span>
                   </div>
                 </>
+              )}
+
+              {standalone.section.status.toUpperCase() === "CLOSED" && (
+                <div onClick={(e) => e.stopPropagation()}>
+                  <NotificationButton
+                    type="section"
+                    id={standalone.section.section_id}
+                    isEnabled={standalone.section.status.toUpperCase() === "CLOSED"}
+                  />
+                </div>
               )}
             </div>
           </div>

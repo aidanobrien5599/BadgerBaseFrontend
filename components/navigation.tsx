@@ -5,10 +5,13 @@ import { usePathname } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Menu, X } from "lucide-react"
 import { useState } from "react"
+import { AuthButton } from "@/components/auth-button"
+import { useAuth } from "@/hooks/use-auth"
 
 export function Navigation() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const pathname = usePathname()
+  const { isAuthenticated } = useAuth()
   
   // Helper function to determine if link is active
   const isActive = (path: string) => {
@@ -49,13 +52,20 @@ export function Navigation() {
             <Link href="/" className={getLinkClasses("/")}>
               Search
             </Link>
+            {isAuthenticated && (
+              <Link href="/dashboard" className={getLinkClasses("/dashboard")}>
+                Dashboard
+              </Link>
+            )}
             <Link href="/about" className={getLinkClasses("/about")}>
               About
             </Link>
+            <AuthButton />
           </div>
           
-          {/* Mobile menu button */}
-          <div className="md:hidden">
+          {/* Mobile menu button and auth */}
+          <div className="md:hidden flex items-center space-x-2">
+            <AuthButton />
             <Button variant="ghost" size="sm" onClick={() => setIsMenuOpen(!isMenuOpen)} aria-label="Toggle menu">
               {isMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
             </Button>
@@ -73,6 +83,15 @@ export function Navigation() {
               >
                 Search
               </Link>
+              {isAuthenticated && (
+                <Link
+                  href="/dashboard"
+                  className={getLinkClasses("/dashboard", true)}
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  Dashboard
+                </Link>
+              )}
               <Link
                 href="/about"
                 className={getLinkClasses("/about", true)}

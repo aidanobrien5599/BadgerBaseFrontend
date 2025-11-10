@@ -6,7 +6,7 @@ export function Footer() {
           {/* Left side - Creator */}
           <div className="flex flex-col items-center text-center space-y-1">
           <p className="text-sm text-gray-600">
-            Created by <span className=" hover:underline font-semibold text-red-600"><a href="https://aidanpobrien.com">Aidan O'Brien</a></span>
+            Created by <span className=" hover:underline font-semibold text-red-600"><a href="https://aidanpobrien.com">Aidan O'Brien</a></span> and <span className=" hover:underline font-semibold text-red-600"><a href="https://navkumarr.github.io/navportfolio/">Nav Kumar</a></span>
           </p>
         </div>
 
