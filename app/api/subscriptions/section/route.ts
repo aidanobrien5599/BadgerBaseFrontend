@@ -53,6 +53,7 @@ export async function POST(request: Request) {
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${accessToken}`,
+        'X-API-Key': process.env.SUBSCRIPTION_API_KEY || '',
       },
       body: JSON.stringify({ 
         section_id,

@@ -4,6 +4,7 @@ import { ChevronDown, ChevronRight, Clock, MapPin } from "lucide-react"
 import { LectureSection, SectionGroup } from "./types"
 import { getStatusColor, formatMeetingTime, getDynamicSectionLabel, formatMeetingDisplay } from "./utils"
 import { LectureDetails, SectionDetails } from "./SectionDetails"
+import { NotificationButton } from "@/components/notification-button"
 
 interface LectureRowProps {
   lecture: LectureSection
@@ -58,6 +59,17 @@ export function LectureRow({
                   {lecture.lectureMeeting.location || `${lecture.lectureMeeting.building_name} ${lecture.lectureMeeting.room}`}
                 </span>
               </div>
+
+              {/* Notification button for lecture-only sections (no children) when closed */}
+              {lecture.children.length === 0 && lecture.section.status.toUpperCase() === "CLOSED" && (
+                <div onClick={(e) => e.stopPropagation()}>
+                  <NotificationButton
+                    type="section"
+                    id={lecture.section.section_id}
+                    isEnabled={lecture.section.status.toUpperCase() === "CLOSED"}
+                  />
+                </div>
+              )}
             </div>
           </div>
         </CollapsibleTrigger>
@@ -100,6 +112,16 @@ export function LectureRow({
                           <div className="text-sm text-gray-700 flex-1 ml-4">
                             {formatMeetingDisplay(child.meetings)}
                           </div>
+
+                          {child.section.status.toUpperCase() === "CLOSED" && (
+                            <div onClick={(e) => e.stopPropagation()}>
+                              <NotificationButton
+                                type="section"
+                                id={child.section.section_id}
+                                isEnabled={child.section.status.toUpperCase() === "CLOSED"}
+                              />
+                            </div>
+                          )}
                         </div>
                       </div>
                     </CollapsibleTrigger>
