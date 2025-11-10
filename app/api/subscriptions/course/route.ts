@@ -1,8 +1,13 @@
+export const runtime = 'nodejs'
+
 import { createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
 
 // Get your Railway backend URL from environment variables
 const SUBSCRIPTION_URL = process.env.SUBSCRIPTION_URL 
+
+console.log('SUBSCRIPTION_URL', SUBSCRIPTION_URL)
+
 
 export async function POST(request: Request) {
   try {
@@ -20,6 +25,9 @@ export async function POST(request: Request) {
     // Get the access token and user email from the session
     const accessToken = session.access_token
     const userEmail = session.user.email
+
+    console.log('accessToken', accessToken)
+    console.log('userEmail', userEmail)
 
     // Get the request body
     const body = await request.json()
@@ -53,6 +61,7 @@ export async function POST(request: Request) {
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${accessToken}`,
+        'X-API-Key': process.env.SUBSCRIPTION_API_KEY || '',
       },
       body: JSON.stringify({ 
         course_id,

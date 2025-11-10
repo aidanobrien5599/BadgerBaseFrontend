@@ -5,6 +5,7 @@ export async function GET(request: Request) {
 
   const ALLOWED_ORIGINS = [
     "https://sconniegrades.com",
+    "https://www.sconniegrades.com",
     "https://badgerbase.app",
     "https://www.badgerbase.app",
     "http://localhost:3000", // for local dev
