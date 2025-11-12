@@ -24,8 +24,9 @@ import { StandaloneRow } from "./StandaloneRow"
 /**
  * Main component for displaying hierarchical course sections
  * @param sections - Array of course sections to display
+ * @param courseTitle - Course title for subscription notifications
  */
-export function HierarchicalSections({ sections }: HierarchicalSectionsProps) {
+export function HierarchicalSections({ sections, courseTitle }: HierarchicalSectionsProps) {
   // State for tracking which lectures and sections are expanded
   const [expandedLectures, setExpandedLectures] = useState<Set<string>>(new Set())
   const [expandedSections, setExpandedSections] = useState<Set<string>>(new Set())
@@ -87,6 +88,7 @@ export function HierarchicalSections({ sections }: HierarchicalSectionsProps) {
               expandedSections={expandedSections}
               onToggleSection={toggleSection}
               aggregatedStatus={aggregatedStatus}
+              courseTitle={courseTitle}
             />
           )
         } else {
@@ -102,6 +104,7 @@ export function HierarchicalSections({ sections }: HierarchicalSectionsProps) {
               standaloneKey={standaloneKey}
               isExpanded={isStandaloneExpanded}
               onToggle={toggleSection}
+              courseTitle={courseTitle}
             />
           )
         }

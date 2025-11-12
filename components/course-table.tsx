@@ -524,7 +524,7 @@ export function CourseTable({
                       </div>
                     </div>
 
-                    <HierarchicalSections sections={filteredSections} />
+                    <HierarchicalSections sections={filteredSections} courseTitle={course.course_title} />
                   </div>
                 </CardContent>
               </CollapsibleContent>

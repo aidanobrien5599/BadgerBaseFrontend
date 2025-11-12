@@ -11,9 +11,10 @@ interface StandaloneRowProps {
   standaloneKey: string
   isExpanded: boolean
   onToggle: (key: string) => void
+  courseTitle?: string
 }
 
-export function StandaloneRow({ standalone, standaloneKey, isExpanded, onToggle }: StandaloneRowProps) {
+export function StandaloneRow({ standalone, standaloneKey, isExpanded, onToggle, courseTitle }: StandaloneRowProps) {
   return (
     <div className="border rounded-lg bg-white">
       <Collapsible open={isExpanded} onOpenChange={() => onToggle(standaloneKey)}>
@@ -59,6 +60,8 @@ export function StandaloneRow({ standalone, standaloneKey, isExpanded, onToggle 
                     type="section"
                     id={standalone.section.section_id}
                     isEnabled={standalone.section.status.toUpperCase() === "CLOSED"}
+                    courseTitle={courseTitle}
+                    sectionNames={standalone.meetings.map(m => `${m.meeting_type} ${m.section_number}`)}
                   />
                 </div>
               )}

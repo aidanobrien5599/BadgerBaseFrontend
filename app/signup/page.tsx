@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Alert, AlertDescription } from "@/components/ui/alert"
-import { Loader2, User, Mail, Key, ArrowLeft } from "lucide-react"
+import { Loader2, User, Mail, Key, ArrowLeft, AlertCircle } from "lucide-react"
 import Link from "next/link"
 import Image from "next/image"
 import { useRouter } from "next/navigation"
@@ -27,14 +27,15 @@ export default function SignUpPage() {
     setMessage(null)
 
     // Validate email domain
-    if (!email.toLowerCase().endsWith("@wisc.edu")) {
-      setMessage({
-        type: "error",
-        text: "You must use a valid @wisc.edu email address to sign up.",
-      })
-      setLoading(false)
-      return
-    }
+    // TEMPORARILY DISABLED: Wisconsin email blocking issue - allowing all emails for now
+    // if (!email.toLowerCase().endsWith("@wisc.edu")) {
+    //   setMessage({
+    //     type: "error",
+    //     text: "You must use a valid @wisc.edu email address to sign up.",
+    //   })
+    //   setLoading(false)
+    //   return
+    // }
 
     // Validate passwords match
     if (password !== confirmPassword) {
@@ -62,7 +63,7 @@ export default function SignUpPage() {
         password,
         options: {
           emailRedirectTo: `${window.location.origin}/auth/callback`,
-          data: {
+          data: { 
             full_name: fullName,
             display_name: fullName,
           },
@@ -71,13 +72,41 @@ export default function SignUpPage() {
 
       if (error) throw error
 
+      // Debug logging to understand Supabase behavior
+      console.log("Sign up response:", {
+        hasUser: !!data.user,
+        hasSession: !!data.session,
+        userEmail: data.user?.email,
+        userConfirmed: data.user?.email_confirmed_at ? "Yes" : "No",
+      })
+
       // Check if email confirmation is required
+      // If data.session exists, user was auto-confirmed (email confirmation is disabled in Supabase)
+      // If data.session is null, email confirmation is required (user needs to click email link)
       if (data.user && !data.session) {
-        setMessage({
-          type: "success",
-          text: "Success! Check your @wisc.edu email for a confirmation link.",
-        })
+        // Email confirmation required - user needs to verify email
+        const isWisconsinEmail = email.toLowerCase().endsWith("@wisc.edu")
+        
+        if (isWisconsinEmail) {
+          setMessage({
+            type: "success",
+            text: "Success! Check your email (and spam folder) for a confirmation link. ⚠️ Note: @wisc.edu emails may be blocked by the university. We're actively working to fix this issue.",
+          })
+        } else {
+          setMessage({
+            type: "success",
+            text: "Success! Check your email for a confirmation link. If you don't see it, please check your spam folder.",
+          })
+        }
+      } else if (data.user && data.session) {
+        // User was auto-confirmed - this means email confirmation is DISABLED in Supabase
+        console.warn("⚠️ User was auto-confirmed. Email confirmation is likely disabled in Supabase dashboard.")
+        setMessage({ type: "success", text: "Account created successfully!" })
+        setTimeout(() => {
+          router.push("/")
+        }, 1500)
       } else {
+        // Fallback case
         setMessage({ type: "success", text: "Account created successfully!" })
         setTimeout(() => {
           router.push("/")
@@ -124,9 +153,17 @@ export default function SignUpPage() {
           <div className="text-center mb-8">
             <h1 className="text-3xl font-bold text-gray-900 mb-2">Create Account</h1>
             <p className="text-sm text-gray-600">
-              Join BadgerBase with your @wisc.edu email
+              Join BadgerBase with your email
             </p>
           </div>
+
+          {/* Wisconsin Email Blocking Warning */}
+          <Alert variant="default" className="mb-6 bg-amber-50 border-amber-200">
+            <AlertCircle className="h-4 w-4 text-amber-600" />
+            <AlertDescription className="text-sm text-amber-800">
+              <strong className="font-semibold">Notice for @wisc.edu users:</strong> We're experiencing email delivery issues with Wisconsin email addresses. This is an issue we're actively fixing. If you use a @wisc.edu email, please check your spam folder or use an alternative email address.
+            </AlertDescription>
+          </Alert>
 
           {/* Alert message */}
           {message && (
@@ -172,7 +209,7 @@ export default function SignUpPage() {
                 <Input
                   id="email"
                   type="email"
-                  placeholder="you@wisc.edu"
+                  placeholder="you@example.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
@@ -180,7 +217,8 @@ export default function SignUpPage() {
                   disabled={loading}
                 />
               </div>
-              <p className="text-xs text-gray-500">Must be a valid @wisc.edu email</p>
+              {/* TEMPORARILY REMOVED: Wisconsin email restriction */}
+              {/* <p className="text-xs text-gray-500">Must be a valid @wisc.edu email</p> */}
             </div>
 
             {/* Password */}
