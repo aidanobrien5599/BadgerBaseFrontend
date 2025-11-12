@@ -25,7 +25,9 @@ export async function POST(request: Request) {
 
     // Get the request body
     const body = await request.json()
-    const { section_id } = body
+    const { section_id, section_names, course_title } = body
+    console.log('course_title', course_title)
+    console.log('section_names', section_names)
 
     if (!section_id) {
       return NextResponse.json(
@@ -60,6 +62,8 @@ export async function POST(request: Request) {
       body: JSON.stringify({ 
         section_id,
         email: userEmail,
+        section_names,
+        course_title,
       }),
     })
 
