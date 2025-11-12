@@ -31,7 +31,7 @@ export async function POST(request: Request) {
 
     // Get the request body
     const body = await request.json()
-    const { course_id } = body
+    const { course_id, course_title } = body
 
     if (!course_id) {
       return NextResponse.json(
@@ -55,6 +55,8 @@ export async function POST(request: Request) {
       )
     }
 
+    console.log('course_title', course_title)
+
     // Forward the request to the Railway backend with the auth token and email
     const response = await fetch(`${SUBSCRIPTION_URL}/course-subscription`, {
       method: 'POST',
@@ -66,6 +68,7 @@ export async function POST(request: Request) {
       body: JSON.stringify({ 
         course_id,
         email: userEmail,
+        course_title,
       }),
     })
 
