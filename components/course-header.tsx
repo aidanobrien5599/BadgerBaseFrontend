@@ -104,6 +104,7 @@ export function CourseHeader({ course, isExpanded }: { course: any; isExpanded: 
                               type="course"
                               id={course.course_id}
                               isEnabled={course.status === 0}
+                              courseTitle={course.course_title}
                             />
                           </div>
                         )}

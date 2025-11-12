@@ -118,4 +118,6 @@ export type HierarchicalSection = LectureSection | StandaloneSection
 export interface HierarchicalSectionsProps {
   /** Array of course sections to display hierarchically */
   sections: Section[]
+  /** Course title for subscription notifications */
+  courseTitle?: string
 }

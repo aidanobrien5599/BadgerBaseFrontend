@@ -14,6 +14,7 @@ interface LectureRowProps {
   expandedSections: Set<string>
   onToggleSection: (key: string) => void
   aggregatedStatus: string
+  courseTitle?: string
 }
 
 export function LectureRow({ 
@@ -23,7 +24,8 @@ export function LectureRow({
   onToggle, 
   expandedSections, 
   onToggleSection,
-  aggregatedStatus 
+  aggregatedStatus,
+  courseTitle
 }: LectureRowProps) {
   return (
     <div className="border rounded-lg bg-white">
@@ -67,6 +69,8 @@ export function LectureRow({
                     type="section"
                     id={lecture.section.section_id}
                     isEnabled={lecture.section.status.toUpperCase() === "CLOSED"}
+                    courseTitle={courseTitle}
+                    sectionNames={[`LEC ${lecture.lectureMeeting?.section_number || ""}`]}
                   />
                 </div>
               )}
@@ -119,6 +123,8 @@ export function LectureRow({
                                 type="section"
                                 id={child.section.section_id}
                                 isEnabled={child.section.status.toUpperCase() === "CLOSED"}
+                                courseTitle={courseTitle}
+                                sectionNames={child.meetings.map(m => `${m.meeting_type} ${m.section_number}`)}
                               />
                             </div>
                           )}

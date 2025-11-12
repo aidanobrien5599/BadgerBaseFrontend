@@ -10,11 +10,13 @@ interface NotificationButtonProps {
   type: "course" | "section"
   id: number
   isEnabled: boolean // Only show/enable when course status is 0 or section status is CLOSED
+  courseTitle?: string // For course subscriptions
+  sectionNames?: string[] // For section subscriptions (e.g., ["LEC 001", "DIS 302"])
   onSuccess?: () => void
   onError?: (error: string) => void
 }
 
-export function NotificationButton({ type, id, isEnabled, onSuccess, onError }: NotificationButtonProps) {
+export function NotificationButton({ type, id, isEnabled, courseTitle, sectionNames, onSuccess, onError }: NotificationButtonProps) {
   const [user, setUser] = useState<any>(null)
   const [loading, setLoading] = useState(true)
   const [subscribing, setSubscribing] = useState(false)
@@ -58,15 +60,32 @@ export function NotificationButton({ type, id, isEnabled, onSuccess, onError }: 
         : "/api/subscriptions/section"
       
       const bodyKey = type === "course" ? "course_id" : "section_id"
+      
+      const requestBody: any = {
+        [bodyKey]: id,
+      }
+      
+      // Add course_title for course subscriptions
+      if (type === "course" && courseTitle) {
+        requestBody.course_title = courseTitle
+      }
+      
+      // Add course_title and section_names for section subscriptions
+      if (type === "section") {
+        if (courseTitle) {
+          requestBody.course_title = courseTitle
+        }
+        if (sectionNames && sectionNames.length > 0) {
+          requestBody.section_names = sectionNames
+        }
+      }
 
       const response = await fetch(endpoint, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({
-          [bodyKey]: id,
-        }),
+        body: JSON.stringify(requestBody),
       })
 
       const data = await response.json()
