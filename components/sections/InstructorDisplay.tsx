@@ -28,12 +28,12 @@ export function InstructorDisplay({ instructors }: InstructorDisplayProps) {
   return (
     <div className="space-y-2">
       {instructors.map((instructor, idx) => (
-        <div key={idx} className="flex items-center justify-between p-2 bg-gray-50 rounded border">
-          <span className="font-medium text-gray-900">
+        <div key={idx} className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-3 p-2 bg-gray-50 rounded border">
+          <span className="font-medium text-gray-900 text-xs sm:text-sm min-w-0 truncate">
             {instructor.rmp_instructor_id ? (
               <a
                 target="_blank"
-                className="hover:text-red-600 hover:underline"
+                className="hover:text-red-600 hover:underline truncate block"
                 href={`https://www.ratemyprofessors.com/professor/${instructor.rmp_instructor_id}`}
                 rel="noreferrer"
               >
@@ -44,20 +44,20 @@ export function InstructorDisplay({ instructors }: InstructorDisplayProps) {
             )}
           </span>
           {instructor.avg_rating && (
-            <div className="flex items-center gap-3 text-sm">
+            <div className="flex items-center gap-2 sm:gap-3 text-xs sm:text-sm flex-wrap">
               <div className="flex items-center gap-1">
-                <Star className="h-4 w-4 text-red-500 fill-current" />
-                <span className="font-semibold text-gray-900">
+                <Star className="h-3 w-3 sm:h-4 sm:w-4 text-red-500 fill-current flex-shrink-0" />
+                <span className="font-semibold text-gray-900 whitespace-nowrap">
                   {formatRating(instructor.avg_rating)}
                 </span>
               </div>
               <div className="flex items-center gap-1">
-                <div className="w-2 h-2 rounded-full bg-red-400"></div>
-                <span className="text-gray-700">
+                <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-red-400 flex-shrink-0"></div>
+                <span className="text-gray-700 whitespace-nowrap">
                   Difficulty {formatRating(instructor.avg_difficulty)}
                 </span>
               </div>
-              <span className="text-gray-500">
+              <span className="text-gray-500 whitespace-nowrap">
                 ({instructor.num_ratings} reviews)
               </span>
             </div>
