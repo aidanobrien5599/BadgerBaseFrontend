@@ -161,7 +161,7 @@ export default function SignUpPage() {
           <Alert variant="default" className="mb-6 bg-amber-50 border-amber-200">
             <AlertCircle className="h-4 w-4 text-amber-600" />
             <AlertDescription className="text-sm text-amber-800">
-              <strong className="font-semibold">Notice for @wisc.edu users:</strong> We're experiencing email delivery issues with Wisconsin email addresses. This is an issue we're actively fixing. If you use a @wisc.edu email, please check your spam folder or use an alternative email address.
+              <strong className="font-semibold">Notice for @wisc.edu users:</strong> We're experiencing email delivery issues with Wisconsin email addresses. This is an issue we're actively fixing. We recommend using your personal email address for the time being.
             </AlertDescription>
           </Alert>
 
