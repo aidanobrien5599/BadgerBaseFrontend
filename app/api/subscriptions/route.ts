@@ -6,7 +6,95 @@ import { NextResponse } from 'next/server'
 // Get your Railway backend URL from environment variables
 const SUBSCRIPTION_URL = process.env.SUBSCRIPTION_URL
 
-console.log('SUBSCRIPTION_URL', SUBSCRIPTION_URL)
+// Retry configuration
+const MAX_RETRIES = 3
+const INITIAL_RETRY_DELAY = 1000 // 1 second
+const REQUEST_TIMEOUT = 15000 // 15 seconds
+
+// Helper function to retry fetch with exponential backoff
+async function fetchWithRetry(
+  url: string,
+  options: RequestInit,
+  retries: number = MAX_RETRIES
+): Promise<Response> {
+  let lastError: Error | null = null
+
+  for (let attempt = 0; attempt <= retries; attempt++) {
+    // Create AbortController for timeout
+    const controller = new AbortController()
+    const timeoutId = setTimeout(() => controller.abort(), REQUEST_TIMEOUT)
+    
+    try {
+      // Make fetch request with abort signal
+      const response = await fetch(url, {
+        ...options,
+        signal: controller.signal,
+        headers: {
+          ...options.headers,
+          'Connection': 'keep-alive',
+        },
+      })
+      
+      // Clear timeout since request completed
+      clearTimeout(timeoutId)
+      
+      // If successful or client error (4xx), return immediately
+      if (response.ok || (response.status >= 400 && response.status < 500)) {
+        return response
+      }
+      
+      // For server errors (5xx), retry
+      if (response.status >= 500 && attempt < retries) {
+        const delay = INITIAL_RETRY_DELAY * Math.pow(2, attempt)
+        await new Promise(resolve => setTimeout(resolve, delay))
+        continue
+      }
+      
+      return response
+    } catch (error: any) {
+      // Clear timeout on error
+      clearTimeout(timeoutId)
+      lastError = error
+      
+      // Handle timeout/abort errors
+      if (error.name === 'AbortError') {
+        if (attempt < retries) {
+          const delay = INITIAL_RETRY_DELAY * Math.pow(2, attempt)
+          await new Promise(resolve => setTimeout(resolve, delay))
+          continue
+        }
+        throw new Error('Request timeout: The server took too long to respond. Please try again.')
+      }
+      
+      // Handle network errors
+      if (error.message?.includes('connection') || 
+          error.message?.includes('network') || 
+          error.message?.includes('ECONNREFUSED') ||
+          error.message?.includes('ENOTFOUND') ||
+          error.message?.includes('fetch failed')) {
+        if (attempt < retries) {
+          const delay = INITIAL_RETRY_DELAY * Math.pow(2, attempt)
+          await new Promise(resolve => setTimeout(resolve, delay))
+          continue
+        }
+        throw new Error('Network error: Unable to connect to the server. Please check your connection and try again.')
+      }
+      
+      // For other errors, retry if we have attempts left
+      if (attempt < retries) {
+        const delay = INITIAL_RETRY_DELAY * Math.pow(2, attempt)
+        await new Promise(resolve => setTimeout(resolve, delay))
+        continue
+      }
+      
+      // No more retries, throw the error
+      throw error
+    }
+  }
+  
+  // If we get here, all retries failed
+  throw lastError || new Error('Request failed after multiple attempts')
+}
 
 export async function GET(request: Request) {
   try {
@@ -25,8 +113,8 @@ export async function GET(request: Request) {
     const accessToken = session.access_token
     const userEmail = session.user.email
 
-    console.log('accessToken', accessToken)
-    console.log('userEmail', userEmail)
+    // REMOVED: Excessive logging that was causing Railway rate limits
+    // Only log errors in development, not sensitive data like access tokens and emails
 
     if (!userEmail) {
       return NextResponse.json(
@@ -36,15 +124,18 @@ export async function GET(request: Request) {
     }
 
     if (!SUBSCRIPTION_URL) {
-      console.error('SUBSCRIPTION_URL is not set in environment variables')
+      // Only log errors, not on every request
+      if (process.env.NODE_ENV === 'development') {
+        console.error('SUBSCRIPTION_URL is not set in environment variables')
+      }
       return NextResponse.json(
         { error: 'Server configuration error' },
         { status: 500 }
       )
     }
 
-    // Forward the request to the Railway backend with the auth token and email
-    const response = await fetch(`${SUBSCRIPTION_URL}/subscriptions?email=${encodeURIComponent(userEmail)}`, {
+    // Forward the request to the Railway backend with retry logic
+    const response = await fetchWithRetry(`${SUBSCRIPTION_URL}/subscriptions?email=${encodeURIComponent(userEmail)}`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -56,15 +147,20 @@ export async function GET(request: Request) {
     const data = await response.json()
 
     if (!response.ok) {
-
       return NextResponse.json(data, { status: response.status })
     }
 
     return NextResponse.json(data, { status: response.status })
-  } catch (error) {
-    console.error('Fetch subscriptions error:', error)
+  } catch (error: any) {
+    // Only log errors in development, and don't log sensitive data
+    if (process.env.NODE_ENV === 'development') {
+      console.error('Fetch subscriptions error:', error.message || error)
+    }
+    
+    // Return user-friendly error messages
+    const errorMessage = error.message || 'Failed to fetch subscriptions'
     return NextResponse.json(
-      { error: 'Failed to fetch subscriptions' },
+      { error: errorMessage },
       { status: 500 }
     )
   }
