@@ -142,8 +142,6 @@ export async function POST(request: Request) {
       )
     }
 
-    console.log('section_names', section_names)
-
     // Forward the request to the Railway backend with retry logic
     const response = await fetchWithRetry(`${SUBSCRIPTION_URL}/section-subscription`, {
       method: 'POST',
