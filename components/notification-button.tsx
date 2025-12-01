@@ -5,6 +5,15 @@ import { createClient } from "@/lib/supabase/client"
 import { Button } from "@/components/ui/button"
 import { Bell, Loader2 } from "lucide-react"
 import { toast } from "sonner"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog"
+import { useRouter } from "next/navigation"
 
 interface NotificationButtonProps {
   type: "course" | "section"
@@ -20,7 +29,9 @@ export function NotificationButton({ type, id, isEnabled, courseTitle, sectionNa
   const [user, setUser] = useState<any>(null)
   const [loading, setLoading] = useState(true)
   const [subscribing, setSubscribing] = useState(false)
+  const [showSignupDialog, setShowSignupDialog] = useState(false)
   const supabase = createClient()
+  const router = useRouter()
 
   useEffect(() => {
     // Check if user is signed in
@@ -43,8 +54,7 @@ export function NotificationButton({ type, id, isEnabled, courseTitle, sectionNa
     e.stopPropagation() // Prevent triggering parent click events
     
     if (!user) {
-      toast.error("Please log in to subscribe to notifications")
-      onError?.("Please log in to subscribe to notifications")
+      setShowSignupDialog(true)
       return
     }
 
@@ -106,31 +116,61 @@ export function NotificationButton({ type, id, isEnabled, courseTitle, sectionNa
     }
   }
 
-  // Don't show button if user is not signed in or if notifications are not enabled
-  if (loading || !user || !isEnabled) {
+  // Don't show button if loading or if notifications are not enabled
+  if (loading || !isEnabled) {
     return null
   }
 
   return (
-    <Button
-      variant="outline"
-      size="sm"
-      onClick={handleSubscribe}
-      disabled={subscribing}
-      className="border-red-600 text-red-600 hover:bg-red-50 hover:text-red-700"
-    >
-      {subscribing ? (
-        <>
-          <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-          Subscribing...
-        </>
-      ) : (
-        <>
-          <Bell className="h-4 w-4 mr-2" />
-          Notify Me
-        </>
-      )}
-    </Button>
+    <>
+      <Button
+        variant="outline"
+        size="sm"
+        onClick={handleSubscribe}
+        disabled={subscribing}
+        className="border-red-600 text-red-600 hover:bg-red-50 hover:text-red-700"
+      >
+        {subscribing ? (
+          <>
+            <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+            Subscribing...
+          </>
+        ) : (
+          <>
+            <Bell className="h-4 w-4 mr-2" />
+            Notify Me
+          </>
+        )}
+      </Button>
+
+      <Dialog open={showSignupDialog} onOpenChange={setShowSignupDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Sign Up Required</DialogTitle>
+            <DialogDescription>
+              You need to create an account to subscribe to notifications and get alerts when courses or sections become available.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setShowSignupDialog(false)}
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={() => {
+                setShowSignupDialog(false)
+                router.push("/signup")
+              }}
+              className="bg-red-600 text-white hover:bg-red-700"
+            >
+              Sign Up
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </>
   )
 }
 
