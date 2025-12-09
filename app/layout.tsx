@@ -33,6 +33,7 @@ export default function RootLayout({
         <Suspense fallback={<div>Loading...</div>}>
           <PostHogProvider>
             <Navigation />
+            <MaintenanceBanner />
             <main className="min-h-screen bg-gray-50">{children}</main>
             <Footer />
             <Analytics />
