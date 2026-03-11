@@ -6,7 +6,7 @@ import { Navigation } from "@/components/navigation"
 import { Footer } from "@/components/footer"
 import { Analytics } from "@vercel/analytics/react"
 import { PostHogProvider } from "@/components/PostHogProvider"
-import { MaintenanceBanner } from "@/components/maintenance-banner" // Import the new component
+
 import { Suspense } from "react"
 import { Toaster } from "sonner"
 
@@ -33,7 +33,6 @@ export default function RootLayout({
         <Suspense fallback={<div>Loading...</div>}>
           <PostHogProvider>
             <Navigation />
-            <MaintenanceBanner />
             <main className="min-h-screen bg-gray-50">{children}</main>
             <Footer />
             <Analytics />

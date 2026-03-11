@@ -63,6 +63,7 @@
     "react-is": "^19.2.0",
     "react-resizable-panels": "latest",
     "recharts": "latest",
+    "resend": "^6.9.3",
     "rrweb-snapshot": "latest",
     "sonner": "latest",
     "svelte": "latest",

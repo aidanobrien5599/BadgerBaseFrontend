@@ -60,6 +60,9 @@ export function Navigation() {
             <Link href="/about" className={getLinkClasses("/about")}>
               About
             </Link>
+            <Link href="/feedback" className={getLinkClasses("/feedback")}>
+              Feedback
+            </Link>
             <AuthButton />
           </div>
           
@@ -98,6 +101,13 @@ export function Navigation() {
                 onClick={() => setIsMenuOpen(false)}
               >
                 About
+              </Link>
+              <Link
+                href="/feedback"
+                className={getLinkClasses("/feedback", true)}
+                onClick={() => setIsMenuOpen(false)}
+              >
+                Feedback
               </Link>
             </div>
           </div>
