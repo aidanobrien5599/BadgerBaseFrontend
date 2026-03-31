@@ -12,10 +12,15 @@ export function Footer() {
 
           {/* Right side - Disclaimers */}
           <div className="text-center md:text-right">
-            <p className="text-xs text-gray-500">
+            <p className="text-xs text-gray-600 font-medium">
+              Last updated for Fall 2026
+            </p>
+            <p className="text-xs text-gray-500 mt-1">
               Not affiliated with UW-Madison • Data from UW-Madison & Madgrades & Rate My Professors
             </p>
-            <p className="text-xs text-gray-400 mt-1"> {new Date().getFullYear()} For educational purposes only</p>
+            <p className="text-xs text-gray-400 mt-1">
+              {new Date().getFullYear()} For educational purposes only
+            </p>
           </div>
         </div>
       </div>
