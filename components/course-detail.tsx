@@ -219,11 +219,22 @@ function Instructors({ course }: { course: CourseDetailData }) {
     return [...map.values()]
   }, [course])
 
+  const firstRmpId = instructors.find((i) => i.rmpId)?.rmpId || null
+
   return (
     <section className="bg-surface border border-border/70">
-      <header className="flex items-center gap-2 px-4 py-2.5 border-b border-border/70">
+      <header className="flex flex-wrap items-baseline gap-2 px-4 py-2.5 border-b border-border/70">
         <h2 className="font-display text-[19px] font-semibold tracking-[-0.01em]">Instructors</h2>
-        <span className="font-mono text-[10.5px] tracking-[0.1em] text-muted-foreground">RATE MY PROFESSORS · PROFESSOR QUALITY</span>
+        {firstRmpId && (
+          <a
+            href={`https://www.ratemyprofessors.com/professor/${firstRmpId}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="font-mono text-[12px] font-semibold tracking-[0.08em] text-primary border-b border-border/70 hover:border-primary whitespace-nowrap"
+          >
+            RATE MY PROFESSORS ↗
+          </a>
+        )}
       </header>
       <div className="grid grid-cols-1 sm:grid-cols-2">
         {instructors.map((i, idx) => (
