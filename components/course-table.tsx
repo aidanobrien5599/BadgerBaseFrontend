@@ -23,6 +23,7 @@ import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis } from "recharts"
 import { CourseHeader } from "./course-header"
 import { HierarchicalSections } from "./sections"
 import { colors, typography } from "@/lib/tokens"
+import { getGradeColor } from "@/components/sections/utils"
 // Instructor interface defined locally
 interface Instructor {
   name: string
@@ -155,27 +156,6 @@ export function CourseTable({
         return { text: "Intermediate", icon: BookOpen }
       default:
         return { text: "Elementary", icon: Award }
-    }
-  }
-
-  const getGradeColor = (grade: string) => {
-    switch (grade) {
-      case "A":
-        return "bg-primary text-primary-foreground"
-      case "AB":
-        return "bg-primary/85 text-primary-foreground"
-      case "B":
-        return "bg-primary/70 text-primary-foreground"
-      case "BC":
-        return "bg-primary/50 text-primary"
-      case "C":
-        return "bg-primary/30 text-primary"
-      case "D":
-        return "bg-primary/20 text-primary"
-      case "F":
-        return "bg-destructive text-destructive-foreground"
-      default:
-        return "bg-muted text-muted-foreground"
     }
   }
 

@@ -14,13 +14,42 @@
 export const getStatusColor = (status: string) => {
   switch (status.toUpperCase()) {
     case "OPEN":
-      return "bg-success/10 text-success-strong border-success/30"
+      return "bg-success/10 text-success-foreground border-success/30"
     case "CLOSED":
       return "bg-destructive/10 text-destructive border-destructive/30"
     case "WAITLIST":
-      return "bg-warning/10 text-warning border-warning/30"
+      return "bg-warning/10 text-warning-foreground border-warning/30"
     default:
       return "bg-muted text-muted-foreground border-border"
+  }
+}
+
+/**
+ * Returns Tailwind CSS classes for a median-grade badge.
+ * Solid red ramp: A is the strongest shade, F is the darkest (most severe),
+ * and the middle grades lighten. Uses the --grade-* semantic tokens so the
+ * scale lives in one place (app/globals.css).
+ * @param grade - Letter grade ("A", "AB", "B", ..., "F")
+ * @returns CSS classes for background and text colors
+ */
+export const getGradeColor = (grade: string) => {
+  switch (grade) {
+    case "A":
+      return "bg-grade-a text-primary-foreground"
+    case "AB":
+      return "bg-grade-ab text-primary-foreground"
+    case "B":
+      return "bg-grade-b text-primary-foreground"
+    case "BC":
+      return "bg-grade-bc text-grade-text"
+    case "C":
+      return "bg-grade-c text-grade-text"
+    case "D":
+      return "bg-grade-d text-grade-text"
+    case "F":
+      return "bg-grade-f text-primary-foreground"
+    default:
+      return "bg-muted text-muted-foreground"
   }
 }
 

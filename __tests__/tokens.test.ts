@@ -44,6 +44,7 @@ describe("tokens", () => {
 
   describe("typography", () => {
     it("exports pixel values for font sizes", () => {
+      expect(typography.xxs).toBe(10)
       expect(typography.xs).toBe(12)
       expect(typography.sm).toBe(14)
       expect(typography.base).toBe(16)

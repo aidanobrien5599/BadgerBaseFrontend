@@ -25,7 +25,8 @@ describe("no hardcoded colors in codebase", () => {
       }
     } catch (e: any) {
       if (e.message?.includes("Hardcoded Tailwind color classes found")) throw e
-      // grep exit 1 = no matches = pass
+      if (e.status !== 1) throw e
+      // grep exit 1 = no matches = pass; anything else (e.g. exit 2) is a real error
     }
   })
 
@@ -49,6 +50,7 @@ describe("no hardcoded colors in codebase", () => {
       }
     } catch (e: any) {
       if (e.message?.includes("Inline hex values found")) throw e
+      if (e.status !== 1) throw e
     }
   })
 

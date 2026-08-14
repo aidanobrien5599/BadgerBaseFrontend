@@ -11,6 +11,7 @@ import { BarChart3 } from "lucide-react"
 import { useState } from "react"
 import { Award } from "lucide-react"
 import { NotificationButton } from "./notification-button"
+import { getGradeColor } from "./sections/utils"
 
 export function CourseHeader({ course, isExpanded }: { course: any; isExpanded: boolean }) {
 
@@ -40,27 +41,6 @@ export function CourseHeader({ course, isExpanded }: { course: any; isExpanded: 
             </button>
           </div>
         )
-      }
-
-      const getGradeColor = (grade: string) => {
-        switch (grade) {
-          case "A":
-            return "bg-primary text-primary-foreground"
-          case "AB":
-            return "bg-primary/85 text-primary-foreground"
-          case "B":
-            return "bg-primary/70 text-primary-foreground"
-          case "BC":
-            return "bg-primary/50 text-primary"
-          case "C":
-            return "bg-primary/30 text-primary"
-          case "D":
-            return "bg-primary/20 text-primary"
-          case "F":
-            return "bg-destructive text-destructive-foreground"
-          default:
-            return "bg-muted text-muted-foreground"
-        }
       }
 
       const getLevelInfo = (level: string) => {

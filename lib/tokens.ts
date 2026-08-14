@@ -58,6 +58,7 @@ export const chart = {
 } as const
 
 export const typography = {
+  xxs: 10,
   xs: 12,
   sm: 14,
   base: 16,

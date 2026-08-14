@@ -1,6 +1,18 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 
+/* Restore the class-based dark mode strategy from the old tailwind.config.ts
+   (`darkMode: ["class"]`). Tailwind v4 defaults to the media-query strategy. */
+@custom-variant dark (&:is(.dark *));
+
+/* Keep Tailwind's automatic source detection from scanning docs/, the
+   SDD scratch dir, and __tests__/, whose prose contains class names that
+   would otherwise be compiled into phantom utilities. Paths are relative
+   to this file. */
+@source not "../docs";
+@source not "../.superpowers";
+@source not "../__tests__";
+
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -56,11 +68,23 @@
   --color-text-inverse: var(--text-inverse);
   --color-success: var(--success);
   --color-success-strong: var(--success-strong);
+  --color-success-foreground: var(--success-foreground);
+  --color-warning-foreground: var(--warning-foreground);
   --color-info: var(--info);
   --color-warning: var(--warning);
   --color-highlight: var(--highlight);
   --color-gold: var(--gold);
   --color-decorative-border: var(--decorative-border);
+
+  /* Grade scale (median GPA) — solid red ramp, A strongest, F darkest */
+  --color-grade-a: var(--grade-a);
+  --color-grade-ab: var(--grade-ab);
+  --color-grade-b: var(--grade-b);
+  --color-grade-bc: var(--grade-bc);
+  --color-grade-c: var(--grade-c);
+  --color-grade-d: var(--grade-d);
+  --color-grade-f: var(--grade-f);
+  --color-grade-text: var(--grade-text);
 
   --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
 }
@@ -96,11 +120,14 @@
   --gray-950: hsl(0 0% 4%);
   --green-500: hsl(142 71% 45%);
   --green-600: hsl(142 76% 36%);
+  --green-700: hsl(142 76% 26%);
   --blue-500: hsl(217 91% 60%);
   --orange-500: hsl(24 95% 53%);
+  --orange-700: hsl(24 94% 35%);
   --purple-500: hsl(271 91% 65%);
   --yellow-500: hsl(45 93% 47%);
   --pink-200: hsl(326 78% 90%);
+  --pink-500: hsl(330 81% 60%);
 }
 
 :root {
@@ -151,11 +178,23 @@
   /* Domain status tokens (not part of the brand palette) */
   --success: var(--green-500);
   --success-strong: var(--green-600);
+  --success-foreground: var(--green-700);
   --info: var(--blue-500);
   --warning: var(--orange-500);
+  --warning-foreground: var(--orange-700);
   --highlight: var(--purple-500);
   --gold: var(--yellow-500);
-  --decorative-border: var(--pink-200);
+  --decorative-border: var(--pink-500);
+
+  /* Grade scale (median GPA) — solid red ramp */
+  --grade-a: var(--red-600);
+  --grade-ab: var(--red-500);
+  --grade-b: var(--red-400);
+  --grade-bc: var(--red-300);
+  --grade-c: var(--red-200);
+  --grade-d: var(--red-100);
+  --grade-f: var(--red-700);
+  --grade-text: var(--red-800);
 }
 
 .dark {
@@ -204,11 +243,13 @@
   /* Domain status tokens (not part of the brand palette) */
   --success: hsl(142 65% 50%);
   --success-strong: hsl(142 70% 42%);
+  --success-foreground: hsl(142 65% 55%);
   --info: hsl(217 91% 65%);
   --warning: hsl(24 95% 58%);
+  --warning-foreground: hsl(24 95% 60%);
   --highlight: hsl(271 91% 70%);
   --gold: hsl(45 93% 52%);
-  --decorative-border: hsl(326 60% 40%);
+  --decorative-border: hsl(330 81% 65%);
 }
 
 @keyframes accordion-down {

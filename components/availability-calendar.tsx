@@ -293,7 +293,7 @@ export function AvailabilityCalendar({ onApply, initialAvailability }: Availabil
             <div
               key={i}
               className="h-8 border-b text-xs text-muted-foreground flex items-start justify-center pt-0.5 border-border"
-              style={{ fontSize: typography.xs }}
+              style={{ fontSize: typography.xxs }}
             >
               {hour}
             </div>
