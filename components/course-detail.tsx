@@ -227,7 +227,7 @@ function Instructors({ course }: { course: CourseDetailData }) {
       <div className="grid grid-cols-1 sm:grid-cols-2">
         {instructors.map((i, idx) => (
           <div key={i.name} className={cn("px-4 py-3.5", idx < instructors.length - 1 && "border-b border-border/70", "sm:border-b-0", idx % 2 === 0 && "sm:border-r border-border/70")}>
-            <div className="flex items-baseline justify-between gap-2 mb-2">
+            <div className="flex items-baseline gap-3 mb-2 flex-wrap">
               <div>
                 <div className="font-medium text-[15px] text-foreground font-display">{i.name}</div>
                 <div className="font-mono text-[10.5px] tracking-[0.08em] text-muted-foreground mt-0.5">
