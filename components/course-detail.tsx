@@ -219,27 +219,15 @@ function Instructors({ course }: { course: CourseDetailData }) {
     return [...map.values()]
   }, [course])
 
-  const firstRmpId = instructors.find((i) => i.rmpId)?.rmpId || null
-
   return (
     <section className="bg-surface border border-border/70">
       <header className="flex flex-wrap items-baseline gap-2 px-4 py-2.5 border-b border-border/70">
         <h2 className="font-display text-[19px] font-semibold tracking-[-0.01em]">Instructors</h2>
-        {firstRmpId && (
-          <a
-            href={`https://www.ratemyprofessors.com/professor/${firstRmpId}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="font-mono text-[12px] font-semibold tracking-[0.08em] text-primary border-b border-border/70 hover:border-primary whitespace-nowrap"
-          >
-            RATE MY PROFESSORS ↗
-          </a>
-        )}
       </header>
       <div className="grid grid-cols-1 sm:grid-cols-2">
         {instructors.map((i, idx) => (
           <div key={i.name} className={cn("px-4 py-3.5", idx < instructors.length - 1 && "border-b border-border/70", "sm:border-b-0", idx % 2 === 0 && "sm:border-r border-border/70")}>
-            <div className="flex items-start justify-between gap-2 mb-2">
+            <div className="flex items-baseline justify-between gap-2 mb-2">
               <div>
                 <div className="font-medium text-[15px] text-foreground font-display">{i.name}</div>
                 <div className="font-mono text-[10.5px] tracking-[0.08em] text-muted-foreground mt-0.5">
@@ -251,7 +239,7 @@ function Instructors({ course }: { course: CourseDetailData }) {
                   href={`https://www.ratemyprofessors.com/professor/${i.rmpId}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="font-mono text-[10.5px] tracking-[0.08em] text-primary border-b border-border/70 hover:border-primary whitespace-nowrap"
+                  className="font-mono text-[12px] font-semibold tracking-[0.08em] text-primary border-b border-border/70 hover:border-primary whitespace-nowrap"
                 >
                   RATE MY PROFESSORS ↗
                 </a>
