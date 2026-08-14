@@ -214,7 +214,7 @@ export function ControlBand({ filters, onFiltersChange, onSearch, loading }: Con
           L&S
         </button>
 
-        <div className="flex-1" />
+        <div className="w-px self-stretch bg-border/70 mx-1" />
 
         <button
           onClick={() => setAdvancedOpen(!advancedOpen)}
