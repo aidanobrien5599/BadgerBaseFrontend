@@ -3,8 +3,6 @@
 import { useMemo, useState } from "react"
 import Link from "next/link"
 import { ChevronLeft } from "lucide-react"
-import { Badge } from "@/components/ui/badge"
-import { NotificationButton } from "./notification-button"
 import { cn } from "@/lib/utils"
 
 export interface Meeting {
@@ -532,70 +530,6 @@ function WeeklySchedule({ course }: { course: CourseDetailData }) {
   )
 }
 
-/* ============ Right rail ============ */
-
-function DetailRail({ course }: { course: CourseDetailData }) {
-  const open = course.sections.filter((s) => statusLabel(s.status).label === "OPEN").length
-  const wait = course.sections.filter((s) => statusLabel(s.status).label === "WAITLIST").length
-  const closed = course.sections.filter((s) => statusLabel(s.status).label === "CLOSED").length
-  const totalCap = course.sections.reduce((a, s) => a + s.capacity, 0)
-  const totalEnr = course.sections.reduce((a, s) => a + s.enrolled, 0)
-  const pct = totalCap > 0 ? Math.round((totalEnr / totalCap) * 100) : 0
-  const openSeats = course.sections.reduce((a, s) => a + s.available_seats, 0)
-
-  return (
-    <aside className="lg:sticky lg:top-20 space-y-4">
-      <div className="bg-surface border border-border/70 p-4">
-        <div className="flex items-center justify-between font-mono font-semibold text-[9px] tracking-[0.12em] text-muted-foreground mb-3">
-          <span>ALL SECTIONS</span>
-          <span>{course.sections.length} SECTIONS</span>
-        </div>
-        <div className="font-mono text-[13px] tracking-[0.1em] text-muted-foreground mb-2">
-          <b className="font-display font-semibold text-[42px] tracking-[-0.02em] text-foreground block leading-none">{open}</b>
-          SECTIONS OPEN
-        </div>
-        <div className="h-2 bg-border/70 mb-[7px]">
-          <div className="h-full bg-success" style={{ width: `${pct}%` }} />
-        </div>
-        <div className="font-mono text-[9px] tracking-[0.05em] text-muted-foreground mb-3.5">
-          {totalEnr} / {totalCap} SEATS FILLED · {openSeats} OPEN SEATS
-        </div>
-        <div className="grid grid-cols-3 gap-2 mb-4">
-          {[
-            { l: "OPEN", v: open, c: "text-success" },
-            { l: "WAITLIST", v: wait, c: "text-warning" },
-            { l: "CLOSED", v: closed, c: "text-destructive" },
-          ].map((s) => (
-            <div key={s.l} className="border border-border/70 p-2 text-center">
-              <span className="block font-mono text-[7.5px] tracking-[0.1em] text-muted-foreground mb-[3px]">{s.l}</span>
-              <b className={cn("font-mono font-semibold text-[15px] tabular-nums", s.c)}>{s.v}</b>
-            </div>
-          ))}
-        </div>
-        {course.status === 0 && (
-          <div className="mb-2">
-            <NotificationButton type="course" id={Number(course.course_id)} isEnabled={course.status === 0} courseTitle={course.course_title} />
-          </div>
-        )}
-        <a
-          href={`https://public.enroll.wisc.edu/search?keywords=${encodeURIComponent(course.course_designation)}`}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="block text-center font-mono text-[9px] tracking-[0.08em] text-primary py-2.5 border border-border/70 hover:border-primary hover:bg-primary/5"
-        >
-          OPEN IN COURSE SEARCH &amp; ENROLL ↗
-        </a>
-        <div className="font-mono text-[8px] tracking-[0.08em] text-muted-foreground mt-3 pt-2.5 border-t border-border/70">
-          {course.typically_offered && course.typically_offered !== "Not Applicable" && (
-            <>TYPICAL OFFERING <b className="text-foreground">{course.typically_offered.toUpperCase()}</b><br /></>
-          )}
-          MEDIAN GRADE <b className="text-foreground">{course.median_grade || "—"}</b> · CUM GPA <b className="text-foreground">{course.cumulative_gpa?.toFixed(2) || "—"}</b>
-        </div>
-      </div>
-    </aside>
-  )
-}
-
 /* ============ Main detail ============ */
 
 export function CourseDetail({ course }: { course: CourseDetailData }) {
@@ -617,7 +551,7 @@ export function CourseDetail({ course }: { course: CourseDetailData }) {
         <span className="mx-1.5">/</span>{number}
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-[1fr_350px] gap-6 mt-2 items-start">
+      <div className="mt-2">
         <div className="min-w-0 space-y-3.5">
           {/* Course header */}
           <div>
@@ -670,8 +604,6 @@ export function CourseDetail({ course }: { course: CourseDetailData }) {
           <SectionTable sections={course.sections} />
           <WeeklySchedule course={course} />
         </div>
-
-        <DetailRail course={course} />
       </div>
     </div>
   )
