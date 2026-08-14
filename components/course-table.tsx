@@ -272,18 +272,18 @@ export function CourseTable({
                 </div>
 
                 {/* Designation + title + instructor */}
-                <div className="flex flex-col justify-center gap-0.5 px-4 border-r border-border/70 min-w-0">
-                  <div className="font-display text-[17px] font-bold tracking-[-0.01em]">
+                <div className="flex flex-col justify-center items-center text-center gap-0.5 px-4 border-r border-border/70 min-w-0">
+                  <div className="font-display text-[17px] font-bold tracking-[-0.01em] truncate max-w-full">
                     <span className="text-primary">{designationSubject}</span>{" "}
                     {designationNumber}
                   </div>
-                  <div className="text-[13.5px] text-foreground font-medium leading-snug truncate">
+                  <div className="text-[13.5px] text-foreground font-medium leading-snug truncate max-w-full">
                     {course.course_title}
                   </div>
                 </div>
 
                 {/* Credits */}
-                <div className="flex flex-col justify-center px-3 border-r border-border/70">
+                <div className="flex flex-col justify-center items-center text-center px-3 border-r border-border/70">
                   <span className="font-display text-lg font-bold leading-none">
                     {course.minimum_credits === course.maximum_credits
                       ? course.minimum_credits
@@ -295,7 +295,7 @@ export function CourseTable({
                 </div>
 
                 {/* Median grade */}
-                <div className="flex flex-col justify-center px-3 border-r border-border/70">
+                <div className="flex flex-col justify-center items-center text-center px-3 border-r border-border/70">
                   {course.median_grade ? (
                     <span className="font-display text-lg font-bold leading-none tabular-nums">
                       {course.median_grade}
@@ -309,7 +309,7 @@ export function CourseTable({
                 </div>
 
                 {/* Cumulative GPA */}
-                <div className="flex flex-col justify-center px-3 border-r border-border/70">
+                <div className="flex flex-col justify-center items-center text-center px-3 border-r border-border/70">
                   <span className="font-display text-lg font-bold leading-none tabular-nums">
                     {course.cumulative_gpa ? course.cumulative_gpa.toFixed(2) : "N/A"}
                   </span>
@@ -319,7 +319,7 @@ export function CourseTable({
                 </div>
 
                 {/* Recent GPA */}
-                <div className="flex flex-col justify-center px-3 border-r border-border/70">
+                <div className="flex flex-col justify-center items-center text-center px-3 border-r border-border/70">
                   <span className="font-display text-lg font-bold leading-none tabular-nums">
                     {course.most_recent_gpa ? course.most_recent_gpa.toFixed(2) : "N/A"}
                   </span>
@@ -329,7 +329,7 @@ export function CourseTable({
                 </div>
 
                 {/* Status badge — last stat before chevron */}
-                <div className="flex items-center px-3">
+                <div className="flex items-center justify-center px-3">
                   <Badge variant="outline" className={`${statusBadge.classes} font-semibold text-[11.5px] rounded-[4px]`}>
                     {statusBadge.label}
                   </Badge>
