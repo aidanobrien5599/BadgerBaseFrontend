@@ -128,7 +128,7 @@ export function NotificationButton({ type, id, isEnabled, courseTitle, sectionNa
         size="sm"
         onClick={handleSubscribe}
         disabled={subscribing}
-        className="border-red-600 text-red-600 hover:bg-red-50 hover:text-red-700"
+        className="border-primary text-primary hover:bg-accent hover:text-primary"
       >
         {subscribing ? (
           <>
@@ -163,7 +163,7 @@ export function NotificationButton({ type, id, isEnabled, courseTitle, sectionNa
                 setShowSignupDialog(false)
                 router.push("/signup")
               }}
-              className="bg-red-600 text-white hover:bg-red-700"
+              className="bg-primary text-primary-foreground hover:bg-primary-hover"
             >
               Sign Up
             </Button>

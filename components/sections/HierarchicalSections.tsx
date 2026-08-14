@@ -63,7 +63,7 @@ export function HierarchicalSections({ sections, courseTitle }: HierarchicalSect
 
   if (hierarchicalSections.length === 0) {
     return (
-      <div className="text-center py-8 text-gray-500 border rounded-lg bg-gray-50">
+      <div className="text-center py-8 text-muted-foreground border rounded-lg bg-background">
         No sections available.
       </div>
     )

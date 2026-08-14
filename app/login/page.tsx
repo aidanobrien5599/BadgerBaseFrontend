@@ -181,19 +181,19 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-4">
+    <div className="min-h-screen bg-background flex flex-col items-center justify-center p-4">
       <div className="w-full max-w-md">
         {/* Back to home link */}
         <Link
           href="/"
-          className="inline-flex items-center gap-2 text-sm text-gray-600 hover:text-red-700 mb-6 transition-colors"
+          className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-primary mb-6 transition-colors"
         >
           <ArrowLeft className="h-4 w-4" />
           Back to home
         </Link>
 
         {/* Auth card */}
-        <div className="bg-white rounded-lg shadow-lg p-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+        <div className="bg-surface rounded-lg shadow-lg p-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
           {/* Logo */}
           <div className="flex justify-center mb-6">
             <Image
@@ -208,8 +208,8 @@ export default function LoginPage() {
 
           {/* Header */}
           <div className="text-center mb-8">
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">Welcome Back</h1>
-            <p className="text-sm text-gray-600">
+            <h1 className="text-3xl font-bold text-foreground mb-2">Welcome Back</h1>
+            <p className="text-sm text-muted-foreground">
               {useOTP
                 ? otpSent
                   ? "Enter the verification code sent to your email"
@@ -242,7 +242,7 @@ export default function LoginPage() {
                     size="sm"
                     onClick={handlePaste}
                     disabled={loading}
-                    className="h-8 gap-1.5 text-xs hover:bg-gray-100 transition-colors"
+                    className="h-8 gap-1.5 text-xs hover:bg-muted transition-colors"
                   >
                     <Clipboard className="h-3.5 w-3.5" />
                     Paste
@@ -262,7 +262,7 @@ export default function LoginPage() {
                       onChange={(e) => handleOTPDigitChange(index, e.target.value)}
                       onKeyDown={(e) => handleOTPKeyDown(index, e)}
                       onPaste={handleOTPPaste}
-                      className="w-12 h-14 text-center text-2xl font-semibold transition-all duration-200 focus:scale-105 focus:ring-2 focus:ring-red-700"
+                      className="w-12 h-14 text-center text-2xl font-semibold transition-all duration-200 focus:scale-105 focus:ring-2 focus:ring-ring"
                       disabled={loading}
                       autoFocus={index === 0}
                     />
@@ -273,7 +273,7 @@ export default function LoginPage() {
               <div className="space-y-2.5">
                 <Button
                   type="submit"
-                  className="w-full h-11 bg-red-700 hover:bg-red-800 text-white font-medium transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
+                  className="w-full h-11 bg-primary hover:bg-primary-hover text-primary-foreground font-medium transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
                   disabled={loading || otpDigits.some((d) => !d)}
                 >
                   {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
@@ -283,7 +283,7 @@ export default function LoginPage() {
                 <Button
                   type="button"
                   variant="ghost"
-                  className="w-full h-10 transition-colors hover:bg-gray-100"
+                  className="w-full h-10 transition-colors hover:bg-muted"
                   onClick={() => {
                     setOtpSent(false)
                     setOtpDigits(["", "", "", "", "", ""])
@@ -304,7 +304,7 @@ export default function LoginPage() {
                   Email
                 </Label>
                 <div className="relative group">
-                  <Mail className="absolute left-3 top-3 h-4 w-4 text-gray-400 transition-colors group-focus-within:text-red-700" />
+                  <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground/60 transition-colors group-focus-within:text-primary" />
                   <Input
                     id="email"
                     type="email"
@@ -312,7 +312,7 @@ export default function LoginPage() {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     required
-                    className="pl-10 h-11 transition-all duration-200 focus:ring-2 focus:ring-red-700"
+                    className="pl-10 h-11 transition-all duration-200 focus:ring-2 focus:ring-ring"
                     disabled={loading}
                   />
                 </div>
@@ -325,7 +325,7 @@ export default function LoginPage() {
                     Password
                   </Label>
                   <div className="relative group">
-                    <Key className="absolute left-3 top-3 h-4 w-4 text-gray-400 transition-colors group-focus-within:text-red-700" />
+                    <Key className="absolute left-3 top-3 h-4 w-4 text-muted-foreground/60 transition-colors group-focus-within:text-primary" />
                     <Input
                       id="password"
                       type="password"
@@ -333,7 +333,7 @@ export default function LoginPage() {
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       required
-                      className="pl-10 h-11 transition-all duration-200 focus:ring-2 focus:ring-red-700"
+                      className="pl-10 h-11 transition-all duration-200 focus:ring-2 focus:ring-ring"
                       disabled={loading}
                     />
                   </div>
@@ -343,7 +343,7 @@ export default function LoginPage() {
               {/* Submit button */}
               <Button
                 type="submit"
-                className="w-full h-11 bg-red-700 hover:bg-red-800 text-white font-medium transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] mt-6"
+                className="w-full h-11 bg-primary hover:bg-primary-hover text-primary-foreground font-medium transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] mt-6"
                 disabled={loading}
               >
                 {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
@@ -354,7 +354,7 @@ export default function LoginPage() {
               <Button
                 type="button"
                 variant="ghost"
-                className="w-full h-10 text-sm transition-colors hover:bg-gray-100"
+                className="w-full h-10 text-sm transition-colors hover:bg-muted"
                 onClick={() => {
                   setUseOTP(!useOTP)
                   setMessage(null)
@@ -366,11 +366,11 @@ export default function LoginPage() {
 
               {/* Sign up link */}
               <div className="text-center pt-4">
-                <p className="text-sm text-gray-600">
+                <p className="text-sm text-muted-foreground">
                   Don't have an account?{" "}
                   <Link
                     href="/signup"
-                    className="text-red-700 hover:text-red-800 font-medium transition-colors"
+                    className="text-primary hover:text-primary/90 font-medium transition-colors"
                   >
                     Sign up
                   </Link>

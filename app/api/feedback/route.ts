@@ -1,6 +1,7 @@
 import { Resend } from "resend";
 import { NextResponse } from "next/server";
 import { z } from "zod";
+import { semantic, colors } from "@/lib/tokens";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
@@ -52,32 +53,32 @@ export async function POST(req: Request) {
       replyTo: email,
       html: `
         <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto;">
-          <h2 style="color: #dc2626; border-bottom: 2px solid #dc2626; padding-bottom: 8px;">
+          <h2 style="color: ${semantic.primary}; border-bottom: 2px solid ${semantic.primary}; padding-bottom: 8px;">
             BadgerBase ${categoryLabel}
           </h2>
           <table style="width: 100%; border-collapse: collapse; margin: 16px 0;">
             <tr>
-              <td style="padding: 8px 12px; font-weight: 600; color: #374151; width: 100px;">From</td>
-              <td style="padding: 8px 12px; color: #4b5563;">${name}</td>
+              <td style="padding: 8px 12px; font-weight: 600; color: ${colors.gray[700]}; width: 100px;">From</td>
+              <td style="padding: 8px 12px; color: ${colors.gray[600]};">${name}</td>
             </tr>
-            <tr style="background: #f9fafb;">
-              <td style="padding: 8px 12px; font-weight: 600; color: #374151;">Email</td>
-              <td style="padding: 8px 12px; color: #4b5563;">
-                <a href="mailto:${email}" style="color: #dc2626;">${email}</a>
+            <tr style="background: ${colors.gray[50]};">
+              <td style="padding: 8px 12px; font-weight: 600; color: ${colors.gray[700]};">Email</td>
+              <td style="padding: 8px 12px; color: ${colors.gray[600]};">
+                <a href="mailto:${email}" style="color: ${semantic.primary};">${email}</a>
               </td>
             </tr>
             <tr>
-              <td style="padding: 8px 12px; font-weight: 600; color: #374151;">Category</td>
-              <td style="padding: 8px 12px; color: #4b5563;">${categoryLabel}</td>
+              <td style="padding: 8px 12px; font-weight: 600; color: ${colors.gray[700]};">Category</td>
+              <td style="padding: 8px 12px; color: ${colors.gray[600]};">${categoryLabel}</td>
             </tr>
-            <tr style="background: #f9fafb;">
-              <td style="padding: 8px 12px; font-weight: 600; color: #374151;">Subject</td>
-              <td style="padding: 8px 12px; color: #4b5563;">${subject}</td>
+            <tr style="background: ${colors.gray[50]};">
+              <td style="padding: 8px 12px; font-weight: 600; color: ${colors.gray[700]};">Subject</td>
+              <td style="padding: 8px 12px; color: ${colors.gray[600]};">${subject}</td>
             </tr>
           </table>
-          <div style="background: #f3f4f6; padding: 16px; border-radius: 8px; margin-top: 16px;">
-            <h3 style="margin: 0 0 8px; color: #374151; font-size: 14px;">Message</h3>
-            <p style="margin: 0; color: #4b5563; white-space: pre-wrap; line-height: 1.6;">${message}</p>
+          <div style="background: ${colors.gray[100]}; padding: 16px; border-radius: 8px; margin-top: 16px;">
+            <h3 style="margin: 0 0 8px; color: ${colors.gray[700]}; font-size: 14px;">Message</h3>
+            <p style="margin: 0; color: ${colors.gray[600]}; white-space: pre-wrap; line-height: 1.6;">${message}</p>
           </div>
         </div>
       `,

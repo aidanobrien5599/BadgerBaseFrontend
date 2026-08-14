@@ -81,7 +81,7 @@ export function PaginationControls({
     <div className="space-y-4">
       <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
         {/* Left: Results info */}
-        <div className="text-sm text-gray-600">
+        <div className="text-sm text-muted-foreground">
           Showing {startResult.toLocaleString()}-{endResult.toLocaleString()} of {totalCount.toLocaleString()}
         </div>
 
@@ -111,7 +111,7 @@ export function PaginationControls({
             {pageNumbers.map((page, index) => (
               <div key={index}>
                 {page === "..." ? (
-                  <span className="px-2 py-1 text-sm text-gray-500">...</span>
+                  <span className="px-2 py-1 text-sm text-muted-foreground">...</span>
                 ) : (
                   <Button
                     variant={currentPage === page ? "default" : "outline"}
@@ -149,7 +149,7 @@ export function PaginationControls({
           {/* Sort dropdown right next to pagination */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="outline" size="sm" className="h-8 gap-1.5 bg-white">
+              <Button variant="outline" size="sm" className="h-8 gap-1.5 bg-surface">
                 <ArrowUpDown className="h-3.5 w-3.5" />
                 <span className="text-xs">{getSortLabel()}</span>
               </Button>
@@ -187,7 +187,7 @@ export function PaginationControls({
             </SelectContent>
           </Select>
 
-          <span className="text-sm text-gray-500">of {totalPages}</span>
+          <span className="text-sm text-muted-foreground">of {totalPages}</span>
 
           <Button
             variant="outline"
@@ -202,7 +202,7 @@ export function PaginationControls({
           {/* Mobile sort filter - icon only */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="outline" size="sm" className="h-8 w-8 p-0 bg-white">
+              <Button variant="outline" size="sm" className="h-8 w-8 p-0 bg-surface">
                 <ArrowUpDown className="h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>

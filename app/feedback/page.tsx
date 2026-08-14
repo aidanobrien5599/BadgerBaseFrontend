@@ -98,8 +98,8 @@ export default function FeedbackPage() {
   return (
     <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <div className="text-center mb-8">
-        <h1 className="text-4xl font-bold text-gray-900 mb-3">Feedback</h1>
-        <p className="text-lg text-gray-600 max-w-xl mx-auto">
+        <h1 className="text-4xl font-bold text-foreground mb-3">Feedback</h1>
+        <p className="text-lg text-muted-foreground max-w-xl mx-auto">
           Found a bug? Have a question? Just want to share your thoughts? We&apos;d love to hear from you.
         </p>
       </div>
@@ -141,7 +141,7 @@ export default function FeedbackPage() {
                 </SelectContent>
               </Select>
               {errors.category && (
-                <p className="text-sm text-red-600">{errors.category.message}</p>
+                <p className="text-sm text-destructive">{errors.category.message}</p>
               )}
             </div>
 
@@ -155,7 +155,7 @@ export default function FeedbackPage() {
                   {...register("name")}
                 />
                 {errors.name && (
-                  <p className="text-sm text-red-600">{errors.name.message}</p>
+                  <p className="text-sm text-destructive">{errors.name.message}</p>
                 )}
               </div>
               <div className="space-y-2">
@@ -167,7 +167,7 @@ export default function FeedbackPage() {
                   {...register("email")}
                 />
                 {errors.email && (
-                  <p className="text-sm text-red-600">{errors.email.message}</p>
+                  <p className="text-sm text-destructive">{errors.email.message}</p>
                 )}
               </div>
             </div>
@@ -181,7 +181,7 @@ export default function FeedbackPage() {
                 {...register("subject")}
               />
               {errors.subject && (
-                <p className="text-sm text-red-600">{errors.subject.message}</p>
+                <p className="text-sm text-destructive">{errors.subject.message}</p>
               )}
             </div>
 
@@ -199,7 +199,7 @@ export default function FeedbackPage() {
                 {...register("message")}
               />
               {errors.message && (
-                <p className="text-sm text-red-600">{errors.message.message}</p>
+                <p className="text-sm text-destructive">{errors.message.message}</p>
               )}
             </div>
 

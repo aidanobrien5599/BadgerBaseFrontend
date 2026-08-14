@@ -311,7 +311,7 @@ export function LoginDialog({ open, onOpenChange }: LoginDialogProps) {
             <div className="space-y-2">
               <Label htmlFor="email" className="text-sm font-medium">Email</Label>
               <div className="relative group">
-                <Mail className="absolute left-3 top-3 h-4 w-4 text-gray-400 transition-colors group-focus-within:text-primary" />
+                <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground/60 transition-colors group-focus-within:text-primary" />
                 <Input
                   id="email"
                   type="email"
@@ -329,7 +329,7 @@ export function LoginDialog({ open, onOpenChange }: LoginDialogProps) {
               <div className="space-y-2 animate-in fade-in slide-in-from-bottom-2 duration-300">
                 <Label htmlFor="password" className="text-sm font-medium">Password</Label>
                 <div className="relative group">
-                  <Key className="absolute left-3 top-3 h-4 w-4 text-gray-400 transition-colors group-focus-within:text-primary" />
+                  <Key className="absolute left-3 top-3 h-4 w-4 text-muted-foreground/60 transition-colors group-focus-within:text-primary" />
                   <Input
                     id="password"
                     type="password"

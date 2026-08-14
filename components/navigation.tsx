@@ -24,14 +24,14 @@ export function Navigation() {
       ? "block px-3 py-2 font-medium"
       : "font-medium"
     
-    const activeClasses = "text-red-700"
-    const inactiveClasses = "text-gray-700 hover:text-red-700"
+    const activeClasses = "text-primary"
+    const inactiveClasses = "text-foreground hover:text-primary"
     
     return `${baseClasses} ${isActive(path) ? activeClasses : inactiveClasses}`
   }
   
   return (
-    <nav className="bg-white border-b border-gray-200 sticky top-0 z-50">
+    <nav className="bg-surface border-b border-border sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
@@ -44,7 +44,7 @@ export function Navigation() {
               className="h-10 w-auto"
               priority
             />
-            <span className="text-xl font-bold text-gray-900">BadgerBase</span>
+            <span className="text-xl font-bold text-foreground">BadgerBase</span>
           </Link>
           
           {/* Desktop Navigation */}
@@ -78,7 +78,7 @@ export function Navigation() {
         {/* Mobile Navigation */}
         {isMenuOpen && (
           <div className="md:hidden">
-            <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3 border-t border-gray-200">
+            <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3 border-t border-border">
               <Link
                 href="/"
                 className={getLinkClasses("/", true)}

@@ -11,8 +11,8 @@ export default function AboutPage() {
         <div className="flex items-center justify-center mb-4">
           <Image src={Logo} alt="SconnieGrades Logo" width={150} height={150} />
         </div>
-        <h1 className="text-4xl font-bold text-gray-900 mb-4">About BadgerBase</h1>
-        <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+        <h1 className="text-4xl font-bold text-foreground mb-4">About BadgerBase</h1>
+        <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
           A comprehensive data aggregator designed to help UW-Madison students find the best courses to fit their needs. Sourcing data from UW-Madison's live course catalog, Rate My Professor, and Madgrades for an all-in-one course search experience.
         </p>
       </div>
@@ -21,12 +21,12 @@ export default function AboutPage() {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Search className="h-5 w-5 text-red-600" />
+              <Search className="h-5 w-5 text-primary" />
               Smart Search
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-gray-600">
+            <p className="text-muted-foreground">
               Search courses by course code, name, or instructor. Our intelligent search helps you find exactly what
               you're looking for quickly and efficiently.
             </p>
@@ -36,12 +36,12 @@ export default function AboutPage() {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Filter className="h-5 w-5 text-red-600" />
+              <Filter className="h-5 w-5 text-primary" />
               Advanced Filtering
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-gray-600">
+            <p className="text-muted-foreground">
               Filter courses by availability, instruction mode, credits, GPA requirements, subject areas, and more. Find
               courses that fit your exact needs.
             </p>
@@ -51,12 +51,12 @@ export default function AboutPage() {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Star className="h-5 w-5 text-red-600" />
+              <Star className="h-5 w-5 text-primary" />
               Instructor Ratings
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-gray-600">
+            <p className="text-muted-foreground">
               View Rate My Professor ratings for instructors and sections, including average ratings, difficulty levels,
               and student feedback.
             </p>
@@ -66,12 +66,12 @@ export default function AboutPage() {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <BarChart3 className="h-5 w-5 text-red-600" />
+              <BarChart3 className="h-5 w-5 text-primary" />
               Real-time Data
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-gray-600">
+            <p className="text-muted-foreground">
               Get up-to-date information on course availability, enrollment numbers, waitlist status, and seat
               availability.
             </p>
@@ -87,7 +87,7 @@ export default function AboutPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             <div>
               <h4 className="font-semibold mb-2">Course Details</h4>
-              <div className="space-y-1 text-sm text-gray-600">
+              <div className="space-y-1 text-sm text-muted-foreground">
                 <div>• Course level</div>
                 <div>• Breadth</div>
                 <div>• Credits</div>
@@ -97,7 +97,7 @@ export default function AboutPage() {
 
             <div>
               <h4 className="font-semibold mb-2">Section Details</h4>
-              <div className="space-y-1 text-sm text-gray-600">
+              <div className="space-y-1 text-sm text-muted-foreground">
                 <div>• Status (Open/Closed/Waitlist)</div>
                 <div>• Available seats</div>
                 <div>• Instruction Mode</div>
@@ -106,7 +106,7 @@ export default function AboutPage() {
 
             <div>
               <h4 className="font-semibold mb-2">Professor Details</h4>
-              <div className="space-y-1 text-sm text-gray-600">
+              <div className="space-y-1 text-sm text-muted-foreground">
                 <div>• Professor rating</div>
                 <div>• Difficulty level</div>
                 <div>• Number of ratings</div>
@@ -119,14 +119,14 @@ export default function AboutPage() {
 
       
 
-        <div className="text-center mt-12 p-6 bg-red-50 rounded-lg">
-        <h3 className="text-lg font-semibold text-red-900 mb-2">Ready to find your perfect courses?</h3>
-        <p className="text-red-700 mb-4">
+        <div className="text-center mt-12 p-6 bg-accent rounded-lg">
+        <h3 className="text-lg font-semibold text-primary mb-2">Ready to find your perfect courses?</h3>
+        <p className="text-primary mb-4">
           Start searching with our comprehensive course database and filtering system.
         </p>
         <a
           href="/"
-          className="inline-flex items-center px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors"
+          className="inline-flex items-center px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary-hover transition-colors"
         >
           <Search className="h-4 w-4 mr-2" />
           Start Searching

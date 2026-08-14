@@ -19,21 +19,21 @@ export function NotificationTicker() {
       type: "course",
       message: "CS 540 just opened 3 new spots!",
       icon: Bell,
-      color: "bg-blue-500",
+      color: "bg-info",
     },
     {
       id: "2",
       type: "social",
       message: "127 students are currently browsing courses",
       icon: Users,
-      color: "bg-green-500",
+      color: "bg-success",
     },
     {
       id: "3",
       type: "trending",
       message: "MATH 221 is trending - 89% satisfaction rate!",
       icon: TrendingUp,
-      color: "bg-orange-500",
+      color: "bg-warning",
     },
   ])
 
@@ -62,7 +62,7 @@ export function NotificationTicker() {
         type: "trending",
         message: randomMsg,
         icon: Zap,
-        color: "bg-purple-500",
+        color: "bg-highlight",
       }
 
       setNotifications((prev) => [newNotif, ...prev.slice(0, 4)])

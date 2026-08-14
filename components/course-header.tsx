@@ -11,6 +11,7 @@ import { BarChart3 } from "lucide-react"
 import { useState } from "react"
 import { Award } from "lucide-react"
 import { NotificationButton } from "./notification-button"
+import { getGradeColor } from "./sections/utils"
 
 export function CourseHeader({ course, isExpanded }: { course: any; isExpanded: boolean }) {
 
@@ -22,11 +23,11 @@ export function CourseHeader({ course, isExpanded }: { course: any; isExpanded: 
 
       
         if (text.length <= maxChars) {
-          return <p className="text-sm text-gray-600">{text}</p>
+          return <p className="text-sm text-muted-foreground">{text}</p>
         }
       
         return (
-          <div className="text-sm text-gray-600">
+          <div className="text-sm text-muted-foreground">
             {expanded ? text : `${text.substring(0, maxChars)}...`}
             <button
               type="button"
@@ -34,33 +35,12 @@ export function CourseHeader({ course, isExpanded }: { course: any; isExpanded: 
                 e.stopPropagation()
                 setExpanded(!expanded)
               }}
-              className="ml-2 text-red-600 hover:text-red-700 text-xs font-medium hover:underline"
+              className="ml-2 text-primary hover:text-primary/80 text-xs font-medium hover:underline"
             >
               {expanded ? "Show less" : "Show more"}
             </button>
           </div>
         )
-      }
-
-      const getGradeColor = (grade: string) => {
-        switch (grade) {
-          case "A":
-            return "bg-red-600 text-white"
-          case "AB":
-            return "bg-red-500 text-white"
-          case "B":
-            return "bg-red-400 text-white"
-          case "BC":
-            return "bg-red-300 text-red-800"
-          case "C":
-            return "bg-red-200 text-red-800"
-          case "D":
-            return "bg-red-100 text-red-700"
-          case "F":
-            return "bg-red-700 text-white"
-          default:
-            return "bg-gray-100 text-gray-700"
-        }
       }
 
       const getLevelInfo = (level: string) => {
@@ -80,19 +60,19 @@ export function CourseHeader({ course, isExpanded }: { course: any; isExpanded: 
 
         return (
     <CollapsibleTrigger asChild>
-              <CardHeader className="cursor-pointer bg-white transition-colors p-6 relative">
+              <CardHeader className="cursor-pointer bg-surface transition-colors p-6 relative">
                 <div className="pr-8">
                   {/* Course Info */}
                   <div className="space-y-4">
                     {/* Title + Code */}
                     <div className="space-y-2">
                       <div className="flex items-start justify-between gap-4">
-                        <CardTitle className="text-xl font-bold text-gray-900">
+                        <CardTitle className="text-xl font-bold text-foreground">
                           <a
                             href={`https://public.enroll.wisc.edu/search?keywords=${encodeURIComponent(course.course_designation)}`}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="hover:text-red-600 hover:underline"
+                            className="hover:text-primary hover:underline"
                             onClick={(e) => e.stopPropagation()}
                           >
                             {course.course_title}
@@ -110,62 +90,62 @@ export function CourseHeader({ course, isExpanded }: { course: any; isExpanded: 
                         )}
                       </div>
                       <div className="flex items-center gap-2 flex-wrap">
-                        <Badge className="bg-red-600 text-white font-semibold">
+                        <Badge className="bg-primary text-primary-foreground font-semibold">
                           {course.course_designation}
                         </Badge>
-                        <Badge className="bg-red-50 text-red-700 border-red-200 font-medium">
+                        <Badge className="bg-accent text-primary border-primary/20 font-medium">
                         {`${course.median_grade} Avg`}
                         </Badge>
 
                         {course.enrollment_prerequisites == "None" && (
-                            <Badge className="bg-red-50 text-red-700 border-red-200 font-medium">
+                            <Badge className="bg-accent text-primary border-primary/20 font-medium">
                             {`No Prereqs`}
                           </Badge>
                         )}
 
                         {course.letters_and_science_credits && (
-                            <Badge className="bg-red-50 text-red-700 border-red-200 font-medium">
+                            <Badge className="bg-accent text-primary border-primary/20 font-medium">
                             {`L&S`}
                           </Badge>
                         )}
 
                         {course.ethnic_studies && (
-                          <Badge className="bg-red-50 text-red-700 border-red-200 font-medium">
+                          <Badge className="bg-accent text-primary border-primary/20 font-medium">
                             Ethnic Studies
                           </Badge>
                         )}
                         {course.social_science && (
-                          <Badge className="bg-red-50 text-red-700 border-red-200 font-medium">
+                          <Badge className="bg-accent text-primary border-primary/20 font-medium">
                             Social Science
                           </Badge>
                         )}
                         {course.humanities && (
-                          <Badge className="bg-red-50 text-red-700 border-red-200 font-medium">
+                          <Badge className="bg-accent text-primary border-primary/20 font-medium">
                             Humanities
                           </Badge>
                         )}
                         {course.biological_science && (
-                          <Badge className="bg-red-50 text-red-700 border-red-200 font-medium">
+                          <Badge className="bg-accent text-primary border-primary/20 font-medium">
                             Bio Science
                           </Badge>
                         )}
                         {course.physical_science && (
-                          <Badge className="bg-red-50 text-red-700 border-red-200 font-medium">
+                          <Badge className="bg-accent text-primary border-primary/20 font-medium">
                             Physical Science
                           </Badge>
                         )}
                         {course.natural_science && (
-                          <Badge className="bg-red-50 text-red-700 border-red-200 font-medium">
+                          <Badge className="bg-accent text-primary border-primary/20 font-medium">
                             Natural Science
                           </Badge>
                         )}
                         {course.literature && (
-                          <Badge className="bg-red-50 text-red-700 border-red-200 font-medium">
+                          <Badge className="bg-accent text-primary border-primary/20 font-medium">
                             Literature
                           </Badge>
                         )}
                         {course.general_education && (
-                          <Badge className="bg-red-50 text-red-700 border-red-200 font-medium">
+                          <Badge className="bg-accent text-primary border-primary/20 font-medium">
                             {course.general_education}
                           </Badge> 
                         )}
@@ -184,9 +164,9 @@ export function CourseHeader({ course, isExpanded }: { course: any; isExpanded: 
 
                   {/* Chevron positioned absolutely */}
                   <div className="absolute top-4 right-4">
-                    <div className="p-1 rounded-full hover:bg-gray-100">
+                    <div className="p-1 rounded-full hover:bg-muted">
                       <ChevronDown
-                        className={`h-5 w-5 text-gray-600 transition-transform duration-200 ${
+                        className={`h-5 w-5 text-muted-foreground transition-transform duration-200 ${
                           isExpanded ? "rotate-180" : ""
                         }`}
                       />

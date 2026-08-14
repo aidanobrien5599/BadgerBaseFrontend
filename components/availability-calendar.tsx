@@ -5,6 +5,7 @@ import type React from "react"
 import { useState, useCallback } from "react"
 import { Button } from "@/components/ui/button"
 import { Clock, X } from "lucide-react"
+import { typography } from "@/lib/tokens"
 
 interface TimeSlot {
   start: number // minutes from midnight
@@ -274,7 +275,7 @@ export function AvailabilityCalendar({ onApply, initialAvailability }: Availabil
 
   return (
     <div className="space-y-4" onClick={handleBackgroundClick}>
-      <div className="text-sm text-gray-600 mb-4">
+      <div className="text-sm text-muted-foreground mb-4">
         Click and drag to select your available time slots. You can create multiple separate time blocks per day, and
         time is in CST.
         <br />
@@ -282,17 +283,17 @@ export function AvailabilityCalendar({ onApply, initialAvailability }: Availabil
       </div>
 
       <div
-        className="grid grid-cols-6 gap-1 border rounded-lg overflow-hidden bg-white"
+        className="grid grid-cols-6 gap-1 border rounded-lg overflow-hidden bg-surface"
         onMouseLeave={handleMouseUp}
         onTouchEnd={handleTouchEnd}
       >
-        <div className="bg-gray-50 border-r">
-          <div className="h-8 border-b bg-gray-100"></div>
+        <div className="bg-background border-r">
+          <div className="h-8 border-b bg-muted"></div>
           {hourLabels.map((hour, i) => (
             <div
               key={i}
-              className="h-8 border-b text-xs text-gray-500 flex items-start justify-center pt-0.5 border-gray-200"
-              style={{ fontSize: "10px" }}
+              className="h-8 border-b text-xs text-muted-foreground flex items-start justify-center pt-0.5 border-border"
+              style={{ fontSize: typography.xxs }}
             >
               {hour}
             </div>
@@ -301,7 +302,7 @@ export function AvailabilityCalendar({ onApply, initialAvailability }: Availabil
 
         {DAYS.map((day, dayIndex) => (
           <div key={day} className="relative border-r last:border-r-0">
-            <div className="h-8 bg-gray-100 border-b flex items-center justify-center px-2">
+            <div className="h-8 bg-muted border-b flex items-center justify-center px-2">
               <span className="text-xs font-medium">{DAY_LABELS[dayIndex]}</span>
             </div>
 
@@ -315,7 +316,7 @@ export function AvailabilityCalendar({ onApply, initialAvailability }: Availabil
               onTouchEnd={handleTouchEnd}
             >
               {Array.from({ length: HOURS_IN_DAY }, (_, i) => (
-                <div key={i} className="h-8 border-b border-gray-200 hover:bg-blue-50" />
+                <div key={i} className="h-8 border-b border-border hover:bg-accent" />
               ))}
 
               {availability[day as keyof WeeklyAvailability].map((slot, slotIndex) => {
@@ -326,7 +327,7 @@ export function AvailabilityCalendar({ onApply, initialAvailability }: Availabil
                 return (
                   <div
                     key={slotIndex}
-                    className="absolute left-0 right-0 bg-red-500 bg-opacity-70 border border-red-600 rounded-sm group hover:bg-opacity-80"
+                    className="absolute left-0 right-0 bg-primary/70 border border-primary rounded-sm group hover:bg-primary/80"
                     style={{
                       top: `${top}%`,
                       height: `${height}%`,
@@ -348,7 +349,7 @@ export function AvailabilityCalendar({ onApply, initialAvailability }: Availabil
                       onTouchStart={(e) => e.stopPropagation()}
                       onTouchEnd={(e) => e.stopPropagation()}
                       onClick={(e) => handleDeleteClick(e, day, slotIndex)}
-                      className={`absolute top-0 right-0 bg-red-500 text-white rounded-full transition-opacity flex items-center justify-center hover:bg-red-600 z-10 transform translate-x-1 -translate-y-1 w-5 h-5 ${
+                      className={`absolute top-0 right-0 bg-destructive text-destructive-foreground rounded-full transition-opacity flex items-center justify-center hover:bg-destructive/90 z-10 transform translate-x-1 -translate-y-1 w-5 h-5 ${
                         isSelected ? "opacity-100" : "opacity-0 group-hover:opacity-100"
                       }`}
                       title="Delete this time slot"
@@ -373,9 +374,9 @@ export function AvailabilityCalendar({ onApply, initialAvailability }: Availabil
 
               return (
                 <div key={day} className="space-y-1">
-                  <div className="font-medium text-gray-700">{DAY_LABELS[index]}</div>
+                  <div className="font-medium text-muted-foreground">{DAY_LABELS[index]}</div>
                   {slots.map((slot, i) => (
-                    <div key={i} className="text-gray-600">
+                    <div key={i} className="text-muted-foreground">
                       {minutesToTime(slot.start)} - {minutesToTime(slot.end)}
                     </div>
                   ))}
