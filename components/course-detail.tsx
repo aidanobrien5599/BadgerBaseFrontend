@@ -125,39 +125,6 @@ const typeColor = (t: string) => {
   return "text-muted-foreground"
 }
 
-const typeBg = (t: string) => {
-  const u = t.toUpperCase()
-  if (u.includes("LEC")) return "#2E5AA8"
-  if (u.includes("DIS")) return "#3E9B5E"
-  if (u.includes("LAB")) return "#7A3FB0"
-  return "#655F5C"
-}
-
-const parseTime = (t: string) => {
-  const m = t.match(/(\d+):(\d+)\s*(AM|PM)/i)
-  if (!m) return null
-  let h = Number.parseInt(m[1])
-  const min = Number.parseInt(m[2])
-  if (m[3].toUpperCase() === "PM" && h !== 12) h += 12
-  if (m[3].toUpperCase() === "AM" && h === 12) h = 0
-  return h * 60 + min
-}
-
-const getMeetingsByDay = (meetings: Meeting[]) => {
-  const byDay: Record<string, { start: number; end: number; type: string; label: string }[]> = {}
-  meetings.forEach((m) => {
-    const sm = parseTime(m.start_time)
-    const em = parseTime(m.end_time)
-    if (sm == null || em == null) return
-    ;(m.meeting_days || "").split("").forEach((day) => {
-      if (!"MTWRF".includes(day)) return
-      if (!byDay[day]) byDay[day] = []
-      byDay[day].push({ start: sm, end: em, type: m.meeting_type, label: `${m.meeting_type} ${m.section_number}` })
-    })
-  })
-  return byDay
-}
-
 /* ============ Grade Distribution ============ */
 
 function GradeDistribution({ course }: { course: CourseDetailData }) {
@@ -467,69 +434,6 @@ function FragmentRow({ children, open }: { children: React.ReactNode; open: bool
   return <>{children}</>
 }
 
-/* ============ Weekly schedule ============ */
-
-function WeeklySchedule({ course }: { course: CourseDetailData }) {
-  const byDay = useMemo(() => {
-    const all = course.sections.flatMap((s) => s.meetings || [])
-    return getMeetingsByDay(all)
-  }, [course])
-
-  const HOURS = 14
-  const START_HOUR = 7
-  const dayOrder = ["M", "T", "W", "R", "F"]
-
-  return (
-    <section className="bg-surface border border-border/70">
-      <header className="flex flex-wrap items-center gap-2 px-4 py-2.5 border-b border-border/70">
-        <h2 className="font-display text-[15px] font-semibold tracking-[-0.01em]">Weekly Schedule</h2>
-        <span className="font-mono text-[8.5px] tracking-[0.1em] text-muted-foreground">ALL SECTIONS</span>
-        <div className="flex gap-3.5 ml-auto font-mono text-[8px] tracking-[0.09em] text-muted-foreground">
-          {[["LEC", "#2E5AA8"], ["DIS", "#3E9B5E"], ["LAB", "#7A3FB0"]].map(([l, c]) => (
-            <span key={l} className="flex items-center gap-1.5">
-              <span className="w-[9px] h-[9px]" style={{ background: c }} />{l}
-            </span>
-          ))}
-        </div>
-      </header>
-      <div className="p-4 overflow-x-auto">
-        <div className="flex min-w-[620px]">
-          <div className="w-[44px] flex-none">
-            {Array.from({ length: HOURS }).map((_, i) => (
-              <div key={i} className="h-10 font-mono text-[8.5px] text-muted-foreground flex items-start justify-end pr-2 pt-0.5">
-                {((START_HOUR + i) % 12 === 0 ? 12 : (START_HOUR + i) % 12)}:00
-              </div>
-            ))}
-          </div>
-          {dayOrder.map((day) => (
-            <div key={day} className="flex-1 relative border-l border-border/70">
-              <div className="font-mono font-semibold text-[9px] tracking-[0.1em] text-muted-foreground text-center py-[3px] border-b border-border/70">
-                {day}
-              </div>
-              <div className="relative h-[560px]" style={{ backgroundImage: "linear-gradient(to bottom, var(--border) 1px, transparent 1px)", backgroundSize: "100% 40px" }}>
-                {(byDay[day] || []).map((b, i) => (
-                  <div
-                    key={i}
-                    className="absolute left-1 right-1 px-1.5 py-1 text-white font-mono text-[8px] leading-[1.35] overflow-hidden"
-                    style={{
-                      top: (b.start - START_HOUR * 60) * (40 / 60),
-                      height: Math.max((b.end - b.start) * (40 / 60) - 2, 12),
-                      background: typeBg(b.type),
-                    }}
-                  >
-                    <b className="block text-[8.5px]">{b.type}</b>
-                    <span className="block opacity-90">{b.label.split(" ").slice(1).join(" ")}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-    </section>
-  )
-}
-
 /* ============ Main detail ============ */
 
 export function CourseDetail({ course }: { course: CourseDetailData }) {
@@ -602,7 +506,6 @@ export function CourseDetail({ course }: { course: CourseDetailData }) {
           <GradeDistribution course={course} />
           <Instructors course={course} />
           <SectionTable sections={course.sections} />
-          <WeeklySchedule course={course} />
         </div>
       </div>
     </div>
