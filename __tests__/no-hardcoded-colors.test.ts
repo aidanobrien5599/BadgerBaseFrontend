@@ -7,6 +7,12 @@ const MIGRATED_FILES = [
   "components/footer.tsx",
   "components/auth-button.tsx",
   "components/maintenance-banner.tsx",
+  "components/course-table.tsx",
+  "components/course-header.tsx",
+  "components/availability-calendar.tsx",
+  "components/sections/SectionDetails.tsx",
+  "components/sections/LectureRow.tsx",
+  "components/sections/HierarchicalSections.tsx",
 ]
 
 describe("no hardcoded colors in migrated files", () => {
@@ -30,5 +36,35 @@ describe("no hardcoded colors in migrated files", () => {
       // accidentally swallowed by the catch block above.
       expect(result.trim()).toBe("")
     })
+  })
+
+  it("course-table.tsx has no inline hex color values", () => {
+    let result = ""
+    try {
+      result = execSync(
+        `grep -nE 'fill: "#[0-9a-fA-F]' components/course-table.tsx`,
+        { cwd: process.cwd(), encoding: "utf-8" }
+      )
+    } catch (error: any) {
+      if (error.status !== 1) {
+        throw error
+      }
+    }
+    expect(result.trim()).toBe("")
+  })
+
+  it("course-table.tsx has no inline fontSize values", () => {
+    let result = ""
+    try {
+      result = execSync(
+        `grep -nE 'fontSize: [0-9]' components/course-table.tsx`,
+        { cwd: process.cwd(), encoding: "utf-8" }
+      )
+    } catch (error: any) {
+      if (error.status !== 1) {
+        throw error
+      }
+    }
+    expect(result.trim()).toBe("")
   })
 })

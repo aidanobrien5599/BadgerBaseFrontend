@@ -22,6 +22,7 @@ import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/
 import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis } from "recharts"
 import { CourseHeader } from "./course-header"
 import { HierarchicalSections } from "./sections"
+import { colors, typography } from "@/lib/tokens"
 // Instructor interface defined locally
 interface Instructor {
   name: string
@@ -157,37 +158,24 @@ export function CourseTable({
     }
   }
 
-  const getStatusColor = (status: string) => {
-    switch (status.toUpperCase()) {
-      case "OPEN":
-        return "bg-green-50 text-green-700 border-green-200"
-      case "CLOSED":
-        return "bg-red-50 text-red-700 border-red-200"
-      case "WAITLIST":
-        return "bg-yellow-50 text-yellow-700 border-yellow-200"
-      default:
-        return "bg-gray-50 text-gray-700 border-gray-200"
-    }
-  }
-
   const getGradeColor = (grade: string) => {
     switch (grade) {
       case "A":
-        return "bg-red-600 text-white"
+        return "bg-primary text-primary-foreground"
       case "AB":
-        return "bg-red-500 text-white"
+        return "bg-primary/85 text-primary-foreground"
       case "B":
-        return "bg-red-400 text-white"
+        return "bg-primary/70 text-primary-foreground"
       case "BC":
-        return "bg-red-300 text-red-800"
+        return "bg-primary/50 text-primary"
       case "C":
-        return "bg-red-200 text-red-800"
+        return "bg-primary/30 text-primary"
       case "D":
-        return "bg-red-100 text-red-700"
+        return "bg-primary/20 text-primary"
       case "F":
-        return "bg-red-700 text-white"
+        return "bg-destructive text-destructive-foreground"
       default:
-        return "bg-gray-100 text-gray-700"
+        return "bg-muted text-muted-foreground"
     }
   }
 
@@ -199,76 +187,42 @@ export function CourseTable({
     return decimal ? `${Math.round(decimal * 100)}%` : "0%"
   }
 
-  const formatMeetingTime = (startTime: string, endTime: string) => {
-    return `${startTime} - ${endTime}`
-  }
-
-  const getMeetingTypeColor = (type: string) => {
-    switch (type.toUpperCase()) {
-      case "LEC":
-        return "bg-blue-50 text-blue-700 border-blue-200"
-      case "DIS":
-        return "bg-green-50 text-green-700 border-green-200"
-      case "LAB":
-        return "bg-purple-50 text-purple-700 border-purple-200"
-      case "SEM":
-        return "bg-orange-50 text-orange-700 border-orange-200"
-      default:
-        return "bg-gray-50 text-gray-700 border-gray-200"
-    }
-  }
-
-  const getMeetingTypeLabel = (type: string) => {
-    switch (type.toUpperCase()) {
-      case "LEC":
-        return "Lecture"
-      case "DIS":
-        return "Discussion"
-      case "LAB":
-        return "Lab"
-      case "SEM":
-        return "Seminar"
-      default:
-        return type
-    }
-  }
-
   const getGradeChartData = (course: Course) => {
     return [
       {
         grade: "A",
         percentage: Math.round((course.a_percent || 0) * 100),
-        fill: "#dc2626", // red-600
+        fill: colors.red[600],
       },
       {
         grade: "AB",
         percentage: Math.round((course.ab_percent || 0) * 100),
-        fill: "#ef4444", // red-500
+        fill: colors.red[500],
       },
       {
         grade: "B",
         percentage: Math.round((course.b_percent || 0) * 100),
-        fill: "#f87171", // red-400
+        fill: colors.red[400],
       },
       {
         grade: "BC",
         percentage: Math.round((course.bc_percent || 0) * 100),
-        fill: "#fca5a5", // red-300
+        fill: colors.red[300],
       },
       {
         grade: "C",
         percentage: Math.round((course.c_percent || 0) * 100),
-        fill: "#fecaca", // red-200
+        fill: colors.red[200],
       },
       {
         grade: "D",
         percentage: Math.round((course.d_percent || 0) * 100),
-        fill: "#fee2e2", // red-100
+        fill: colors.red[100],
       },
       {
         grade: "F",
         percentage: Math.round((course.f_percent || 0) * 100),
-        fill: "#991b1b", // red-800
+        fill: colors.red[800],
       },
     ]
   }
@@ -277,7 +231,7 @@ export function CourseTable({
     return (
       <Card>
         <CardContent className="text-center py-12">
-          <p className="text-gray-500">No courses found. Try adjusting your search criteria.</p>
+          <p className="text-muted-foreground">No courses found. Try adjusting your search criteria.</p>
         </CardContent>
       </Card>
     )
@@ -310,16 +264,16 @@ export function CourseTable({
               <CourseHeader course={course} isExpanded={expandedCourses.has(course.course_id)} />
 
               <CollapsibleContent>
-                <CardContent className="pt-0 bg-white">
+                <CardContent className="pt-0 bg-surface">
                   <div className="flex flex-col gap-4 pb-4">
                     {course.enrollment_prerequisites && (
-                      <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-                        <p className="text-sm text-red-800">
+                      <div className="bg-accent border border-primary/20 rounded-lg p-4">
+                        <p className="text-sm text-primary">
                           <span className="font-bold flex items-center gap-2 mb-2">
-                            <Award className="h-4 w-4 text-red-600" />
+                            <Award className="h-4 w-4 text-primary" />
                             Prerequisites:
                           </span>
-                          <span className="text-red-700">{course.enrollment_prerequisites}</span>
+                          <span className="text-primary">{course.enrollment_prerequisites}</span>
                         </p>
                       </div>
                     )}
@@ -327,12 +281,12 @@ export function CourseTable({
                     {/* Meta Info Grid */}
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                       {/* Credits Card */}
-                      <div className="bg-white border rounded-lg p-4">
-                        <div className="flex items-center gap-2 text-gray-700 mb-2">
-                          <BookOpen className="h-4 w-4 text-red-600" />
+                      <div className="bg-surface border rounded-lg p-4">
+                        <div className="flex items-center gap-2 text-muted-foreground mb-2">
+                          <BookOpen className="h-4 w-4 text-primary" />
                           <span className="font-medium text-sm">Credits</span>
                         </div>
-                        <div className="text-gray-900 font-semibold">
+                        <div className="text-foreground font-semibold">
                           {course.minimum_credits === course.maximum_credits
                             ? `${course.minimum_credits} credit${course.minimum_credits > 1 ? "s" : ""}`
                             : `${course.minimum_credits}-${course.maximum_credits} credits`}
@@ -340,26 +294,26 @@ export function CourseTable({
                       </div>
 
                       {/* Level Card */}
-                      <div className="bg-white border rounded-lg p-4">
-                        <div className="flex items-center gap-2 text-gray-700 mb-2">
+                      <div className="bg-surface border rounded-lg p-4">
+                        <div className="flex items-center gap-2 text-muted-foreground mb-2">
                           {(() => {
                             const levelInfo = getLevelInfo(course.level)
                             const IconComponent = levelInfo.icon
                             return (
                               <>
-                                <IconComponent className="h-4 w-4 text-red-600" />
+                                <IconComponent className="h-4 w-4 text-primary" />
                                 <span className="font-medium text-sm">Level</span>
                               </>
                             )
                           })()}
                         </div>
-                        <div className="text-gray-900 font-semibold">{getLevelInfo(course.level).text}</div>
+                        <div className="text-foreground font-semibold">{getLevelInfo(course.level).text}</div>
                       </div>
 
                       {/* Median Grade Card */}
-                      <div className="bg-white border rounded-lg p-4">
-                        <div className="flex items-center gap-2 text-gray-700 mb-2">
-                          <Star className="h-4 w-4 text-red-600" />
+                      <div className="bg-surface border rounded-lg p-4">
+                        <div className="flex items-center gap-2 text-muted-foreground mb-2">
+                          <Star className="h-4 w-4 text-primary" />
                           <span className="font-medium text-sm">Median Grade</span>
                         </div>
                         <div className="mt-1">
@@ -368,31 +322,31 @@ export function CourseTable({
                               {course.median_grade}
                             </Badge>
                           ) : (
-                            <span className="text-gray-700 font-semibold">N/A</span>
+                            <span className="text-muted-foreground font-semibold">N/A</span>
                           )}
                         </div>
                       </div>
 
                       {/* Sections Card */}
-                      <div className="bg-white border rounded-lg p-4">
-                        <div className="flex items-center gap-2 text-gray-700 mb-2">
-                          <Users className="h-4 w-4 text-red-600" />
+                      <div className="bg-surface border rounded-lg p-4">
+                        <div className="flex items-center gap-2 text-muted-foreground mb-2">
+                          <Users className="h-4 w-4 text-primary" />
                           <span className="font-medium text-sm">Sections</span>
                         </div>
-                        <div className="text-gray-900 font-semibold">{course.sections.length}</div>
+                        <div className="text-foreground font-semibold">{course.sections.length}</div>
                       </div>
 
                       {/* Avg GPA Card */}
-                      <div className="bg-white border rounded-lg p-4">
-                        <div className="flex items-center gap-2 text-gray-700 mb-2">
-                          <TrendingUp className="h-4 w-4 text-red-600" />
+                      <div className="bg-surface border rounded-lg p-4">
+                        <div className="flex items-center gap-2 text-muted-foreground mb-2">
+                          <TrendingUp className="h-4 w-4 text-primary" />
                           <span className="font-medium text-sm">Avg GPA</span>
                         </div>
                         <div className="mt-1">
                           <a
                             target="_blank"
                             href={`https://madgrades.com/courses/${course.madgrades_course_uuid}`}
-                            className="text-red-600 font-bold hover:text-red-700 hover:underline"
+                            className="text-primary font-bold hover:text-primary/80 hover:underline"
                             rel="noreferrer"
                           >
                             {course.cumulative_gpa?.toFixed(2) || "N/A"}
@@ -401,12 +355,12 @@ export function CourseTable({
                       </div>
 
                       {/* Recent GPA Card */}
-                      <div className="bg-white border rounded-lg p-4">
-                        <div className="flex items-center gap-2 text-gray-700 mb-2">
-                          <BarChart3 className="h-4 w-4 text-red-600" />
+                      <div className="bg-surface border rounded-lg p-4">
+                        <div className="flex items-center gap-2 text-muted-foreground mb-2">
+                          <BarChart3 className="h-4 w-4 text-primary" />
                           <span className="font-medium text-sm">Recent GPA</span>
                         </div>
-                        <div className="text-gray-900 font-semibold">{course.most_recent_gpa?.toFixed(2) || "N/A"}</div>
+                        <div className="text-foreground font-semibold">{course.most_recent_gpa?.toFixed(2) || "N/A"}</div>
                       </div>
 
 
@@ -416,24 +370,24 @@ export function CourseTable({
                     {((course.workplace_experience_description && course.workplace_experience_description !== "STUDENT OPT") || 
                       (course.repeatable_for_credit === "Y") || 
                       (course.typically_offered && course.typically_offered !== "Not Applicable")) && (
-                      <div className="mt-4 p-4 bg-white rounded-lg border">
-                        <h4 className="font-semibold text-gray-900 mb-3">Course attributes:</h4>
-                        <ul className="space-y-2 text-sm text-gray-700">
+                      <div className="mt-4 p-4 bg-surface rounded-lg border">
+                        <h4 className="font-semibold text-foreground mb-3">Course attributes:</h4>
+                        <ul className="space-y-2 text-sm text-muted-foreground">
                           {course.workplace_experience_description && course.workplace_experience_description !== "STUDENT OPT" && (
                             <li className="flex items-start gap-2">
-                              <span className="text-red-600 font-bold mt-0.5">•</span>
+                              <span className="text-primary font-bold mt-0.5">•</span>
                               <span>Workplace Experience Course</span>
                             </li>
                           )}
                           {course.repeatable_for_credit === "Y" && (
                             <li className="flex items-start gap-2">
-                              <span className="text-red-600 font-bold mt-0.5">•</span>
+                              <span className="text-primary font-bold mt-0.5">•</span>
                               <span>Repeatable for Credit</span>
                             </li>
                           )}
                           {course.typically_offered && course.typically_offered !== "Not Applicable" && (
                             <li className="flex items-start gap-2">
-                              <span className="text-red-600 font-bold mt-0.5">•</span>
+                              <span className="text-primary font-bold mt-0.5">•</span>
                               <span>Typically offered in {course.typically_offered}</span>
                             </li>
                           )}
@@ -443,9 +397,9 @@ export function CourseTable({
                   </div>
 
                   {/* Grade Distribution Chart */}
-                  <div className="mb-6 p-6 bg-white rounded-lg border">
-                    <h4 className="font-bold mb-4 flex items-center gap-2 text-gray-900">
-                      <BarChart3 className="h-5 w-5 text-red-600" />
+                  <div className="mb-6 p-6 bg-surface rounded-lg border">
+                    <h4 className="font-bold mb-4 flex items-center gap-2 text-foreground">
+                      <BarChart3 className="h-5 w-5 text-primary" />
                       Grade Distribution
                     </h4>
                     <ChartContainer
@@ -470,12 +424,12 @@ export function CourseTable({
                             dataKey="grade"
                             axisLine={false}
                             tickLine={false}
-                            tick={{ fontSize: 14, fontWeight: 600, fill: "#374151" }}
+                            tick={{ fontSize: typography.sm, fontWeight: 600, fill: colors.gray[700] }}
                           />
                           <YAxis
                             axisLine={false}
                             tickLine={false}
-                            tick={{ fontSize: 12, fill: "#374151" }}
+                            tick={{ fontSize: typography.xs, fill: colors.gray[700] }}
                             tickFormatter={(value) => `${value}%`}
                           />
                           <ChartTooltip
@@ -492,34 +446,34 @@ export function CourseTable({
                   {/* Hierarchical Sections */}
                   <div className="space-y-4">
                     <div className="flex items-center justify-between flex-wrap gap-3">
-                      <h4 className="font-bold text-gray-900 flex items-center gap-2">
-                        <Users className="h-5 w-5 text-red-600" />
+                      <h4 className="font-bold text-foreground flex items-center gap-2">
+                        <Users className="h-5 w-5 text-primary" />
                         Sections
                       </h4>
 
                       {/* Filter Controls */}
                       <div className="flex flex-wrap items-center gap-3 text-sm">
                         <div className="flex items-center gap-1">
-                          <Filter className="h-4 w-4 text-gray-500" />
-                          <span className="text-gray-600 font-medium">Filter:</span>
+                          <Filter className="h-4 w-4 text-muted-foreground" />
+                          <span className="text-muted-foreground font-medium">Filter:</span>
                         </div>
                         <label className="flex items-center gap-2 cursor-pointer whitespace-nowrap">
                           <input
                             type="checkbox"
                             checked={hideClosedSections}
                             onChange={(e) => setHideClosedSections(e.target.checked)}
-                            className="rounded border-gray-300 text-red-600 focus:ring-red-500"
+                            className="rounded border-input text-primary focus:ring-ring"
                           />
-                          <span className="text-gray-700">Hide closed</span>
+                          <span className="text-muted-foreground">Hide closed</span>
                         </label>
                         <label className="flex items-center gap-2 cursor-pointer whitespace-nowrap">
                           <input
                             type="checkbox"
                             checked={hideWaitlistedSections}
                             onChange={(e) => setHideWaitlistedSections(e.target.checked)}
-                            className="rounded border-gray-300 text-red-600 focus:ring-red-500"
+                            className="rounded border-input text-primary focus:ring-ring"
                           />
-                          <span className="text-gray-700">Hide waitlisted</span>
+                          <span className="text-muted-foreground">Hide waitlisted</span>
                         </label>
                       </div>
                     </div>
