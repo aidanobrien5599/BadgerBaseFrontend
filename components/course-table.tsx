@@ -1,25 +1,9 @@
 "use client"
 
 import { Badge } from "@/components/ui/badge"
-import {
-  Users,
-  ChevronRight,
-  Star,
-  TrendingUp,
-  BarChart3,
-  Award,
-  BookOpen,
-  GraduationCap,
-  Filter,
-} from "lucide-react"
-import { useState } from "react"
+import { ChevronRight } from "lucide-react"
+import { useRouter } from "next/navigation"
 import { PaginationControls } from "./pagination-controls"
-import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart"
-import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis } from "recharts"
-import { NotificationButton } from "./notification-button"
-import { HierarchicalSections } from "./sections"
-import { colors, typography } from "@/lib/tokens"
-import { getGradeColor } from "@/components/sections/utils"
 
 interface Instructor {
   name: string
@@ -133,81 +117,10 @@ export function CourseTable({
   view,
   onViewChange,
 }: CourseTableProps) {
-  const [expandedCourses, setExpandedCourses] = useState<Set<number>>(new Set())
-  const [hideClosedSections, setHideClosedSections] = useState(false)
-  const [hideWaitlistedSections, setHideWaitlistedSections] = useState(false)
+  const router = useRouter()
 
-  const toggleCourse = (courseId: number) => {
-    const newExpanded = new Set(expandedCourses)
-    if (newExpanded.has(courseId)) {
-      newExpanded.delete(courseId)
-    } else {
-      newExpanded.add(courseId)
-    }
-    setExpandedCourses(newExpanded)
-  }
-
-  const filterSections = (sections: Section[]) => {
-    return sections.filter((section) => {
-      if (hideClosedSections && section.status.toUpperCase() === "CLOSED") {
-        return false
-      }
-      if (hideWaitlistedSections && section.status.toUpperCase() === "WAITLISTED") {
-        return false
-      }
-      return true
-    })
-  }
-
-  const getLevelInfo = (level: string) => {
-    switch (level) {
-      case "A":
-        return { text: "Advanced", icon: GraduationCap }
-      case "I":
-        return { text: "Intermediate", icon: BookOpen }
-      default:
-        return { text: "Elementary", icon: Award }
-    }
-  }
-
-  const getGradeChartData = (course: Course) => {
-    return [
-      {
-        grade: "A",
-        percentage: Math.round((course.a_percent || 0) * 100),
-        fill: colors.red[600],
-      },
-      {
-        grade: "AB",
-        percentage: Math.round((course.ab_percent || 0) * 100),
-        fill: colors.red[500],
-      },
-      {
-        grade: "B",
-        percentage: Math.round((course.b_percent || 0) * 100),
-        fill: colors.red[400],
-      },
-      {
-        grade: "BC",
-        percentage: Math.round((course.bc_percent || 0) * 100),
-        fill: colors.red[300],
-      },
-      {
-        grade: "C",
-        percentage: Math.round((course.c_percent || 0) * 100),
-        fill: colors.red[200],
-      },
-      {
-        grade: "D",
-        percentage: Math.round((course.d_percent || 0) * 100),
-        fill: colors.red[100],
-      },
-      {
-        grade: "F",
-        percentage: Math.round((course.f_percent || 0) * 100),
-        fill: colors.red[800],
-      },
-    ]
+  const openCourse = (course: Course) => {
+    router.push(`/course/${encodeURIComponent(course.course_designation)}`)
   }
 
   if (courses.length === 0) {
@@ -238,11 +151,7 @@ export function CourseTable({
 
       <div>
         {courses.map((course, index) => {
-          const filteredSections = filterSections(course.sections)
-          const isExpanded = expandedCourses.has(course.course_id)
           const statusBadge = getStatusBadge(course.status)
-          const levelInfo = getLevelInfo(course.level)
-          const LevelIcon = levelInfo.icon
           const rowNumber = (currentPage - 1) * resultsPerPage + index + 1
           const designationMatch = course.course_designation.match(/^(\D+)\s*(.+)$/)
           const designationSubject = designationMatch ? designationMatch[1].trim() : course.course_designation
@@ -255,16 +164,14 @@ export function CourseTable({
               <div
                 role="button"
                 tabIndex={0}
-                onClick={() => toggleCourse(course.course_id)}
+                onClick={() => openCourse(course)}
                 onKeyDown={(e) => {
                   if (e.key === "Enter" || e.key === " ") {
                     e.preventDefault()
-                    toggleCourse(course.course_id)
+                    openCourse(course)
                   }
                 }}
-                className={`grid grid-cols-[44px_minmax(160px,240px)_repeat(5,minmax(0,1fr))_30px] min-w-[720px] items-stretch cursor-pointer transition-colors ${
-                  isExpanded ? "bg-surface-sunken" : "hover:bg-surface-sunken"
-                }`}
+                className={`grid grid-cols-[44px_minmax(160px,240px)_repeat(5,minmax(0,1fr))_30px] min-w-[720px] items-stretch cursor-pointer transition-colors hover:bg-surface-sunken`}
               >
                 {/* Row index */}
                 <div className="flex items-center justify-center font-mono text-[11px] font-semibold text-primary border-r border-border/70">
@@ -337,238 +244,10 @@ export function CourseTable({
 
                 {/* Chevron */}
                 <div className="flex items-center justify-center">
-                  <ChevronRight
-                    className={`h-4 w-4 transition-transform ${
-                      isExpanded ? "rotate-90 text-primary" : "text-muted-foreground"
-                    }`}
-                  />
+                  <ChevronRight className="h-4 w-4 text-muted-foreground" />
                 </div>
               </div>
               </div>
-
-              {/* Expanded panel */}
-              {isExpanded && (
-                <div className="bg-surface px-5 py-5 border-t border-border/70">
-                  <div className="flex flex-col gap-4">
-                    {/* Title + description + actions */}
-                    <div className="flex items-start justify-between gap-4">
-                      <div className="min-w-0">
-                        <a
-                          href={`https://public.enroll.wisc.edu/search?keywords=${encodeURIComponent(course.course_designation)}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="font-display text-xl font-bold text-foreground hover:text-primary hover:underline"
-                          onClick={(e) => e.stopPropagation()}
-                        >
-                          {course.course_title}
-                        </a>
-                        {course.course_description && (
-                          <p className="text-sm text-muted-foreground mt-2 leading-relaxed max-w-3xl">
-                            {course.course_description}
-                          </p>
-                        )}
-                      </div>
-                      <div className="flex items-center gap-3 shrink-0">
-                        <a
-                          target="_blank"
-                          href={`https://madgrades.com/courses/${course.madgrades_course_uuid}`}
-                          className="font-mono text-[11px] text-primary hover:underline"
-                          rel="noreferrer"
-                        >
-                          Madgrades ↗
-                        </a>
-                        {course.status === 0 && (
-                          <div onClick={(e) => e.stopPropagation()}>
-                            <NotificationButton
-                              type="course"
-                              id={course.course_id}
-                              isEnabled={course.status === 0}
-                              courseTitle={course.course_title}
-                            />
-                          </div>
-                        )}
-                      </div>
-                    </div>
-
-                    {/* Prerequisites */}
-                    {course.enrollment_prerequisites && course.enrollment_prerequisites !== "None" && (
-                      <div className="bg-surface-sunken border border-dashed border-border/80 rounded-md px-4 py-3">
-                        <p className="font-mono text-[11px] text-foreground">
-                          <span className="flex items-center gap-2 mb-1">
-                            <Award className="h-3.5 w-3.5 text-primary" />
-                            Prerequisites
-                          </span>
-                          <span className="text-muted-foreground">{course.enrollment_prerequisites}</span>
-                        </p>
-                      </div>
-                    )}
-
-                    {/* Meta strip */}
-                    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
-                      <div className="flex items-center gap-2 text-muted-foreground">
-                        <BookOpen className="h-4 w-4 text-primary" />
-                        <span className="font-mono text-[11px] font-medium uppercase tracking-[0.1em]">
-                          {course.minimum_credits === course.maximum_credits
-                            ? `${course.minimum_credits} cr`
-                            : `${course.minimum_credits}-${course.maximum_credits} cr`}
-                        </span>
-                      </div>
-                      <div className="flex items-center gap-2 text-muted-foreground">
-                        <LevelIcon className="h-4 w-4 text-primary" />
-                        <span className="font-mono text-[11px] font-medium uppercase tracking-[0.1em]">
-                          {levelInfo.text}
-                        </span>
-                      </div>
-                      <div className="flex items-center gap-2 text-muted-foreground">
-                        <Star className="h-4 w-4 text-primary" />
-                        {course.median_grade ? (
-                          <Badge className={`${getGradeColor(course.median_grade)} font-semibold`}>
-                            {course.median_grade}
-                          </Badge>
-                        ) : (
-                          <span className="font-mono text-[11px] font-medium uppercase tracking-[0.1em]">N/A</span>
-                        )}
-                      </div>
-                      <div className="flex items-center gap-2 text-muted-foreground">
-                        <Users className="h-4 w-4 text-primary" />
-                        <span className="font-mono text-[11px] font-medium uppercase tracking-[0.1em]">
-                          {course.sections.length} sec
-                        </span>
-                      </div>
-                      <div className="flex items-center gap-2 text-muted-foreground">
-                        <TrendingUp className="h-4 w-4 text-primary" />
-                        <a
-                          target="_blank"
-                          href={`https://madgrades.com/courses/${course.madgrades_course_uuid}`}
-                          className="text-primary font-mono font-bold hover:text-primary/80 hover:underline"
-                          rel="noreferrer"
-                        >
-                          {course.cumulative_gpa?.toFixed(2) || "N/A"}
-                        </a>
-                      </div>
-                      <div className="flex items-center gap-2 text-muted-foreground">
-                        <BarChart3 className="h-4 w-4 text-primary" />
-                        <span className="font-mono text-[11px] font-medium uppercase tracking-[0.1em]">
-                          {course.most_recent_gpa?.toFixed(2) || "N/A"}
-                        </span>
-                      </div>
-                    </div>
-
-                    {/* Course attributes */}
-                    {((course.workplace_experience_description && course.workplace_experience_description !== "STUDENT OPT") ||
-                      course.repeatable_for_credit === "Y" ||
-                      (course.typically_offered && course.typically_offered !== "Not Applicable")) && (
-                      <div className="flex flex-wrap items-center gap-2">
-                        {course.workplace_experience_description &&
-                          course.workplace_experience_description !== "STUDENT OPT" && (
-                            <span className="font-mono text-[10px] uppercase tracking-[0.1em] text-muted-foreground border border-border/70 rounded px-2 py-1">
-                              Workplace Experience
-                            </span>
-                          )}
-                        {course.repeatable_for_credit === "Y" && (
-                          <span className="font-mono text-[10px] uppercase tracking-[0.1em] text-muted-foreground border border-border/70 rounded px-2 py-1">
-                            Repeatable
-                          </span>
-                        )}
-                        {course.typically_offered && course.typically_offered !== "Not Applicable" && (
-                          <span className="font-mono text-[10px] uppercase tracking-[0.1em] text-muted-foreground border border-border/70 rounded px-2 py-1">
-                            {course.typically_offered}
-                          </span>
-                        )}
-                      </div>
-                    )}
-
-                    {/* Grade Distribution Chart */}
-                    <div className="bg-surface border border-border/70 rounded-lg p-5">
-                      <h4 className="font-mono text-[11px] font-semibold uppercase tracking-[0.14em] text-foreground mb-4 flex items-center gap-2">
-                        <BarChart3 className="h-4 w-4 text-primary" />
-                        Grade Distribution
-                      </h4>
-                      <ChartContainer
-                        config={{
-                          percentage: {
-                            label: "Percentage",
-                          },
-                        }}
-                        className="h-[220px] w-full"
-                      >
-                        <ResponsiveContainer width="100%" height="100%">
-                          <BarChart
-                            data={getGradeChartData(course)}
-                            margin={{
-                              top: 20,
-                              right: 30,
-                              left: 20,
-                              bottom: 5,
-                            }}
-                          >
-                            <XAxis
-                              dataKey="grade"
-                              axisLine={false}
-                              tickLine={false}
-                              tick={{ fontSize: typography.sm, fontWeight: 600, fill: colors.gray[700] }}
-                            />
-                            <YAxis
-                              axisLine={false}
-                              tickLine={false}
-                              tick={{ fontSize: typography.xs, fill: colors.gray[700] }}
-                              tickFormatter={(value) => `${value}%`}
-                            />
-                            <ChartTooltip
-                              content={<ChartTooltipContent />}
-                              formatter={(value, name) => [`${value}%`, "Students"]}
-                              labelFormatter={(label) => `Grade: ${label}`}
-                            />
-                            <Bar dataKey="percentage" radius={[4, 4, 0, 0]} />
-                          </BarChart>
-                        </ResponsiveContainer>
-                      </ChartContainer>
-                    </div>
-
-                    {/* Sections */}
-                    <div className="bg-surface border border-border/70 rounded-lg">
-                      <div className="flex items-center justify-between flex-wrap gap-3 px-4 py-3 border-b border-border/70">
-                        <h4 className="font-mono text-[11px] font-semibold uppercase tracking-[0.14em] text-foreground flex items-center gap-2">
-                          <Users className="h-4 w-4 text-primary" />
-                          Sections
-                          <span className="font-mono text-[10px] font-semibold text-primary">
-                            {filteredSections.length}
-                          </span>
-                        </h4>
-
-                        <div className="flex flex-wrap items-center gap-3 text-sm">
-                          <div className="flex items-center gap-1">
-                            <Filter className="h-4 w-4 text-muted-foreground" />
-                            <span className="text-muted-foreground font-medium">Filter:</span>
-                          </div>
-                          <label className="flex items-center gap-2 cursor-pointer whitespace-nowrap">
-                            <input
-                              type="checkbox"
-                              checked={hideClosedSections}
-                              onChange={(e) => setHideClosedSections(e.target.checked)}
-                              className="rounded border-input text-primary focus:ring-ring"
-                            />
-                            <span className="text-muted-foreground">Hide closed</span>
-                          </label>
-                          <label className="flex items-center gap-2 cursor-pointer whitespace-nowrap">
-                            <input
-                              type="checkbox"
-                              checked={hideWaitlistedSections}
-                              onChange={(e) => setHideWaitlistedSections(e.target.checked)}
-                              className="rounded border-input text-primary focus:ring-ring"
-                            />
-                            <span className="text-muted-foreground">Hide waitlisted</span>
-                          </label>
-                        </div>
-                      </div>
-
-                      <div className="p-4">
-                        <HierarchicalSections sections={filteredSections} courseTitle={course.course_title} />
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              )}
             </div>
           )
         })}
