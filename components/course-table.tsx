@@ -262,7 +262,7 @@ export function CourseTable({
                     toggleCourse(course.course_id)
                   }
                 }}
-                className={`grid grid-cols-[44px_minmax(280px,1fr)_84px_repeat(3,78px)_108px_30px] min-w-[780px] items-stretch cursor-pointer transition-colors ${
+                className={`grid grid-cols-[44px_minmax(280px,380px)_84px_repeat(3,78px)_108px_30px_1fr] min-w-[780px] items-stretch cursor-pointer transition-colors ${
                   isExpanded ? "bg-surface-sunken" : "hover:bg-surface-sunken"
                 }`}
               >
