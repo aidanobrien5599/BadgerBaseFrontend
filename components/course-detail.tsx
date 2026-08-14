@@ -145,7 +145,7 @@ function GradeDistribution({ course }: { course: CourseDetailData }) {
           href={`https://madgrades.com/courses/${course.madgrades_course_uuid}`}
           target="_blank"
           rel="noopener noreferrer"
-          className="ml-auto font-mono text-[12px] font-semibold tracking-[0.08em] text-primary border-b border-border/70 hover:border-primary whitespace-nowrap"
+          className="font-mono text-[12px] font-semibold tracking-[0.08em] text-primary border-b border-border/70 hover:border-primary whitespace-nowrap"
         >
           MADGRADES ↗
         </a>
