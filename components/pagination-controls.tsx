@@ -13,6 +13,8 @@ interface PaginationControlsProps {
   resultsPerPage: number
   currentSort: string
   onSortChange: (sort: string) => void
+  view: "sidebar" | "band"
+  onViewChange: (view: "sidebar" | "band") => void
 }
 
 export function PaginationControls({
@@ -24,6 +26,8 @@ export function PaginationControls({
   resultsPerPage,
   currentSort,
   onSortChange,
+  view,
+  onViewChange,
 }: PaginationControlsProps) {
   const startResult = (currentPage - 1) * resultsPerPage + 1
   const endResult = Math.min(currentPage * resultsPerPage, totalCount)
@@ -151,8 +155,28 @@ export function PaginationControls({
           </span>
         </div>
 
-        {/* Right: sort + pager */}
+        {/* Right: view toggle + sort + pager */}
         <div className="flex items-center gap-3 flex-wrap">
+          {/* View toggle — sidebar vs top band (desktop only; mobile is always sidebar) */}
+          <div className="hidden md:flex items-center rounded-[5px] border border-border/70 overflow-hidden">
+            <button
+              onClick={() => onViewChange("sidebar")}
+              className={`h-8 px-2.5 font-mono text-[10px] uppercase tracking-[0.1em] transition-colors ${
+                view === "sidebar" ? "bg-primary text-primary-foreground" : "bg-surface text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              Sidebar
+            </button>
+            <button
+              onClick={() => onViewChange("band")}
+              className={`h-8 px-2.5 font-mono text-[10px] uppercase tracking-[0.1em] transition-colors border-l border-border/70 ${
+                view === "band" ? "bg-primary text-primary-foreground" : "bg-surface text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              Top Band
+            </button>
+          </div>
+
           <Select value={currentSort} onValueChange={onSortChange}>
             <SelectTrigger className="h-8 w-[160px] rounded-[5px] bg-surface border-border/70 font-mono text-xs">
               <SelectValue placeholder="Sort" />

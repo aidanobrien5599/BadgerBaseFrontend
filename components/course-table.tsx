@@ -105,6 +105,8 @@ interface CourseTableProps {
   resultsPerPage: number
   currentSort: string
   onSortChange: (sort: string) => void
+  view: "sidebar" | "band"
+  onViewChange: (view: "sidebar" | "band") => void
 }
 
 const getStatusBadge = (status: number) => {
@@ -128,6 +130,8 @@ export function CourseTable({
   resultsPerPage,
   currentSort,
   onSortChange,
+  view,
+  onViewChange,
 }: CourseTableProps) {
   const [expandedCourses, setExpandedCourses] = useState<Set<number>>(new Set())
   const [hideClosedSections, setHideClosedSections] = useState(false)
@@ -228,6 +232,8 @@ export function CourseTable({
         resultsPerPage={resultsPerPage}
         currentSort={currentSort}
         onSortChange={onSortChange}
+        view={view}
+        onViewChange={onViewChange}
       />
 
       <div>
