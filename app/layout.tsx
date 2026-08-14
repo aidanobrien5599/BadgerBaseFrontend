@@ -33,7 +33,7 @@ export default function RootLayout({
         <Suspense fallback={<div>Loading...</div>}>
           <PostHogProvider>
             <Navigation />
-            <main className="min-h-screen bg-gray-50">{children}</main>
+            <main className="min-h-screen bg-background">{children}</main>
             <Footer />
             <Analytics />
             <Toaster />

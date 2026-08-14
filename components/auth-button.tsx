@@ -68,7 +68,7 @@ export function AuthButton() {
         <DropdownMenuTrigger asChild>
           <Button variant="ghost" className="relative h-10 w-10 rounded-full">
             <Avatar>
-              <AvatarFallback className="bg-red-700 text-white">{initials}</AvatarFallback>
+              <AvatarFallback className="bg-primary text-primary-foreground">{initials}</AvatarFallback>
             </Avatar>
           </Button>
         </DropdownMenuTrigger>
@@ -97,7 +97,7 @@ export function AuthButton() {
     <Button
       asChild
       variant="default"
-      className="bg-red-700 hover:bg-red-800 text-white"
+      className="bg-primary hover:bg-primary-hover text-primary-foreground"
     >
       <Link href="/login">Login</Link>
     </Button>
