@@ -567,19 +567,6 @@ export function CourseTable({
           )
         })}
       </div>
-
-      {courses.length > 5 && (
-        <PaginationControls
-          currentPage={currentPage}
-          totalPages={totalPages}
-          totalCount={totalCount}
-          hasMore={hasMore}
-          onPageChange={onPageChange}
-          resultsPerPage={resultsPerPage}
-          currentSort={currentSort}
-          onSortChange={onSortChange}
-        />
-      )}
     </div>
   )
 }
