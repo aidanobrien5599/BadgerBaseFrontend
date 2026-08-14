@@ -92,11 +92,6 @@ export interface CourseDetailData {
   open_to_first_year: string | null
 }
 
-const subjectLabel = (designation: string) => {
-  const m = designation.match(/^(\D+)\s*(.+)$/)
-  return m ? { subject: m[1], number: m[2] } : { subject: designation, number: "" }
-}
-
 const levelLabel = (level: string) => {
   switch (level) {
     case "E":
@@ -145,15 +140,15 @@ function GradeDistribution({ course }: { course: CourseDetailData }) {
   return (
     <section className="bg-surface border border-border/70">
       <header className="flex flex-wrap items-center gap-2 px-4 py-2.5 border-b border-border/70">
-        <h2 className="font-display text-[15px] font-semibold tracking-[-0.01em]">Grade Distribution</h2>
-        <span className="font-mono text-[8.5px] tracking-[0.1em] text-muted-foreground">MADGRADES · UW–MADISON</span>
-        <span className="font-mono text-[8.5px] tracking-[0.1em] text-muted-foreground ml-auto">ALL SECTIONS</span>
+        <h2 className="font-display text-[19px] font-semibold tracking-[-0.01em]">Grade Distribution</h2>
+        <span className="font-mono text-[10.5px] tracking-[0.1em] text-muted-foreground">MADGRADES · UW–MADISON</span>
+        <span className="font-mono text-[10.5px] tracking-[0.1em] text-muted-foreground ml-auto">ALL SECTIONS</span>
       </header>
       <div className="px-4 py-4">
-        <div className="flex flex-col gap-[7px]">
+        <div className="flex flex-col gap-[8px]">
           {grades.map((g) => (
-            <div key={g.label} className="grid grid-cols-[34px_1fr_46px] gap-3 items-center">
-              <span className={cn("font-mono font-semibold text-[11px]", g.label === course.median_grade && "text-primary")}>
+            <div key={g.label} className="grid grid-cols-[38px_1fr_52px] gap-3 items-center">
+              <span className={cn("font-mono font-semibold text-[13px]", g.label === course.median_grade && "text-primary")}>
                 {g.label}
               </span>
               <div className="h-4 bg-surface-sunken relative">
@@ -162,13 +157,13 @@ function GradeDistribution({ course }: { course: CourseDetailData }) {
                   style={{ width: `${g.width}%` }}
                 />
               </div>
-              <span className={cn("font-mono font-semibold text-[11px] text-right tabular-nums", g.label === course.median_grade && "text-primary")}>
+              <span className={cn("font-mono font-semibold text-[13px] text-right tabular-nums", g.label === course.median_grade && "text-primary")}>
                 {Math.round((g.pct || 0) * 100)}%
               </span>
             </div>
           ))}
         </div>
-        <p className="font-mono text-[8.5px] tracking-[0.08em] text-muted-foreground mt-2">
+        <p className="font-mono text-[10.5px] tracking-[0.08em] text-muted-foreground mt-2">
           Bars scaled to max share ({grades[0].label} · {Math.round((grades[0].pct || 0) * 100)}%) · median grade row highlighted in red.
         </p>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 border-t border-border/70 mt-3.5 pt-3">
@@ -179,8 +174,8 @@ function GradeDistribution({ course }: { course: CourseDetailData }) {
             { label: "MIN A %", value: `${Math.round((course.a_percent || 0) * 100)}%`, med: false },
           ].map((s) => (
             <div key={s.label}>
-              <div className="font-mono text-[8px] tracking-[0.12em] text-muted-foreground">{s.label}</div>
-              <div className={cn("font-mono font-semibold text-[17px] tabular-nums mt-0.5", s.med && "text-primary")}>{s.value}</div>
+              <div className="font-mono text-[10px] tracking-[0.12em] text-muted-foreground">{s.label}</div>
+              <div className={cn("font-mono font-semibold text-[19px] tabular-nums mt-0.5", s.med && "text-primary")}>{s.value}</div>
             </div>
           ))}
         </div>
@@ -193,7 +188,7 @@ function GradeDistribution({ course }: { course: CourseDetailData }) {
 
 function Stars({ rating }: { rating: number }) {
   return (
-    <span className="font-mono font-semibold text-[13px] text-foreground tabular-nums">
+    <span className="font-mono font-semibold text-[15px] text-foreground tabular-nums">
       {rating.toFixed(1)}
       <span className="text-muted-foreground"> / 5</span>
     </span>
@@ -221,16 +216,16 @@ function Instructors({ course }: { course: CourseDetailData }) {
   return (
     <section className="bg-surface border border-border/70">
       <header className="flex items-center gap-2 px-4 py-2.5 border-b border-border/70">
-        <h2 className="font-display text-[15px] font-semibold tracking-[-0.01em]">Instructors</h2>
-        <span className="font-mono text-[8.5px] tracking-[0.1em] text-muted-foreground">RATE MY PROFESSORS · PROFESSOR QUALITY</span>
+        <h2 className="font-display text-[19px] font-semibold tracking-[-0.01em]">Instructors</h2>
+        <span className="font-mono text-[10.5px] tracking-[0.1em] text-muted-foreground">RATE MY PROFESSORS · PROFESSOR QUALITY</span>
       </header>
       <div className="grid grid-cols-1 sm:grid-cols-2">
         {instructors.map((i, idx) => (
           <div key={i.name} className={cn("px-4 py-3.5", idx < instructors.length - 1 && "border-b border-border/70", "sm:border-b-0", idx % 2 === 0 && "sm:border-r border-border/70")}>
             <div className="flex items-start justify-between gap-2 mb-2">
               <div>
-                <div className="font-medium text-[13px] text-foreground font-display">{i.name}</div>
-                <div className="font-mono text-[8.5px] tracking-[0.08em] text-muted-foreground mt-0.5">
+                <div className="font-medium text-[15px] text-foreground font-display">{i.name}</div>
+                <div className="font-mono text-[10.5px] tracking-[0.08em] text-muted-foreground mt-0.5">
                   {i.secs.map((s) => (s.length > 3 ? `SEC ${s}` : s)).join(" · ") || "ALL SECTIONS"}
                 </div>
               </div>
@@ -239,14 +234,14 @@ function Instructors({ course }: { course: CourseDetailData }) {
                   href={`https://www.ratemyprofessors.com/professor/${i.rmpId}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="font-mono text-[8.5px] tracking-[0.08em] text-primary border-b border-border/70 hover:border-primary whitespace-nowrap"
+                  className="font-mono text-[10.5px] tracking-[0.08em] text-primary border-b border-border/70 hover:border-primary whitespace-nowrap"
                 >
                   RATE MY PROFESSORS ↗
                 </a>
               )}
             </div>
             <div className="mb-2.5">
-              {i.rating != null ? <Stars rating={i.rating} /> : <span className="font-mono text-[11px] text-muted-foreground">No ratings</span>}
+              {i.rating != null ? <Stars rating={i.rating} /> : <span className="font-mono text-[13px] text-muted-foreground">No ratings</span>}
             </div>
             <div className="grid grid-cols-4 gap-1.5">
               {[
@@ -256,8 +251,8 @@ function Instructors({ course }: { course: CourseDetailData }) {
                 { l: "WTA %", v: i.wta != null ? `${Math.round(i.wta)}%` : "—", hi: true },
               ].map((s) => (
                 <div key={s.l}>
-                  <div className="font-mono text-[7.5px] tracking-[0.1em] text-muted-foreground">{s.l}</div>
-                  <div className={cn("font-mono font-semibold text-[12px] tabular-nums mt-0.5", s.hi && (s.v !== "—" ? "text-success" : ""), s.lo && (s.v !== "—" ? "text-warning" : ""))}>
+                  <div className="font-mono text-[9.5px] tracking-[0.1em] text-muted-foreground">{s.l}</div>
+                  <div className={cn("font-mono font-semibold text-[14px] tabular-nums mt-0.5", s.hi && (s.v !== "—" ? "text-success" : ""), s.lo && (s.v !== "—" ? "text-warning" : ""))}>
                     {s.v}
                   </div>
                 </div>
@@ -266,7 +261,7 @@ function Instructors({ course }: { course: CourseDetailData }) {
           </div>
         ))}
         {instructors.length === 0 && (
-          <div className="px-4 py-6 font-mono text-[11px] text-muted-foreground">No instructor data available.</div>
+          <div className="px-4 py-6 font-mono text-[13px] text-muted-foreground">No instructor data available.</div>
         )}
       </div>
     </section>
@@ -297,35 +292,35 @@ function SectionTable({ sections }: { sections: SectionDetail[] }) {
   return (
     <section className="bg-surface border border-border/70">
       <header className="flex flex-wrap items-center gap-2 px-4 py-2.5 border-b border-border/70">
-        <h2 className="font-display text-[15px] font-semibold tracking-[-0.01em]">Sections</h2>
-        <span className="font-mono text-[8.5px] tracking-[0.1em] text-muted-foreground">CLICK A ROW FOR MEETING DETAIL</span>
+        <h2 className="font-display text-[19px] font-semibold tracking-[-0.01em]">Sections</h2>
+        <span className="font-mono text-[10.5px] tracking-[0.1em] text-muted-foreground">CLICK A ROW FOR MEETING DETAIL</span>
         <div className="flex items-center gap-4 ml-auto">
-          <label className="flex items-center gap-2 cursor-pointer select-none font-mono text-[9px] tracking-[0.09em] text-muted-foreground">
+          <label className="flex items-center gap-2 cursor-pointer select-none font-mono text-[11px] tracking-[0.09em] text-muted-foreground">
             <input type="checkbox" checked={hideClosed} onChange={(e) => setHideClosed(e.target.checked)} className="hidden" />
             <span className={cn("w-[30px] h-4 border border-border/70 bg-surface relative transition-colors", hideClosed && "bg-foreground border-foreground")}>
               <span className={cn("absolute top-[2px] left-[2px] w-[10px] h-[10px] bg-muted-foreground transition-all", hideClosed && "left-[16px] bg-white")} />
             </span>
             HIDE CLOSED
           </label>
-          <label className="flex items-center gap-2 cursor-pointer select-none font-mono text-[9px] tracking-[0.09em] text-muted-foreground">
+          <label className="flex items-center gap-2 cursor-pointer select-none font-mono text-[11px] tracking-[0.09em] text-muted-foreground">
             <input type="checkbox" checked={hideWait} onChange={(e) => setHideWait(e.target.checked)} className="hidden" />
             <span className={cn("w-[30px] h-4 border border-border/70 bg-surface relative transition-colors", hideWait && "bg-foreground border-foreground")}>
               <span className={cn("absolute top-[2px] left-[2px] w-[10px] h-[10px] bg-muted-foreground transition-all", hideWait && "left-[16px] bg-white")} />
             </span>
             HIDE WAITLISTED
           </label>
-          <span className="font-mono font-semibold text-[9px] tracking-[0.1em] text-primary whitespace-nowrap">
+          <span className="font-mono font-semibold text-[11px] tracking-[0.1em] text-primary whitespace-nowrap">
             {filtered.length} OF {sections.length} SECTIONS
           </span>
         </div>
       </header>
 
       <div className="overflow-x-auto">
-        <table className="w-full border-collapse text-[11px] min-w-[900px]">
+        <table className="w-full border-collapse text-[13px] min-w-[980px]">
           <thead>
             <tr className="border-b border-border/70">
               {["SECTION", "TYPE", "DAYS", "TIME", "ROOM", "INSTRUCTOR", "ENROLLED / CAP", "OPEN", "WAIT", "STATUS", "MODE"].map((h) => (
-                <th key={h} className="font-mono font-semibold text-[8.5px] tracking-[0.1em] text-muted-foreground text-left px-2 py-2 border-r border-border/50 last:border-r-0">
+                <th key={h} className="font-mono font-semibold text-[10.5px] tracking-[0.1em] text-muted-foreground text-left px-2 py-2 border-r border-border/50 last:border-r-0">
                   {h}
                 </th>
               ))}
@@ -343,17 +338,17 @@ function SectionTable({ sections }: { sections: SectionDetail[] }) {
                     className={cn("cursor-pointer hover:bg-surface-sunken", isOpen && "bg-surface-sunken")}
                     onClick={() => setOpenSec(isOpen ? null : s.section_id)}
                   >
-                    <td className="font-mono text-[10.5px] px-2 py-[7px] border-b border-border/50 tabular-nums">
+                    <td className="font-mono text-[12.5px] px-2 py-[8px] border-b border-border/50 tabular-nums">
                       {mt?.section_number || s.section_id}
                     </td>
-                    <td className={cn("font-mono font-semibold text-[9px] tracking-[0.06em] px-2 py-[7px] border-b border-border/50", typeColor(mt?.meeting_type || ""))}>
+                    <td className={cn("font-mono font-semibold text-[11px] tracking-[0.06em] px-2 py-[8px] border-b border-border/50", typeColor(mt?.meeting_type || ""))}>
                       {mt?.meeting_type || "—"}
                     </td>
-                    <td className="font-mono text-[10.5px] px-2 py-[7px] border-b border-border/50">{daysOf(s)}</td>
-                    <td className="font-mono text-[10.5px] px-2 py-[7px] border-b border-border/50 whitespace-nowrap">{timeOf(s)}</td>
-                    <td className="font-mono text-[10.5px] px-2 py-[7px] border-b border-border/50">{roomOf(s)}</td>
-                    <td className="px-2 py-[7px] border-b border-border/50 whitespace-nowrap">{instrOf(s)}</td>
-                    <td className="px-2 py-[7px] border-b border-border/50">
+                    <td className="font-mono text-[12.5px] px-2 py-[8px] border-b border-border/50">{daysOf(s)}</td>
+                    <td className="font-mono text-[12.5px] px-2 py-[8px] border-b border-border/50 whitespace-nowrap">{timeOf(s)}</td>
+                    <td className="font-mono text-[12.5px] px-2 py-[8px] border-b border-border/50">{roomOf(s)}</td>
+                    <td className="px-2 py-[8px] border-b border-border/50 whitespace-nowrap">{instrOf(s)}</td>
+                    <td className="px-2 py-[8px] border-b border-border/50">
                       <span className="flex items-center gap-1.5">
                         <span className="inline-block w-9 h-[6px] bg-border/70 relative">
                           <span
@@ -364,18 +359,18 @@ function SectionTable({ sections }: { sections: SectionDetail[] }) {
                             style={{ width: `${filled}%` }}
                           />
                         </span>
-                        <span className="font-mono text-[10px] tabular-nums whitespace-nowrap">{s.enrolled}/{s.capacity}</span>
+                        <span className="font-mono text-[12px] tabular-nums whitespace-nowrap">{s.enrolled}/{s.capacity}</span>
                       </span>
                     </td>
-                    <td className={cn("font-mono font-semibold text-[10.5px] tabular-nums px-2 py-[7px] border-b border-border/50", s.available_seats > 0 ? "text-success" : "text-muted-foreground")}>
+                    <td className={cn("font-mono font-semibold text-[12.5px] tabular-nums px-2 py-[8px] border-b border-border/50", s.available_seats > 0 ? "text-success" : "text-muted-foreground")}>
                       {s.available_seats}
                     </td>
-                    <td className={cn("font-mono font-semibold text-[10.5px] tabular-nums px-2 py-[7px] border-b border-border/50", s.waitlist_total > 0 ? "text-warning" : "text-muted-foreground")}>
+                    <td className={cn("font-mono font-semibold text-[12.5px] tabular-nums px-2 py-[8px] border-b border-border/50", s.waitlist_total > 0 ? "text-warning" : "text-muted-foreground")}>
                       {s.waitlist_total}
                     </td>
-                    <td className="px-2 py-[7px] border-b border-border/50">
+                    <td className="px-2 py-[8px] border-b border-border/50">
                       <span className={cn(
-                        "inline-block font-mono font-semibold text-[8px] tracking-[0.1em] px-2 py-[2px] border",
+                        "inline-block font-mono font-semibold text-[10px] tracking-[0.1em] px-2 py-[2px] border",
                         st.cls === "b-open" && "border-success/40 bg-success/10 text-success",
                         st.cls === "b-wait" && "border-warning/40 bg-warning/10 text-warning",
                         st.cls === "b-closed" && "border-destructive/40 bg-destructive/10 text-destructive"
@@ -383,26 +378,26 @@ function SectionTable({ sections }: { sections: SectionDetail[] }) {
                         {st.label}
                       </span>
                     </td>
-                    <td className="font-mono text-[10.5px] px-2 py-[7px] border-b border-border/50">{s.instruction_mode || "—"}</td>
+                    <td className="font-mono text-[12.5px] px-2 py-[8px] border-b border-border/50">{s.instruction_mode || "—"}</td>
                   </tr>
                   {isOpen && (
                     <tr>
                       <td colSpan={11} className="bg-surface-sunken p-0 border-b border-border/50">
                         <div className="px-3.5 py-3">
-                          <div className="font-mono text-[9.5px] text-foreground tracking-[0.04em]">
+                          <div className="font-mono text-[11.5px] text-foreground tracking-[0.04em]">
                             MEETING <b className="text-primary">{daysOf(s)} {timeOf(s)} · {roomOf(s)}</b> · INSTRUCTOR{" "}
                             <b className="text-primary">{instrOf(s).toUpperCase() || "TBA"}</b>
                           </div>
                           {s.section_requisites && (
-                            <div className="text-[11px] text-muted-foreground mt-1.5 leading-relaxed">
+                            <div className="text-[13px] text-muted-foreground mt-1.5 leading-relaxed">
                               Requisite: {s.section_requisites}
                             </div>
                           )}
                           {String(s.is_asynchronous) === "true" && (
-                            <div className="text-[11px] text-muted-foreground mt-1">Asynchronous online course.</div>
+                            <div className="text-[13px] text-muted-foreground mt-1">Asynchronous online course.</div>
                           )}
                           <div className="flex gap-1.5 mt-2">
-                            <span className="font-mono font-semibold text-[8px] tracking-[0.1em] px-2 py-[2px] border border-border/70 bg-surface text-muted-foreground">
+                            <span className="font-mono font-semibold text-[10px] tracking-[0.1em] px-2 py-[2px] border border-border/70 bg-surface text-muted-foreground">
                               {s.instruction_mode?.toUpperCase() || "—"}
                             </span>
                             <span className="font-mono font-semibold text-[8px] tracking-[0.1em] px-2 py-[2px] border border-border/70 bg-surface text-muted-foreground">
@@ -437,8 +432,6 @@ function FragmentRow({ children, open }: { children: React.ReactNode; open: bool
 /* ============ Main detail ============ */
 
 export function CourseDetail({ course }: { course: CourseDetailData }) {
-  const { subject, number } = subjectLabel(course.course_designation)
-
   return (
     <div className="mx-auto max-w-7xl px-4 sm:px-5 lg:px-6 pb-16">
       <div className="py-3">
@@ -448,21 +441,14 @@ export function CourseDetail({ course }: { course: CourseDetailData }) {
         </Link>
       </div>
 
-      {/* Breadcrumb */}
-      <div className="font-mono text-[9.5px] tracking-[0.09em] text-muted-foreground">
-        <b className="text-primary font-semibold">COURSE SEARCH &amp; ENROLL</b>
-        <span className="mx-1.5">/</span>{subject}
-        <span className="mx-1.5">/</span>{number}
-      </div>
-
       <div className="mt-2">
         <div className="min-w-0 space-y-3.5">
           {/* Course header */}
           <div>
-            <div className="font-mono font-semibold text-[12px] text-primary tracking-[0.04em] mb-1.5">
+            <div className="font-mono font-semibold text-[15px] text-primary tracking-[0.04em] mb-1.5">
               {course.course_designation}
             </div>
-            <h1 className="font-display font-semibold text-[32px] tracking-[-0.02em] leading-[1.1] text-foreground mb-3">
+            <h1 className="font-display font-semibold text-[40px] tracking-[-0.02em] leading-[1.1] text-foreground mb-3">
               {course.course_title}
             </h1>
 
@@ -474,21 +460,21 @@ export function CourseDetail({ course }: { course: CourseDetailData }) {
                 { l: "TYPICAL OFFERING", v: course.typically_offered && course.typically_offered !== "Not Applicable" ? course.typically_offered : "—" },
                 { l: "REPEATABLE", v: course.repeatable_for_credit === "Y" ? "YES" : "—" },
               ].map((m) => (
-                <span key={m.l} className="font-mono text-[8.5px] tracking-[0.12em] text-muted-foreground py-[7px] pr-3.5 mr-3.5 border-r border-border/70 last:border-r-0">
+                <span key={m.l} className="font-mono text-[10.5px] tracking-[0.12em] text-muted-foreground py-[7px] pr-3.5 mr-3.5 border-r border-border/70 last:border-r-0">
                   {m.l}
-                  <b className="block font-mono font-semibold text-[10px] text-foreground tracking-[0.06em] mt-[3px]">{m.v}</b>
+                  <b className="block font-mono font-semibold text-[12.5px] text-foreground tracking-[0.06em] mt-[3px]">{m.v}</b>
                 </span>
               ))}
             </div>
 
             {course.enrollment_prerequisites && course.enrollment_prerequisites !== "None" && (
-              <div className="font-mono text-[9px] tracking-[0.06em] text-muted-foreground mb-3">
+              <div className="font-mono text-[11px] tracking-[0.06em] text-muted-foreground mb-3">
                 <b className="text-primary font-semibold">Requisites:</b>{" "}
                 <span className="text-foreground/80">{course.enrollment_prerequisites}</span>
               </div>
             )}
 
-            <div className="flex flex-wrap gap-x-5 font-mono text-[9px] tracking-[0.1em] text-muted-foreground mb-3">
+            <div className="flex flex-wrap gap-x-5 font-mono text-[11px] tracking-[0.1em] text-muted-foreground mb-3">
               <span>SECTIONS <b className="text-foreground">{course.sections.length}</b></span>
               <span>MEDIAN GRADE <b className="text-foreground">{course.median_grade || "—"}</b></span>
               <span>CUM GPA <b className="text-foreground">{course.cumulative_gpa?.toFixed(2) || "—"}</b></span>
@@ -499,7 +485,7 @@ export function CourseDetail({ course }: { course: CourseDetailData }) {
             </div>
 
             {course.course_description && (
-              <p className="text-[13.5px] leading-[1.6] text-muted-foreground max-w-[66ch]">{course.course_description}</p>
+              <p className="text-[15px] leading-[1.6] text-muted-foreground max-w-[66ch]">{course.course_description}</p>
             )}
           </div>
 
