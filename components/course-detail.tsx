@@ -141,6 +141,14 @@ function GradeDistribution({ course }: { course: CourseDetailData }) {
     <section className="bg-surface border border-border/70">
       <header className="flex flex-wrap items-center gap-2 px-4 py-2.5 border-b border-border/70">
         <h2 className="font-display text-[19px] font-semibold tracking-[-0.01em]">Grade Distribution</h2>
+        <a
+          href={`https://madgrades.com/courses/${course.madgrades_course_uuid}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="ml-auto font-mono text-[12px] font-semibold tracking-[0.08em] text-primary border-b border-border/70 hover:border-primary whitespace-nowrap"
+        >
+          MADGRADES ↗
+        </a>
       </header>
       <div className="px-4 py-4">
         <div className="flex flex-col gap-[8px]">
@@ -443,22 +451,12 @@ export function CourseDetail({ course }: { course: CourseDetailData }) {
               <h1 className="font-display font-semibold text-[40px] tracking-[-0.02em] leading-[1.1] text-foreground mb-3">
                 {course.course_title}
               </h1>
-              <div className="flex items-center gap-3 pt-2 shrink-0">
-                <Link
-                  href="/"
-                  className="font-mono text-[11px] tracking-[0.08em] text-primary border-b border-border/70 hover:border-primary whitespace-nowrap"
-                >
-                  COURSE SEARCH ↗
-                </Link>
-                <a
-                  href={`https://madgrades.com/courses/${course.madgrades_course_uuid}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="font-mono text-[11px] tracking-[0.08em] text-primary border-b border-border/70 hover:border-primary whitespace-nowrap"
-                >
-                  MADGRADES ↗
-                </a>
-              </div>
+              <Link
+                href="/"
+                className="font-mono text-[14px] font-semibold tracking-[0.08em] text-primary border-b border-border/70 hover:border-primary whitespace-nowrap pt-2 shrink-0"
+              >
+                COURSE SEARCH ↗
+              </Link>
             </div>
 
             <div className="flex flex-wrap border-y border-border/70 py-[7px] mb-3">
