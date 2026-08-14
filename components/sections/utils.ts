@@ -14,13 +14,13 @@
 export const getStatusColor = (status: string) => {
   switch (status.toUpperCase()) {
     case "OPEN":
-      return "bg-green-50 text-green-700 border-green-200"
+      return "bg-success/10 text-success-strong border-success/30"
     case "CLOSED":
-      return "bg-red-50 text-red-700 border-red-200"
+      return "bg-destructive/10 text-destructive border-destructive/30"
     case "WAITLIST":
-      return "bg-yellow-50 text-yellow-700 border-yellow-200"
+      return "bg-warning/10 text-warning border-warning/30"
     default:
-      return "bg-gray-50 text-gray-700 border-gray-200"
+      return "bg-muted text-muted-foreground border-border"
   }
 }
 

@@ -158,9 +158,9 @@ export default function SignUpPage() {
           </div>
 
           {/* Wisconsin Email Blocking Warning */}
-          <Alert variant="default" className="mb-6 bg-amber-50 border-amber-200">
-            <AlertCircle className="h-4 w-4 text-amber-600" />
-            <AlertDescription className="text-sm text-amber-800">
+          <Alert variant="default" className="mb-6 bg-warning/10 border-warning/30">
+            <AlertCircle className="h-4 w-4 text-warning" />
+            <AlertDescription className="text-sm text-warning">
               <strong className="font-semibold">Notice for @wisc.edu users:</strong> We're experiencing email delivery issues with Wisconsin email addresses. This is an issue we're actively fixing. We recommend using your personal email address for the time being.
             </AlertDescription>
           </Alert>

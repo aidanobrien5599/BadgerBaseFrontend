@@ -8,7 +8,7 @@
  * - Links to RateMyProfessors profiles when available
  * - Displays ratings, difficulty, and review counts
  * - Responsive design with proper spacing
- * - BadgerBase theming with gray backgrounds
+ * - BadgerBase theming with semantic token backgrounds
  */
 
 import { Star } from "lucide-react"
@@ -28,12 +28,12 @@ export function InstructorDisplay({ instructors }: InstructorDisplayProps) {
   return (
     <div className="space-y-2">
       {instructors.map((instructor, idx) => (
-        <div key={idx} className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-3 p-2 bg-gray-50 rounded border">
-          <span className="font-medium text-gray-900 text-xs sm:text-sm min-w-0 truncate">
+        <div key={idx} className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-3 p-2 bg-muted rounded border">
+          <span className="font-medium text-foreground text-xs sm:text-sm min-w-0 truncate">
             {instructor.rmp_instructor_id ? (
               <a
                 target="_blank"
-                className="hover:text-red-600 hover:underline truncate block"
+                className="hover:text-primary hover:underline truncate block"
                 href={`https://www.ratemyprofessors.com/professor/${instructor.rmp_instructor_id}`}
                 rel="noreferrer"
               >
@@ -46,18 +46,18 @@ export function InstructorDisplay({ instructors }: InstructorDisplayProps) {
           {instructor.avg_rating && (
             <div className="flex items-center gap-2 sm:gap-3 text-xs sm:text-sm flex-wrap">
               <div className="flex items-center gap-1">
-                <Star className="h-3 w-3 sm:h-4 sm:w-4 text-red-500 fill-current flex-shrink-0" />
-                <span className="font-semibold text-gray-900 whitespace-nowrap">
+                <Star className="h-3 w-3 sm:h-4 sm:w-4 text-primary fill-current flex-shrink-0" />
+                <span className="font-semibold text-foreground whitespace-nowrap">
                   {formatRating(instructor.avg_rating)}
                 </span>
               </div>
               <div className="flex items-center gap-1">
-                <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-red-400 flex-shrink-0"></div>
-                <span className="text-gray-700 whitespace-nowrap">
+                <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-primary/60 flex-shrink-0"></div>
+                <span className="text-muted-foreground whitespace-nowrap">
                   Difficulty {formatRating(instructor.avg_difficulty)}
                 </span>
               </div>
-              <span className="text-gray-500 whitespace-nowrap">
+              <span className="text-muted-foreground whitespace-nowrap">
                 ({instructor.num_ratings} reviews)
               </span>
             </div>

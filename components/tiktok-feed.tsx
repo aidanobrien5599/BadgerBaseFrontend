@@ -71,7 +71,7 @@ export function TikTokFeed() {
   const currentVid = videos[currentVideo]
 
   return (
-    <Card className="h-[600px] overflow-hidden bg-gradient-to-br from-pink-50 to-purple-50 border-2 border-decorative-border">
+    <Card className="h-[600px] overflow-hidden bg-gradient-to-br from-decorative-border/10 to-highlight/10 border-2 border-decorative-border">
       <CardHeader className="pb-2">
         <CardTitle className="flex items-center gap-2 text-lg">
           <div className="relative">
@@ -80,7 +80,7 @@ export function TikTokFeed() {
           </div>
           Study Tips Feed
           {currentVid.trending && (
-            <Badge className="bg-gradient-to-r from-pink-500 to-purple-500 text-white animate-pulse">
+            <Badge className="bg-gradient-to-r from-decorative-border to-highlight text-white animate-pulse">
               <TrendingUp className="h-3 w-3 mr-1" />
               TRENDING
             </Badge>
@@ -95,7 +95,7 @@ export function TikTokFeed() {
             <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent z-10" />
 
             {/* Mock Video Content */}
-            <div className="absolute inset-0 bg-gradient-to-br from-purple-600 to-pink-600 flex items-center justify-center">
+            <div className="absolute inset-0 bg-gradient-to-br from-highlight to-decorative-border flex items-center justify-center">
               <div className="text-center text-white z-20">
                 <div className="text-6xl mb-4 animate-bounce">🎓</div>
                 <h3 className="text-xl font-bold mb-2">{currentVid.title}</h3>
