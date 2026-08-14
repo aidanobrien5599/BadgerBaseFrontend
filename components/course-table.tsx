@@ -206,15 +206,6 @@ export function CourseTable({
     ]
   }
 
-  const firstInstructor = (course: Course) => {
-    for (const section of course.sections) {
-      if (section.instructors && section.instructors.length > 0) {
-        return section.instructors[0].name
-      }
-    }
-    return null
-  }
-
   if (courses.length === 0) {
     return (
       <div className="border-b border-border/70">
@@ -246,7 +237,6 @@ export function CourseTable({
           const statusBadge = getStatusBadge(course.status)
           const levelInfo = getLevelInfo(course.level)
           const LevelIcon = levelInfo.icon
-          const instructor = firstInstructor(course)
           const rowNumber = (currentPage - 1) * resultsPerPage + index + 1
           const designationMatch = course.course_designation.match(/^(\D+)\s*(.+)$/)
           const designationSubject = designationMatch ? designationMatch[1].trim() : course.course_designation
@@ -284,9 +274,6 @@ export function CourseTable({
                   <div className="text-[13.5px] text-foreground font-medium leading-snug truncate">
                     {course.course_title}
                   </div>
-                  {instructor && (
-                    <div className="font-mono text-[10.5px] text-muted-foreground truncate">{instructor}</div>
-                  )}
                 </div>
 
                 {/* Credits */}
