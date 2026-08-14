@@ -171,7 +171,7 @@ export function ControlBand({ filters, onFiltersChange, onSearch, loading }: Con
             </Select>
           </div>
 
-          <AvailabilityFilter filters={filters} onFiltersChange={onFiltersChange} />
+          <AvailabilityFilter filters={filters} onFiltersChange={onFiltersChange} buttonClassName="mt-1.5" />
         </div>
 
         <div className="flex gap-2 shrink-0">

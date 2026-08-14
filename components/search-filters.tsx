@@ -117,9 +117,11 @@ export const EMPTY_FILTERS: FilterState = {
 export function AvailabilityFilter({
   filters,
   onFiltersChange,
+  buttonClassName,
 }: {
   filters: FilterState
   onFiltersChange: (filters: FilterState) => void
+  buttonClassName?: string
 }) {
   const [availabilityModalOpen, setAvailabilityModalOpen] = useState(false)
 
@@ -195,7 +197,7 @@ export function AvailabilityFilter({
       <div className="flex gap-2">
         <Dialog open={availabilityModalOpen} onOpenChange={setAvailabilityModalOpen}>
           <DialogTrigger asChild>
-            <Button variant="outline" className="flex-1 bg-transparent font-mono text-xs uppercase tracking-[0.08em] min-w-0 whitespace-normal text-center leading-tight">
+            <Button variant="outline" className={`flex-1 bg-transparent font-mono text-xs uppercase tracking-[0.08em] min-w-0 whitespace-normal text-center leading-tight ${buttonClassName || ""}`}>
               <Calendar className="h-4 w-4 mr-2" />
               {hasAvailabilityFilters ? "Edit Availability" : "Set Availability"}
             </Button>
