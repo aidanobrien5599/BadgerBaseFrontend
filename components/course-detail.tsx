@@ -141,8 +141,6 @@ function GradeDistribution({ course }: { course: CourseDetailData }) {
     <section className="bg-surface border border-border/70">
       <header className="flex flex-wrap items-center gap-2 px-4 py-2.5 border-b border-border/70">
         <h2 className="font-display text-[19px] font-semibold tracking-[-0.01em]">Grade Distribution</h2>
-        <span className="font-mono text-[10.5px] tracking-[0.1em] text-muted-foreground">MADGRADES · UW–MADISON</span>
-        <span className="font-mono text-[10.5px] tracking-[0.1em] text-muted-foreground ml-auto">ALL SECTIONS</span>
       </header>
       <div className="px-4 py-4">
         <div className="flex flex-col gap-[8px]">
@@ -384,26 +382,19 @@ function SectionTable({ sections }: { sections: SectionDetail[] }) {
                     <tr>
                       <td colSpan={11} className="bg-surface-sunken p-0 border-b border-border/50">
                         <div className="px-3.5 py-3">
-                          <div className="font-mono text-[11.5px] text-foreground tracking-[0.04em]">
-                            MEETING <b className="text-primary">{daysOf(s)} {timeOf(s)} · {roomOf(s)}</b> · INSTRUCTOR{" "}
-                            <b className="text-primary">{instrOf(s).toUpperCase() || "TBA"}</b>
-                          </div>
                           {s.section_requisites && (
-                            <div className="text-[13px] text-muted-foreground mt-1.5 leading-relaxed">
-                              Requisite: {s.section_requisites}
+                            <div className="text-[13px] text-muted-foreground leading-relaxed">
+                              <b className="text-foreground">Requisite:</b> {s.section_requisites}
                             </div>
                           )}
                           {String(s.is_asynchronous) === "true" && (
                             <div className="text-[13px] text-muted-foreground mt-1">Asynchronous online course.</div>
                           )}
-                          <div className="flex gap-1.5 mt-2">
-                            <span className="font-mono font-semibold text-[10px] tracking-[0.1em] px-2 py-[2px] border border-border/70 bg-surface text-muted-foreground">
-                              {s.instruction_mode?.toUpperCase() || "—"}
-                            </span>
-                            <span className="font-mono font-semibold text-[8px] tracking-[0.1em] px-2 py-[2px] border border-border/70 bg-surface text-muted-foreground">
-                              {mt?.meeting_type?.toUpperCase() || "—"}
-                            </span>
-                          </div>
+                          {!s.section_requisites && String(s.is_asynchronous) !== "true" && (
+                            <div className="font-mono text-[11px] tracking-[0.08em] text-muted-foreground">
+                              No additional section details.
+                            </div>
+                          )}
                         </div>
                       </td>
                     </tr>
@@ -448,9 +439,27 @@ export function CourseDetail({ course }: { course: CourseDetailData }) {
             <div className="font-mono font-semibold text-[15px] text-primary tracking-[0.04em] mb-1.5">
               {course.course_designation}
             </div>
-            <h1 className="font-display font-semibold text-[40px] tracking-[-0.02em] leading-[1.1] text-foreground mb-3">
-              {course.course_title}
-            </h1>
+            <div className="flex items-start justify-between gap-4">
+              <h1 className="font-display font-semibold text-[40px] tracking-[-0.02em] leading-[1.1] text-foreground mb-3">
+                {course.course_title}
+              </h1>
+              <div className="flex items-center gap-3 pt-2 shrink-0">
+                <Link
+                  href="/"
+                  className="font-mono text-[11px] tracking-[0.08em] text-primary border-b border-border/70 hover:border-primary whitespace-nowrap"
+                >
+                  COURSE SEARCH ↗
+                </Link>
+                <a
+                  href={`https://madgrades.com/courses/${course.madgrades_course_uuid}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="font-mono text-[11px] tracking-[0.08em] text-primary border-b border-border/70 hover:border-primary whitespace-nowrap"
+                >
+                  MADGRADES ↗
+                </a>
+              </div>
+            </div>
 
             <div className="flex flex-wrap border-y border-border/70 py-[7px] mb-3">
               {[
@@ -468,7 +477,7 @@ export function CourseDetail({ course }: { course: CourseDetailData }) {
             </div>
 
             {course.enrollment_prerequisites && course.enrollment_prerequisites !== "None" && (
-              <div className="font-mono text-[11px] tracking-[0.06em] text-muted-foreground mb-3">
+              <div className="font-mono text-[13px] tracking-[0.06em] text-muted-foreground mb-3">
                 <b className="text-primary font-semibold">Requisites:</b>{" "}
                 <span className="text-foreground/80">{course.enrollment_prerequisites}</span>
               </div>
