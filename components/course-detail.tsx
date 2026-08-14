@@ -139,13 +139,13 @@ function GradeDistribution({ course }: { course: CourseDetailData }) {
 
   return (
     <section className="bg-surface border border-border/70">
-      <header className="flex flex-wrap items-center gap-2 px-4 py-2.5 border-b border-border/70">
+      <header className="flex flex-wrap items-baseline gap-2 px-4 py-2.5 border-b border-border/70">
         <h2 className="font-display text-[19px] font-semibold tracking-[-0.01em]">Grade Distribution</h2>
         <a
           href={`https://madgrades.com/courses/${course.madgrades_course_uuid}`}
           target="_blank"
           rel="noopener noreferrer"
-          className="self-end font-mono text-[12px] font-semibold tracking-[0.08em] text-primary border-b border-border/70 hover:border-primary whitespace-nowrap"
+          className="font-mono text-[12px] font-semibold tracking-[0.08em] text-primary border-b border-border/70 hover:border-primary whitespace-nowrap"
         >
           MADGRADES ↗
         </a>
@@ -447,7 +447,7 @@ export function CourseDetail({ course }: { course: CourseDetailData }) {
             <div className="font-mono font-semibold text-[15px] text-primary tracking-[0.04em] mb-1.5">
               {course.course_designation}
             </div>
-            <div className="flex items-end gap-4 flex-wrap">
+            <div className="flex items-baseline gap-4 flex-wrap">
               <h1 className="font-display font-semibold text-[40px] tracking-[-0.02em] leading-[1.1] text-foreground mb-3">
                 {course.course_title}
               </h1>
