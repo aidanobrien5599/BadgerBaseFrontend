@@ -284,12 +284,6 @@ export default function HomePage() {
     <div className="grid grid-cols-1 lg:grid-cols-[300px_1fr]">
       {/* Filters Sidebar — fixed 300px, hairline border, scrolls with page */}
       <aside className="bg-surface border-b border-border/70 lg:border-b-0 lg:border-r lg:border-border/70 lg:sticky lg:top-16 lg:h-[calc(100vh-4rem)] lg:overflow-y-auto px-5 py-5">
-        <div className="mb-4 flex items-baseline justify-between">
-          <span className="font-mono text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
-            Control Panel
-          </span>
-          <span className="font-mono text-[10px] font-semibold text-primary">01</span>
-        </div>
         <SearchFilters filters={filters} onFiltersChange={setFilters} onSearch={handleSearch} loading={loading} />
       </aside>
 

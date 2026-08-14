@@ -142,7 +142,7 @@ export function PaginationControls({
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
         {/* Left: count — cardinal numeral + label + mono sub */}
         <div className="flex items-baseline gap-2.5 flex-wrap">
-          <span className="font-display text-[22px] font-bold text-primary tabular-nums leading-none">
+          <span className="font-display text-sm font-semibold text-primary tabular-nums leading-none">
             {totalCount.toLocaleString()}
           </span>
           <span className="font-display text-sm font-semibold text-foreground">courses</span>
