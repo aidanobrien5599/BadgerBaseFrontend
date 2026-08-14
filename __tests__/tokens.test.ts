@@ -4,11 +4,11 @@ import { colors, semantic, chart, typography } from "@/lib/tokens"
 describe("tokens", () => {
   describe("colors", () => {
     it("exports red palette with all shades", () => {
-      expect(colors.red[50]).toBe("#fef2f2")
-      expect(colors.red[500]).toBe("#ef4444")
-      expect(colors.red[600]).toBe("#dc2626")
-      expect(colors.red[700]).toBe("#b91c1c")
-      expect(colors.red[900]).toBe("#7f1d1d")
+      expect(colors.red[50]).toBe("#fef1f1")
+      expect(colors.red[500]).toBe("#e71313")
+      expect(colors.red[600]).toBe("#c61010")
+      expect(colors.red[700]).toBe("#a50d0d")
+      expect(colors.red[900]).toBe("#500b0b")
     })
 
     it("exports gray palette with all shades", () => {
