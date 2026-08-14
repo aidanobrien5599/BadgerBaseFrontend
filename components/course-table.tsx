@@ -1,30 +1,26 @@
 "use client"
 
-import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Collapsible, CollapsibleContent } from "@/components/ui/collapsible"
 import {
   Users,
-  Clock,
-  MapPin,
+  ChevronRight,
   Star,
   TrendingUp,
   BarChart3,
-  BookOpen,
   Award,
+  BookOpen,
   GraduationCap,
-  Calendar,
   Filter,
 } from "lucide-react"
 import { useState } from "react"
 import { PaginationControls } from "./pagination-controls"
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart"
 import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis } from "recharts"
-import { CourseHeader } from "./course-header"
+import { NotificationButton } from "./notification-button"
 import { HierarchicalSections } from "./sections"
 import { colors, typography } from "@/lib/tokens"
 import { getGradeColor } from "@/components/sections/utils"
-// Instructor interface defined locally
+
 interface Instructor {
   name: string
   rmp_instructor_id: string | null
@@ -111,6 +107,17 @@ interface CourseTableProps {
   onSortChange: (sort: string) => void
 }
 
+const getStatusBadge = (status: number) => {
+  switch (status) {
+    case 2:
+      return { label: "Open", classes: "bg-success/10 text-success-foreground border-success/30" }
+    case 1:
+      return { label: "Waitlist", classes: "bg-warning/10 text-warning-foreground border-warning/30" }
+    default:
+      return { label: "Closed", classes: "bg-destructive/10 text-destructive border-destructive/30" }
+  }
+}
+
 export function CourseTable({
   courses,
   currentPage,
@@ -159,14 +166,6 @@ export function CourseTable({
     }
   }
 
-  const formatRating = (rating: number | null) => {
-    return rating ? rating.toFixed(1) : "N/A"
-  }
-
-  const formatPercent = (decimal: number | null) => {
-    return decimal ? `${Math.round(decimal * 100)}%` : "0%"
-  }
-
   const getGradeChartData = (course: Course) => {
     return [
       {
@@ -207,265 +206,381 @@ export function CourseTable({
     ]
   }
 
+  const firstInstructor = (course: Course) => {
+    for (const section of course.sections) {
+      if (section.instructors && section.instructors.length > 0) {
+        return section.instructors[0].name
+      }
+    }
+    return null
+  }
+
   if (courses.length === 0) {
     return (
-      <Card>
-        <CardContent className="text-center py-12">
-          <p className="text-muted-foreground">No courses found. Try adjusting your search criteria.</p>
-        </CardContent>
-      </Card>
+      <div className="border-b border-border/70">
+        <div className="py-16 text-center">
+          <p className="font-mono text-xs uppercase tracking-[0.16em] text-muted-foreground mb-2">No courses found</p>
+          <p className="text-sm text-muted-foreground">Try adjusting your search criteria.</p>
+        </div>
+      </div>
     )
   }
 
   return (
-    <div className="space-y-6">
-      {courses.length > 0 && (
-        <PaginationControls
-          currentPage={currentPage}
-          totalPages={totalPages}
-          totalCount={totalCount}
-          hasMore={hasMore}
-          onPageChange={onPageChange}
-          resultsPerPage={resultsPerPage}
-          currentSort={currentSort}
-          onSortChange={onSortChange}
-        />
-      )}
+    <div>
+      <PaginationControls
+        currentPage={currentPage}
+        totalPages={totalPages}
+        totalCount={totalCount}
+        hasMore={hasMore}
+        onPageChange={onPageChange}
+        resultsPerPage={resultsPerPage}
+        currentSort={currentSort}
+        onSortChange={onSortChange}
+      />
 
-      {courses.map((course) => {
-        const filteredSections = filterSections(course.sections)
+      <div>
+        {courses.map((course, index) => {
+          const filteredSections = filterSections(course.sections)
+          const isExpanded = expandedCourses.has(course.course_id)
+          const statusBadge = getStatusBadge(course.status)
+          const levelInfo = getLevelInfo(course.level)
+          const LevelIcon = levelInfo.icon
+          const instructor = firstInstructor(course)
+          const rowNumber = (currentPage - 1) * resultsPerPage + index + 1
+          const designationMatch = course.course_designation.match(/^(\D+)\s*(.+)$/)
+          const designationSubject = designationMatch ? designationMatch[1].trim() : course.course_designation
+          const designationNumber = designationMatch ? designationMatch[2].trim() : ""
 
-        return (
-          <Card key={course.course_id} className="shadow-none border-border/70 transition-colors hover:border-primary/40">
-            <Collapsible
-              open={expandedCourses.has(course.course_id)}
-              onOpenChange={() => toggleCourse(course.course_id)}
-            >
-              <CourseHeader course={course} isExpanded={expandedCourses.has(course.course_id)} />
+          return (
+            <div key={course.course_id} className="border-b border-border/70">
+              {/* Ledger row */}
+              <div className="overflow-x-auto">
+              <div
+                role="button"
+                tabIndex={0}
+                onClick={() => toggleCourse(course.course_id)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault()
+                    toggleCourse(course.course_id)
+                  }
+                }}
+                className={`grid grid-cols-[44px_minmax(280px,1fr)_84px_repeat(3,78px)_108px_30px] min-w-[780px] items-stretch cursor-pointer transition-colors ${
+                  isExpanded ? "bg-surface-sunken" : "hover:bg-surface-sunken"
+                }`}
+              >
+                {/* Row index */}
+                <div className="flex items-center justify-center font-mono text-[11px] font-semibold text-primary border-r border-border/70">
+                  {rowNumber.toString().padStart(2, "0")}
+                </div>
 
-              <CollapsibleContent>
-                <CardContent className="pt-0 bg-surface">
-                  <div className="flex flex-col gap-4 pb-4">
-                    {course.enrollment_prerequisites && (
-                      <div className="bg-accent border border-primary/20 rounded-lg p-4">
-                        <p className="text-sm text-primary">
-                          <span className="font-bold flex items-center gap-2 mb-2">
-                            <Award className="h-4 w-4 text-primary" />
-                            Prerequisites:
+                {/* Designation + title + instructor */}
+                <div className="flex flex-col justify-center gap-0.5 px-4 border-r border-border/70 min-w-0">
+                  <div className="font-display text-[17px] font-bold tracking-[-0.01em]">
+                    <span className="text-primary">{designationSubject}</span>{" "}
+                    {designationNumber}
+                  </div>
+                  <div className="text-[13.5px] text-foreground font-medium leading-snug truncate">
+                    {course.course_title}
+                  </div>
+                  {instructor && (
+                    <div className="font-mono text-[10.5px] text-muted-foreground truncate">{instructor}</div>
+                  )}
+                </div>
+
+                {/* Credits */}
+                <div className="flex flex-col justify-center px-3 border-r border-border/70">
+                  <span className="font-display text-lg font-bold leading-none">
+                    {course.minimum_credits === course.maximum_credits
+                      ? course.minimum_credits
+                      : `${course.minimum_credits}-${course.maximum_credits}`}
+                  </span>
+                  <span className="font-mono text-[9px] uppercase tracking-[0.12em] text-muted-foreground mt-1">
+                    Credits
+                  </span>
+                </div>
+
+                {/* Median grade */}
+                <div className="flex flex-col justify-center px-3 border-r border-border/70">
+                  {course.median_grade ? (
+                    <span className="font-display text-lg font-bold leading-none tabular-nums">
+                      {course.median_grade}
+                    </span>
+                  ) : (
+                    <span className="font-mono text-sm text-muted-foreground leading-none">N/A</span>
+                  )}
+                  <span className="font-mono text-[9px] uppercase tracking-[0.12em] text-muted-foreground mt-1">
+                    Median
+                  </span>
+                </div>
+
+                {/* Cumulative GPA */}
+                <div className="flex flex-col justify-center px-3 border-r border-border/70">
+                  <span className="font-display text-lg font-bold leading-none tabular-nums">
+                    {course.cumulative_gpa ? course.cumulative_gpa.toFixed(2) : "N/A"}
+                  </span>
+                  <span className="font-mono text-[9px] uppercase tracking-[0.12em] text-muted-foreground mt-1">
+                    Cum GPA
+                  </span>
+                </div>
+
+                {/* Recent GPA */}
+                <div className="flex flex-col justify-center px-3 border-r border-border/70">
+                  <span className="font-display text-lg font-bold leading-none tabular-nums">
+                    {course.most_recent_gpa ? course.most_recent_gpa.toFixed(2) : "N/A"}
+                  </span>
+                  <span className="font-mono text-[9px] uppercase tracking-[0.12em] text-muted-foreground mt-1">
+                    Recent
+                  </span>
+                </div>
+
+                {/* Status badge */}
+                <div className="flex items-center px-3">
+                  <Badge variant="outline" className={`${statusBadge.classes} font-semibold text-[11.5px]`}>
+                    {statusBadge.label}
+                  </Badge>
+                </div>
+
+                {/* Chevron */}
+                <div className="flex items-center justify-center">
+                  <ChevronRight
+                    className={`h-4 w-4 transition-transform ${
+                      isExpanded ? "rotate-90 text-primary" : "text-muted-foreground"
+                    }`}
+                  />
+                </div>
+              </div>
+              </div>
+
+              {/* Expanded panel */}
+              {isExpanded && (
+                <div className="bg-surface px-5 py-5 border-t border-border/70">
+                  <div className="flex flex-col gap-4">
+                    {/* Title + description + actions */}
+                    <div className="flex items-start justify-between gap-4">
+                      <div className="min-w-0">
+                        <a
+                          href={`https://public.enroll.wisc.edu/search?keywords=${encodeURIComponent(course.course_designation)}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="font-display text-xl font-bold text-foreground hover:text-primary hover:underline"
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          {course.course_title}
+                        </a>
+                        {course.course_description && (
+                          <p className="text-sm text-muted-foreground mt-2 leading-relaxed max-w-3xl">
+                            {course.course_description}
+                          </p>
+                        )}
+                      </div>
+                      <div className="flex items-center gap-3 shrink-0">
+                        <a
+                          target="_blank"
+                          href={`https://madgrades.com/courses/${course.madgrades_course_uuid}`}
+                          className="font-mono text-[11px] text-primary hover:underline"
+                          rel="noreferrer"
+                        >
+                          Madgrades ↗
+                        </a>
+                        {course.status === 0 && (
+                          <div onClick={(e) => e.stopPropagation()}>
+                            <NotificationButton
+                              type="course"
+                              id={course.course_id}
+                              isEnabled={course.status === 0}
+                              courseTitle={course.course_title}
+                            />
+                          </div>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Prerequisites */}
+                    {course.enrollment_prerequisites && course.enrollment_prerequisites !== "None" && (
+                      <div className="bg-surface-sunken border border-dashed border-border/80 rounded-md px-4 py-3">
+                        <p className="font-mono text-[11px] text-foreground">
+                          <span className="flex items-center gap-2 mb-1">
+                            <Award className="h-3.5 w-3.5 text-primary" />
+                            Prerequisites
                           </span>
-                          <span className="text-primary">{course.enrollment_prerequisites}</span>
+                          <span className="text-muted-foreground">{course.enrollment_prerequisites}</span>
                         </p>
                       </div>
                     )}
 
-                    {/* Meta Info Grid */}
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                      {/* Credits Card */}
-                      <div className="bg-surface border rounded-lg p-4">
-                        <div className="flex items-center gap-2 text-muted-foreground mb-2">
-                          <BookOpen className="h-4 w-4 text-primary" />
-                          <span className="font-mono text-[11px] font-medium uppercase tracking-[0.1em] text-muted-foreground">Credits</span>
-                        </div>
-                        <div className="text-foreground font-mono font-semibold">
+                    {/* Meta strip */}
+                    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+                      <div className="flex items-center gap-2 text-muted-foreground">
+                        <BookOpen className="h-4 w-4 text-primary" />
+                        <span className="font-mono text-[11px] font-medium uppercase tracking-[0.1em]">
                           {course.minimum_credits === course.maximum_credits
-                            ? `${course.minimum_credits} credit${course.minimum_credits > 1 ? "s" : ""}`
-                            : `${course.minimum_credits}-${course.maximum_credits} credits`}
-                        </div>
+                            ? `${course.minimum_credits} cr`
+                            : `${course.minimum_credits}-${course.maximum_credits} cr`}
+                        </span>
                       </div>
-
-                      {/* Level Card */}
-                      <div className="bg-surface border rounded-lg p-4">
-                        <div className="flex items-center gap-2 text-muted-foreground mb-2">
-                          {(() => {
-                            const levelInfo = getLevelInfo(course.level)
-                            const IconComponent = levelInfo.icon
-                            return (
-                              <>
-                                <IconComponent className="h-4 w-4 text-primary" />
-                                <span className="font-mono text-[11px] font-medium uppercase tracking-[0.1em] text-muted-foreground">Level</span>
-                              </>
-                            )
-                          })()}
-                        </div>
-                        <div className="text-foreground font-mono font-semibold">{getLevelInfo(course.level).text}</div>
+                      <div className="flex items-center gap-2 text-muted-foreground">
+                        <LevelIcon className="h-4 w-4 text-primary" />
+                        <span className="font-mono text-[11px] font-medium uppercase tracking-[0.1em]">
+                          {levelInfo.text}
+                        </span>
                       </div>
-
-                      {/* Median Grade Card */}
-                      <div className="bg-surface border rounded-lg p-4">
-                        <div className="flex items-center gap-2 text-muted-foreground mb-2">
-                          <Star className="h-4 w-4 text-primary" />
-                          <span className="font-mono text-[11px] font-medium uppercase tracking-[0.1em] text-muted-foreground">Median Grade</span>
-                        </div>
-                        <div className="mt-1">
-                          {course.median_grade ? (
-                            <Badge className={`${getGradeColor(course.median_grade)} font-semibold`}>
-                              {course.median_grade}
-                            </Badge>
-                          ) : (
-                            <span className="text-muted-foreground font-semibold">N/A</span>
-                          )}
-                        </div>
+                      <div className="flex items-center gap-2 text-muted-foreground">
+                        <Star className="h-4 w-4 text-primary" />
+                        {course.median_grade ? (
+                          <Badge className={`${getGradeColor(course.median_grade)} font-semibold`}>
+                            {course.median_grade}
+                          </Badge>
+                        ) : (
+                          <span className="font-mono text-[11px] font-medium uppercase tracking-[0.1em]">N/A</span>
+                        )}
                       </div>
-
-                      {/* Sections Card */}
-                      <div className="bg-surface border rounded-lg p-4">
-                        <div className="flex items-center gap-2 text-muted-foreground mb-2">
-                          <Users className="h-4 w-4 text-primary" />
-                          <span className="font-mono text-[11px] font-medium uppercase tracking-[0.1em] text-muted-foreground">Sections</span>
-                        </div>
-                        <div className="text-foreground font-mono font-semibold">{course.sections.length}</div>
+                      <div className="flex items-center gap-2 text-muted-foreground">
+                        <Users className="h-4 w-4 text-primary" />
+                        <span className="font-mono text-[11px] font-medium uppercase tracking-[0.1em]">
+                          {course.sections.length} sec
+                        </span>
                       </div>
-
-                      {/* Avg GPA Card */}
-                      <div className="bg-surface border rounded-lg p-4">
-                        <div className="flex items-center gap-2 text-muted-foreground mb-2">
-                          <TrendingUp className="h-4 w-4 text-primary" />
-                          <span className="font-mono text-[11px] font-medium uppercase tracking-[0.1em] text-muted-foreground">Avg GPA</span>
-                        </div>
-                        <div className="mt-1">
-                          <a
-                            target="_blank"
-                            href={`https://madgrades.com/courses/${course.madgrades_course_uuid}`}
-                            className="text-primary font-mono font-bold hover:text-primary/80 hover:underline"
-                            rel="noreferrer"
-                          >
-                            {course.cumulative_gpa?.toFixed(2) || "N/A"}
-                          </a>
-                        </div>
+                      <div className="flex items-center gap-2 text-muted-foreground">
+                        <TrendingUp className="h-4 w-4 text-primary" />
+                        <a
+                          target="_blank"
+                          href={`https://madgrades.com/courses/${course.madgrades_course_uuid}`}
+                          className="text-primary font-mono font-bold hover:text-primary/80 hover:underline"
+                          rel="noreferrer"
+                        >
+                          {course.cumulative_gpa?.toFixed(2) || "N/A"}
+                        </a>
                       </div>
-
-                      {/* Recent GPA Card */}
-                      <div className="bg-surface border rounded-lg p-4">
-                        <div className="flex items-center gap-2 text-muted-foreground mb-2">
-                          <BarChart3 className="h-4 w-4 text-primary" />
-                          <span className="font-mono text-[11px] font-medium uppercase tracking-[0.1em] text-muted-foreground">Recent GPA</span>
-                        </div>
-                        <div className="text-foreground font-mono font-semibold">{course.most_recent_gpa?.toFixed(2) || "N/A"}</div>
+                      <div className="flex items-center gap-2 text-muted-foreground">
+                        <BarChart3 className="h-4 w-4 text-primary" />
+                        <span className="font-mono text-[11px] font-medium uppercase tracking-[0.1em]">
+                          {course.most_recent_gpa?.toFixed(2) || "N/A"}
+                        </span>
                       </div>
-
-
                     </div>
 
-                    {/* Course Attributes Section */}
-                    {((course.workplace_experience_description && course.workplace_experience_description !== "STUDENT OPT") || 
-                      (course.repeatable_for_credit === "Y") || 
+                    {/* Course attributes */}
+                    {((course.workplace_experience_description && course.workplace_experience_description !== "STUDENT OPT") ||
+                      course.repeatable_for_credit === "Y" ||
                       (course.typically_offered && course.typically_offered !== "Not Applicable")) && (
-                      <div className="mt-4 p-4 bg-surface rounded-lg border">
-                        <h4 className="font-semibold text-foreground mb-3">Course attributes:</h4>
-                        <ul className="space-y-2 text-sm text-muted-foreground">
-                          {course.workplace_experience_description && course.workplace_experience_description !== "STUDENT OPT" && (
-                            <li className="flex items-start gap-2">
-                              <span className="text-primary font-bold mt-0.5">•</span>
-                              <span>Workplace Experience Course</span>
-                            </li>
+                      <div className="flex flex-wrap items-center gap-2">
+                        {course.workplace_experience_description &&
+                          course.workplace_experience_description !== "STUDENT OPT" && (
+                            <span className="font-mono text-[10px] uppercase tracking-[0.1em] text-muted-foreground border border-border/70 rounded px-2 py-1">
+                              Workplace Experience
+                            </span>
                           )}
-                          {course.repeatable_for_credit === "Y" && (
-                            <li className="flex items-start gap-2">
-                              <span className="text-primary font-bold mt-0.5">•</span>
-                              <span>Repeatable for Credit</span>
-                            </li>
-                          )}
-                          {course.typically_offered && course.typically_offered !== "Not Applicable" && (
-                            <li className="flex items-start gap-2">
-                              <span className="text-primary font-bold mt-0.5">•</span>
-                              <span>Typically offered in {course.typically_offered}</span>
-                            </li>
-                          )}
-                        </ul>
+                        {course.repeatable_for_credit === "Y" && (
+                          <span className="font-mono text-[10px] uppercase tracking-[0.1em] text-muted-foreground border border-border/70 rounded px-2 py-1">
+                            Repeatable
+                          </span>
+                        )}
+                        {course.typically_offered && course.typically_offered !== "Not Applicable" && (
+                          <span className="font-mono text-[10px] uppercase tracking-[0.1em] text-muted-foreground border border-border/70 rounded px-2 py-1">
+                            {course.typically_offered}
+                          </span>
+                        )}
                       </div>
                     )}
-                  </div>
 
                     {/* Grade Distribution Chart */}
-                  <div className="mb-6 p-6 bg-surface rounded-lg border border-border/70">
-                    <h4 className="font-bold mb-4 flex items-center gap-2 text-foreground">
-                      <BarChart3 className="h-5 w-5 text-primary" />
-                      Grade Distribution
-                    </h4>
-                    <ChartContainer
-                      config={{
-                        percentage: {
-                          label: "Percentage",
-                        },
-                      }}
-                      className="h-[220px] w-full"
-                    >
-                      <ResponsiveContainer width="100%" height="100%">
-                        <BarChart
-                          data={getGradeChartData(course)}
-                          margin={{
-                            top: 20,
-                            right: 30,
-                            left: 20,
-                            bottom: 5,
-                          }}
-                        >
-                          <XAxis
-                            dataKey="grade"
-                            axisLine={false}
-                            tickLine={false}
-                            tick={{ fontSize: typography.sm, fontWeight: 600, fill: colors.gray[700] }}
-                          />
-                          <YAxis
-                            axisLine={false}
-                            tickLine={false}
-                            tick={{ fontSize: typography.xs, fill: colors.gray[700] }}
-                            tickFormatter={(value) => `${value}%`}
-                          />
-                          <ChartTooltip
-                            content={<ChartTooltipContent />}
-                            formatter={(value, name) => [`${value}%`, "Students"]}
-                            labelFormatter={(label) => `Grade: ${label}`}
-                          />
-                          <Bar dataKey="percentage" radius={[4, 4, 0, 0]} />
-                        </BarChart>
-                      </ResponsiveContainer>
-                    </ChartContainer>
-                  </div>
-
-                  {/* Hierarchical Sections */}
-                  <div className="space-y-4">
-                    <div className="flex items-center justify-between flex-wrap gap-3">
-                      <h4 className="font-bold text-foreground flex items-center gap-2">
-                        <Users className="h-5 w-5 text-primary" />
-                        Sections
+                    <div className="bg-surface border border-border/70 rounded-lg p-5">
+                      <h4 className="font-mono text-[11px] font-semibold uppercase tracking-[0.14em] text-foreground mb-4 flex items-center gap-2">
+                        <BarChart3 className="h-4 w-4 text-primary" />
+                        Grade Distribution
                       </h4>
-
-                      {/* Filter Controls */}
-                      <div className="flex flex-wrap items-center gap-3 text-sm">
-                        <div className="flex items-center gap-1">
-                          <Filter className="h-4 w-4 text-muted-foreground" />
-                          <span className="text-muted-foreground font-medium">Filter:</span>
-                        </div>
-                        <label className="flex items-center gap-2 cursor-pointer whitespace-nowrap">
-                          <input
-                            type="checkbox"
-                            checked={hideClosedSections}
-                            onChange={(e) => setHideClosedSections(e.target.checked)}
-                            className="rounded border-input text-primary focus:ring-ring"
-                          />
-                          <span className="text-muted-foreground">Hide closed</span>
-                        </label>
-                        <label className="flex items-center gap-2 cursor-pointer whitespace-nowrap">
-                          <input
-                            type="checkbox"
-                            checked={hideWaitlistedSections}
-                            onChange={(e) => setHideWaitlistedSections(e.target.checked)}
-                            className="rounded border-input text-primary focus:ring-ring"
-                          />
-                          <span className="text-muted-foreground">Hide waitlisted</span>
-                        </label>
-                      </div>
+                      <ChartContainer
+                        config={{
+                          percentage: {
+                            label: "Percentage",
+                          },
+                        }}
+                        className="h-[220px] w-full"
+                      >
+                        <ResponsiveContainer width="100%" height="100%">
+                          <BarChart
+                            data={getGradeChartData(course)}
+                            margin={{
+                              top: 20,
+                              right: 30,
+                              left: 20,
+                              bottom: 5,
+                            }}
+                          >
+                            <XAxis
+                              dataKey="grade"
+                              axisLine={false}
+                              tickLine={false}
+                              tick={{ fontSize: typography.sm, fontWeight: 600, fill: colors.gray[700] }}
+                            />
+                            <YAxis
+                              axisLine={false}
+                              tickLine={false}
+                              tick={{ fontSize: typography.xs, fill: colors.gray[700] }}
+                              tickFormatter={(value) => `${value}%`}
+                            />
+                            <ChartTooltip
+                              content={<ChartTooltipContent />}
+                              formatter={(value, name) => [`${value}%`, "Students"]}
+                              labelFormatter={(label) => `Grade: ${label}`}
+                            />
+                            <Bar dataKey="percentage" radius={[4, 4, 0, 0]} />
+                          </BarChart>
+                        </ResponsiveContainer>
+                      </ChartContainer>
                     </div>
 
-                    <HierarchicalSections sections={filteredSections} courseTitle={course.course_title} />
+                    {/* Sections */}
+                    <div className="bg-surface border border-border/70 rounded-lg">
+                      <div className="flex items-center justify-between flex-wrap gap-3 px-4 py-3 border-b border-border/70">
+                        <h4 className="font-mono text-[11px] font-semibold uppercase tracking-[0.14em] text-foreground flex items-center gap-2">
+                          <Users className="h-4 w-4 text-primary" />
+                          Sections
+                          <span className="font-mono text-[10px] font-semibold text-primary">
+                            {filteredSections.length}
+                          </span>
+                        </h4>
+
+                        <div className="flex flex-wrap items-center gap-3 text-sm">
+                          <div className="flex items-center gap-1">
+                            <Filter className="h-4 w-4 text-muted-foreground" />
+                            <span className="text-muted-foreground font-medium">Filter:</span>
+                          </div>
+                          <label className="flex items-center gap-2 cursor-pointer whitespace-nowrap">
+                            <input
+                              type="checkbox"
+                              checked={hideClosedSections}
+                              onChange={(e) => setHideClosedSections(e.target.checked)}
+                              className="rounded border-input text-primary focus:ring-ring"
+                            />
+                            <span className="text-muted-foreground">Hide closed</span>
+                          </label>
+                          <label className="flex items-center gap-2 cursor-pointer whitespace-nowrap">
+                            <input
+                              type="checkbox"
+                              checked={hideWaitlistedSections}
+                              onChange={(e) => setHideWaitlistedSections(e.target.checked)}
+                              className="rounded border-input text-primary focus:ring-ring"
+                            />
+                            <span className="text-muted-foreground">Hide waitlisted</span>
+                          </label>
+                        </div>
+                      </div>
+
+                      <div className="p-4">
+                        <HierarchicalSections sections={filteredSections} courseTitle={course.course_title} />
+                      </div>
+                    </div>
                   </div>
-                </CardContent>
-              </CollapsibleContent>
-            </Collapsible>
-          </Card>
-        )
-      })}
+                </div>
+              )}
+            </div>
+          )
+        })}
+      </div>
+
       {courses.length > 5 && (
         <PaginationControls
           currentPage={currentPage}

@@ -3,7 +3,6 @@
 import { useState, useEffect } from "react"
 import { SearchFilters } from "@/components/search-filters"
 import { CourseTable } from "@/components/course-table"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Loader2 } from "lucide-react"
 
@@ -282,54 +281,47 @@ export default function HomePage() {
   const totalPages = Math.ceil(totalCount / Number.parseInt(filters.limit))
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-        {/* Filters Sidebar */}
-        <div className="lg:col-span-1">
-          <Card className="shadow-none border-border/70">
-            <CardHeader className="border-b border-border/70">
-              <CardTitle className="font-mono text-sm font-semibold uppercase tracking-[0.12em] text-foreground">
-                Search &amp; Filters
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="pt-4">
-              <SearchFilters filters={filters} onFiltersChange={setFilters} onSearch={handleSearch} loading={loading} />
-            </CardContent>
-          </Card>
+    <div className="grid grid-cols-1 lg:grid-cols-[300px_1fr]">
+      {/* Filters Sidebar — fixed 300px, hairline border, scrolls with page */}
+      <aside className="bg-surface border-b border-border/70 lg:border-b-0 lg:border-r lg:border-border/70 lg:sticky lg:top-16 lg:h-[calc(100vh-4rem)] lg:overflow-y-auto px-5 py-5">
+        <div className="mb-4 flex items-baseline justify-between">
+          <span className="font-mono text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
+            Control Panel
+          </span>
+          <span className="font-mono text-[10px] font-semibold text-primary">01</span>
         </div>
+        <SearchFilters filters={filters} onFiltersChange={setFilters} onSearch={handleSearch} loading={loading} />
+      </aside>
 
-        {/* Results */}
-        <div className="lg:col-span-3">
-          {error && (
-            <Alert className="mb-6" variant="destructive">
+      {/* Results — fills remaining viewport width */}
+      <section className="min-w-0">
+        {error && (
+          <div className="px-6 pt-4">
+            <Alert variant="destructive">
               <AlertDescription>{error}</AlertDescription>
             </Alert>
-          )}
+          </div>
+        )}
 
-          {loading ? (
-            <Card>
-              <CardContent className="flex items-center justify-center py-12">
-                <Loader2 className="h-8 w-8 animate-spin mr-2" />
-                <span>Loading courses...</span>
-              </CardContent>
-            </Card>
-          ) : (
-            <div className="space-y-6">
-              <CourseTable
-                courses={courses}
-                currentPage={currentPage}
-                totalPages={totalPages}
-                totalCount={totalCount}
-                hasMore={hasMore}
-                onPageChange={handlePageChange}
-                resultsPerPage={Number.parseInt(filters.limit)}
-                currentSort={filters.sort || ""}
-                onSortChange={handleSortChange}
-              />
-            </div>
-          )}
-        </div>
-      </div>
+        {loading ? (
+          <div className="flex items-center justify-center gap-3 py-24 border-b border-border/70">
+            <Loader2 className="h-5 w-5 animate-spin text-primary" />
+            <span className="font-mono text-xs uppercase tracking-[0.14em] text-muted-foreground">Loading courses</span>
+          </div>
+        ) : (
+          <CourseTable
+            courses={courses}
+            currentPage={currentPage}
+            totalPages={totalPages}
+            totalCount={totalCount}
+            hasMore={hasMore}
+            onPageChange={handlePageChange}
+            resultsPerPage={Number.parseInt(filters.limit)}
+            currentSort={filters.sort || ""}
+            onSortChange={handleSortChange}
+          />
+        )}
+      </section>
     </div>
   )
 }
