@@ -71,12 +71,12 @@ export function TikTokFeed() {
   const currentVid = videos[currentVideo]
 
   return (
-    <Card className="h-[600px] overflow-hidden bg-gradient-to-br from-pink-50 to-purple-50 border-2 border-pink-200">
+    <Card className="h-[600px] overflow-hidden bg-gradient-to-br from-pink-50 to-purple-50 border-2 border-decorative-border">
       <CardHeader className="pb-2">
         <CardTitle className="flex items-center gap-2 text-lg">
           <div className="relative">
-            <Zap className="h-5 w-5 text-yellow-500 animate-pulse" />
-            <Fire className="h-3 w-3 text-red-500 absolute -top-1 -right-1 animate-bounce" />
+            <Zap className="h-5 w-5 text-gold animate-pulse" />
+            <Fire className="h-3 w-3 text-destructive absolute -top-1 -right-1 animate-bounce" />
           </div>
           Study Tips Feed
           {currentVid.trending && (
@@ -111,7 +111,7 @@ export function TikTokFeed() {
                 className="rounded-full bg-black/20 text-white hover:bg-black/40 flex flex-col h-12 w-12 p-0"
                 onClick={() => handleLike(currentVid.id)}
               >
-                <Heart className="h-5 w-5 fill-red-500 text-red-500" />
+                <Heart className="h-5 w-5 fill-destructive text-destructive" />
                 <span className="text-xs">{(currentVid.likes + (likes[currentVid.id] || 0)).toLocaleString()}</span>
               </Button>
 

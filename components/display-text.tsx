@@ -13,14 +13,14 @@ export const DisplayText = ({ course }: { course: any }) => {
   };
 
   return (
-    <div className="rounded-2xl border p-4 shadow-sm bg-white space-y-2">
+    <div className="rounded-2xl border p-4 shadow-sm bg-surface space-y-2">
       <h2 className="text-lg font-semibold">{course.title}</h2>
-      <p className="text-gray-700">
+      <p className="text-muted-foreground">
         {getDisplayText(course.description)}
         {course.description?.length > maxLength && (
           <button
             onClick={() => setExpanded((prev) => !prev)}
-            className="ml-1 text-blue-500 hover:underline"
+            className="ml-1 text-primary hover:underline"
           >
             {expanded ? "Show less" : "Show more"}
           </button>
@@ -28,7 +28,7 @@ export const DisplayText = ({ course }: { course: any }) => {
       </p>
 
       {(course.enrollment_requirements || course.enrollment_prerequisites) && (
-        <div className="text-sm text-gray-600 space-y-1">
+        <div className="text-sm text-muted-foreground space-y-1">
           {course.enrollment_requirements && (
             <p>
               <strong>Requirements:</strong> {course.enrollment_requirements}

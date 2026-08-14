@@ -18,6 +18,14 @@ const MIGRATED_FILES = [
   "app/dashboard/page.tsx",
   "components/login-dialog.tsx",
   "components/notification-button.tsx",
+  "app/about/page.tsx",
+  "app/feedback/page.tsx",
+  "components/display-text.tsx",
+  "components/trending-feed.tsx",
+  "components/tiktok-feed.tsx",
+  "components/notification.tsx",
+  "components/notification-ticker.tsx",
+  "app/api/feedback/route.ts",
 ]
 
 describe("no hardcoded colors in migrated files", () => {
