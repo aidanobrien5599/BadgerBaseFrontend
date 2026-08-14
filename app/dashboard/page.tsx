@@ -186,9 +186,9 @@ export default function DashboardPage() {
   if (error) {
     return (
       <div className="container mx-auto px-4 py-8">
-        <Card className="border-red-500">
+        <Card className="border-destructive">
           <CardHeader>
-            <CardTitle className="text-red-600">Error</CardTitle>
+            <CardTitle className="text-destructive">Error</CardTitle>
             <CardDescription>{error}</CardDescription>
           </CardHeader>
         </Card>
@@ -214,7 +214,7 @@ export default function DashboardPage() {
             <Mail className="h-5 w-5" />
             <span>{user?.email}</span>
           </div>
-          <div className="hidden md:block h-6 w-px bg-gray-300"></div>
+          <div className="hidden md:block h-6 w-px bg-border"></div>
           <div className="flex items-center gap-2">
             <Bell className="h-5 w-5" />
             <span>{totalSubscriptions} active subscription{totalSubscriptions !== 1 ? 's' : ''}</span>
@@ -349,13 +349,13 @@ export default function DashboardPage() {
                       <td className="py-3 px-4">
                         <Badge 
                           variant={sub.section_status === "OPEN" ? "default" : "destructive"}
-                          className={sub.section_status === "OPEN" ? "bg-green-500 hover:bg-green-600" : ""}
+                          className={sub.section_status === "OPEN" ? "bg-success hover:bg-success-strong" : ""}
                         >
                           {sub.section_status}
                         </Badge>
                       </td>
                       <td className="py-3 px-4">
-                        <span className={sub.available_seats > 0 ? "text-green-600 font-semibold" : ""}>
+                        <span className={sub.available_seats > 0 ? "text-success-strong font-semibold" : ""}>
                           {sub.available_seats}
                         </span>
                       </td>
@@ -388,7 +388,7 @@ export default function DashboardPage() {
         <DialogContent>
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <AlertTriangle className="h-5 w-5 text-red-600" />
+              <AlertTriangle className="h-5 w-5 text-destructive" />
               Confirm Unsubscribe
             </DialogTitle>
             <DialogDescription>
