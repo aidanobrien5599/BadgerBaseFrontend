@@ -4,6 +4,7 @@ import { IBM_Plex_Mono, IBM_Plex_Sans, Space_Grotesk } from "next/font/google"
 import "./globals.css"
 import { Navigation } from "@/components/navigation"
 import { Footer } from "@/components/footer"
+import { ScrollToTop } from "@/components/scroll-to-top"
 import { Analytics } from "@vercel/analytics/react"
 import { PostHogProvider } from "@/components/PostHogProvider"
 
@@ -49,6 +50,7 @@ export default function RootLayout({
         <Suspense fallback={<div>Loading...</div>}>
           <PostHogProvider>
             <Navigation />
+            <ScrollToTop />
             <main className="min-h-screen bg-background">{children}</main>
             <Footer />
             <Analytics />
