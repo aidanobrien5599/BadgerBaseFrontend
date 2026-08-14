@@ -236,7 +236,7 @@ export function CourseTable({
         const filteredSections = filterSections(course.sections)
 
         return (
-          <Card key={course.course_id} className="shadow-sm hover:shadow-md transition-shadow border">
+          <Card key={course.course_id} className="shadow-none border-border/70 transition-colors hover:border-primary/40">
             <Collapsible
               open={expandedCourses.has(course.course_id)}
               onOpenChange={() => toggleCourse(course.course_id)}
@@ -264,9 +264,9 @@ export function CourseTable({
                       <div className="bg-surface border rounded-lg p-4">
                         <div className="flex items-center gap-2 text-muted-foreground mb-2">
                           <BookOpen className="h-4 w-4 text-primary" />
-                          <span className="font-medium text-sm">Credits</span>
+                          <span className="font-mono text-[11px] font-medium uppercase tracking-[0.1em] text-muted-foreground">Credits</span>
                         </div>
-                        <div className="text-foreground font-semibold">
+                        <div className="text-foreground font-mono font-semibold">
                           {course.minimum_credits === course.maximum_credits
                             ? `${course.minimum_credits} credit${course.minimum_credits > 1 ? "s" : ""}`
                             : `${course.minimum_credits}-${course.maximum_credits} credits`}
@@ -282,19 +282,19 @@ export function CourseTable({
                             return (
                               <>
                                 <IconComponent className="h-4 w-4 text-primary" />
-                                <span className="font-medium text-sm">Level</span>
+                                <span className="font-mono text-[11px] font-medium uppercase tracking-[0.1em] text-muted-foreground">Level</span>
                               </>
                             )
                           })()}
                         </div>
-                        <div className="text-foreground font-semibold">{getLevelInfo(course.level).text}</div>
+                        <div className="text-foreground font-mono font-semibold">{getLevelInfo(course.level).text}</div>
                       </div>
 
                       {/* Median Grade Card */}
                       <div className="bg-surface border rounded-lg p-4">
                         <div className="flex items-center gap-2 text-muted-foreground mb-2">
                           <Star className="h-4 w-4 text-primary" />
-                          <span className="font-medium text-sm">Median Grade</span>
+                          <span className="font-mono text-[11px] font-medium uppercase tracking-[0.1em] text-muted-foreground">Median Grade</span>
                         </div>
                         <div className="mt-1">
                           {course.median_grade ? (
@@ -311,22 +311,22 @@ export function CourseTable({
                       <div className="bg-surface border rounded-lg p-4">
                         <div className="flex items-center gap-2 text-muted-foreground mb-2">
                           <Users className="h-4 w-4 text-primary" />
-                          <span className="font-medium text-sm">Sections</span>
+                          <span className="font-mono text-[11px] font-medium uppercase tracking-[0.1em] text-muted-foreground">Sections</span>
                         </div>
-                        <div className="text-foreground font-semibold">{course.sections.length}</div>
+                        <div className="text-foreground font-mono font-semibold">{course.sections.length}</div>
                       </div>
 
                       {/* Avg GPA Card */}
                       <div className="bg-surface border rounded-lg p-4">
                         <div className="flex items-center gap-2 text-muted-foreground mb-2">
                           <TrendingUp className="h-4 w-4 text-primary" />
-                          <span className="font-medium text-sm">Avg GPA</span>
+                          <span className="font-mono text-[11px] font-medium uppercase tracking-[0.1em] text-muted-foreground">Avg GPA</span>
                         </div>
                         <div className="mt-1">
                           <a
                             target="_blank"
                             href={`https://madgrades.com/courses/${course.madgrades_course_uuid}`}
-                            className="text-primary font-bold hover:text-primary/80 hover:underline"
+                            className="text-primary font-mono font-bold hover:text-primary/80 hover:underline"
                             rel="noreferrer"
                           >
                             {course.cumulative_gpa?.toFixed(2) || "N/A"}
@@ -338,9 +338,9 @@ export function CourseTable({
                       <div className="bg-surface border rounded-lg p-4">
                         <div className="flex items-center gap-2 text-muted-foreground mb-2">
                           <BarChart3 className="h-4 w-4 text-primary" />
-                          <span className="font-medium text-sm">Recent GPA</span>
+                          <span className="font-mono text-[11px] font-medium uppercase tracking-[0.1em] text-muted-foreground">Recent GPA</span>
                         </div>
-                        <div className="text-foreground font-semibold">{course.most_recent_gpa?.toFixed(2) || "N/A"}</div>
+                        <div className="text-foreground font-mono font-semibold">{course.most_recent_gpa?.toFixed(2) || "N/A"}</div>
                       </div>
 
 
@@ -376,8 +376,8 @@ export function CourseTable({
                     )}
                   </div>
 
-                  {/* Grade Distribution Chart */}
-                  <div className="mb-6 p-6 bg-surface rounded-lg border">
+                    {/* Grade Distribution Chart */}
+                  <div className="mb-6 p-6 bg-surface rounded-lg border border-border/70">
                     <h4 className="font-bold mb-4 flex items-center gap-2 text-foreground">
                       <BarChart3 className="h-5 w-5 text-primary" />
                       Grade Distribution

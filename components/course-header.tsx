@@ -90,7 +90,7 @@ export function CourseHeader({ course, isExpanded }: { course: any; isExpanded: 
                         )}
                       </div>
                       <div className="flex items-center gap-2 flex-wrap">
-                        <Badge className="bg-primary text-primary-foreground font-semibold">
+                        <Badge className="bg-primary text-primary-foreground font-mono font-semibold tracking-tight">
                           {course.course_designation}
                         </Badge>
                         <Badge className="bg-accent text-primary border-primary/20 font-medium">

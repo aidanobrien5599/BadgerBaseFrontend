@@ -25,7 +25,7 @@ export function Navigation() {
       : "font-medium"
     
     const activeClasses = "text-primary"
-    const inactiveClasses = "text-foreground hover:text-primary"
+    const inactiveClasses = "text-text-secondary hover:text-primary"
     
     return `${baseClasses} ${isActive(path) ? activeClasses : inactiveClasses}`
   }
@@ -44,7 +44,7 @@ export function Navigation() {
               className="h-10 w-auto"
               priority
             />
-            <span className="text-xl font-bold text-foreground">BadgerBase</span>
+            <span className="font-display text-xl font-bold text-foreground">BadgerBase</span>
           </Link>
           
           {/* Desktop Navigation */}

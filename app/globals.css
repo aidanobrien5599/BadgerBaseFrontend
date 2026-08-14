@@ -86,7 +86,9 @@
   --color-grade-f: var(--grade-f);
   --color-grade-text: var(--grade-text);
 
-  --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
+  --font-sans: var(--font-plex-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-space-grotesk), var(--font-plex-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-plex-mono), ui-monospace, SFMono-Regular, Menlo, monospace;
 }
 
 @theme {
@@ -97,27 +99,28 @@
   /* Primitive tokens */
   --white: hsl(0 0% 100%);
   --black: hsl(0 0% 0%);
-  --red-50: hsl(0 86% 97%);
-  --red-100: hsl(0 85% 92%);
-  --red-200: hsl(0 75% 82%);
-  --red-300: hsl(0 75% 72%);
-  --red-400: hsl(0 80% 62%);
-  --red-500: hsl(0 85% 49%);
-  --red-600: hsl(0 85% 42%);
-  --red-700: hsl(0 85% 35%);
-  --red-800: hsl(0 80% 25%);
-  --red-900: hsl(0 75% 18%);
-  --gray-50: hsl(0 0% 98%);
-  --gray-100: hsl(0 0% 96%);
-  --gray-200: hsl(0 0% 90%);
-  --gray-300: hsl(0 0% 83%);
-  --gray-400: hsl(0 0% 64%);
-  --gray-500: hsl(0 0% 45%);
-  --gray-600: hsl(0 0% 32%);
-  --gray-700: hsl(0 0% 25%);
-  --gray-800: hsl(0 0% 15%);
-  --gray-900: hsl(0 0% 9%);
-  --gray-950: hsl(0 0% 4%);
+  /* Registrar Ink palette — cardinal red ramp */
+  --red-50: hsl(357 80% 96%);
+  --red-100: hsl(357 75% 92%);
+  --red-200: hsl(357 70% 82%);
+  --red-300: hsl(357 75% 68%);
+  --red-400: hsl(357 82% 55%);
+  --red-500: hsl(357 90% 48%);
+  --red-600: hsl(358 95% 40%);
+  --red-700: hsl(358 96% 28%);
+  --red-800: hsl(358 90% 20%);
+  --red-900: hsl(358 80% 14%);
+  /* Registrar Ink palette — warm paper/ink ramp */
+  --gray-50: hsl(30 29% 97%);
+  --gray-100: hsl(30 20% 94%);
+  --gray-200: hsl(30 16% 88%);
+  --gray-300: hsl(28 12% 78%);
+  --gray-400: hsl(25 7% 62%);
+  --gray-600: hsl(20 5% 38%);
+  --gray-700: hsl(18 7% 28%);
+  --gray-800: hsl(350 14% 18%);
+  --gray-900: hsl(348 23% 9%);
+  --gray-950: hsl(350 30% 5%);
   --green-500: hsl(142 71% 45%);
   --green-600: hsl(142 76% 36%);
   --green-700: hsl(142 76% 26%);
@@ -131,12 +134,12 @@
 }
 
 :root {
-  /* shadcn tokens, mapped to primitives */
+  /* shadcn tokens, mapped to primitives (Registrar Ink) */
   --background: var(--gray-50);
   --foreground: var(--gray-900);
-  --card: var(--white);
+  --card: hsl(40 33% 99%);
   --card-foreground: var(--gray-900);
-  --popover: var(--white);
+  --popover: hsl(40 33% 99%);
   --popover-foreground: var(--gray-900);
   --primary: var(--red-600);
   --primary-foreground: var(--white);
@@ -156,7 +159,7 @@
   --chart-3: var(--gray-500);
   --chart-4: var(--red-400);
   --chart-5: var(--red-300);
-  --radius: 0.5rem;
+  --radius: 0.375rem;
   --sidebar-background: var(--gray-50);
   --sidebar-foreground: var(--gray-700);
   --sidebar-primary: var(--gray-900);
@@ -169,7 +172,7 @@
   /* Extended semantic tokens */
   --primary-hover: var(--red-700);
   --primary-subtle: var(--red-50);
-  --surface: var(--white);
+  --surface: hsl(40 33% 99%);
   --surface-raised: var(--white);
   --surface-sunken: var(--gray-100);
   --text-secondary: var(--gray-600);
@@ -298,5 +301,11 @@
   }
   body {
     @apply bg-background text-foreground;
+  }
+  h1,
+  h2,
+  h3 {
+    font-family: var(--font-display);
+    letter-spacing: -0.01em;
   }
 }

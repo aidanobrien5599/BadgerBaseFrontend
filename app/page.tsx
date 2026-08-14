@@ -286,11 +286,13 @@ export default function HomePage() {
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
         {/* Filters Sidebar */}
         <div className="lg:col-span-1">
-          <Card>
-            <CardHeader>
-              <CardTitle>Search & Filters</CardTitle>
+          <Card className="shadow-none border-border/70">
+            <CardHeader className="border-b border-border/70">
+              <CardTitle className="font-mono text-sm font-semibold uppercase tracking-[0.12em] text-foreground">
+                Search &amp; Filters
+              </CardTitle>
             </CardHeader>
-            <CardContent>
+            <CardContent className="pt-4">
               <SearchFilters filters={filters} onFiltersChange={setFilters} onSearch={handleSearch} loading={loading} />
             </CardContent>
           </Card>

@@ -78,6 +78,8 @@ interface SearchFiltersProps {
 
 const DAYS = ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"]
 
+const fieldLabel = "font-mono text-[11px] font-medium uppercase tracking-[0.12em] text-text-secondary"
+
 export function SearchFilters({ filters, onFiltersChange, onSearch, loading }: SearchFiltersProps) {
   const [advancedOpen, setAdvancedOpen] = useState(false)
   const [rmpOpen, setRmpOpen] = useState(false)
@@ -205,7 +207,7 @@ export function SearchFilters({ filters, onFiltersChange, onSearch, loading }: S
     <div className="space-y-4">
       {/* Search */}
       <div className="space-y-2">
-        <Label htmlFor="search">Search Courses</Label>
+        <Label htmlFor="search" className={fieldLabel}>Search Courses</Label>
         <Input
           id="search"
           placeholder="COMP SCI 400, John Doe, etc."
@@ -217,11 +219,11 @@ export function SearchFilters({ filters, onFiltersChange, onSearch, loading }: S
 
       {/* Availability Filter */}
       <div className="space-y-2">
-        <Label>Schedule Availability</Label>
+        <Label className={fieldLabel}>Schedule Availability</Label>
         <div className="flex gap-2">
           <Dialog open={availabilityModalOpen} onOpenChange={setAvailabilityModalOpen}>
             <DialogTrigger asChild>
-              <Button variant="outline" className="flex-1 bg-transparent">
+              <Button variant="outline" className="flex-1 bg-transparent font-mono text-xs uppercase tracking-[0.08em]">
                 <Calendar className="h-4 w-4 mr-2" />
                 {hasAvailabilityFilters ? "Edit Availability" : "Set Availability"}
               </Button>
@@ -248,7 +250,7 @@ export function SearchFilters({ filters, onFiltersChange, onSearch, loading }: S
       {/* Basic Filters */}
       <div className="space-y-4">
         <div className="space-y-2">
-          <Label htmlFor="status">Status</Label>
+          <Label htmlFor="status" className={fieldLabel}>Status</Label>
           <Select value={filters.status} onValueChange={(value) => updateFilter("status", value)}>
             <SelectTrigger>
               <SelectValue placeholder="Any status" />
@@ -263,7 +265,7 @@ export function SearchFilters({ filters, onFiltersChange, onSearch, loading }: S
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="level">Course Level</Label>
+          <Label htmlFor="level" className={fieldLabel}>Course Level</Label>
           <Select value={filters.level} onValueChange={(value) => updateFilter("level", value)}>
             <SelectTrigger>
               <SelectValue placeholder="Any level" />
@@ -279,7 +281,7 @@ export function SearchFilters({ filters, onFiltersChange, onSearch, loading }: S
 
         <div className="grid grid-cols-2 gap-2">
           <div className="space-y-2">
-            <Label htmlFor="min_credits">Min Credits</Label>
+            <Label htmlFor="min_credits" className={fieldLabel}>Min Credits</Label>
             <Input
               id="min_credits"
               type="number"
@@ -289,7 +291,7 @@ export function SearchFilters({ filters, onFiltersChange, onSearch, loading }: S
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="max_credits">Max Credits</Label>
+            <Label htmlFor="max_credits" className={fieldLabel}>Max Credits</Label>
             <Input
               id="max_credits"
               type="number"
@@ -301,7 +303,7 @@ export function SearchFilters({ filters, onFiltersChange, onSearch, loading }: S
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="limit">Results Limit</Label>
+          <Label htmlFor="limit" className={fieldLabel}>Results Limit</Label>
           <Select value={filters.limit} onValueChange={(value) => updateFilter("limit", value)}>
             <SelectTrigger>
               <SelectValue />
@@ -321,15 +323,18 @@ export function SearchFilters({ filters, onFiltersChange, onSearch, loading }: S
       {/* Grade Filters */}
       <Collapsible open={gpaOpen} onOpenChange={setGpaOpen}>
         <CollapsibleTrigger asChild>
-          <Button variant="ghost" className="w-full justify-between p-0">
-            GPA Filters
-            <ChevronDown className={`h-4 w-4 transition-transform ${gpaOpen ? "rotate-180" : ""}`} />
+          <Button variant="ghost" className="w-full justify-between p-0 font-mono text-xs font-semibold uppercase tracking-[0.12em] text-foreground">
+            <span className="flex items-center gap-2">
+              <span className="text-primary">01</span>
+              GPA Filters
+            </span>
+            <ChevronDown className={`h-4 w-4 text-text-secondary transition-transform ${gpaOpen ? "rotate-180" : ""}`} />
           </Button>
         </CollapsibleTrigger>
         <CollapsibleContent className="space-y-4 mt-4">
           <div className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="median_grade">Median Grade</Label>
+              <Label htmlFor="median_grade" className={fieldLabel}>Median Grade</Label>
               <Select value={filters.median_grade} onValueChange={(value) => updateFilter("median_grade", value)}>
                 <SelectTrigger>
                   <SelectValue placeholder="Any grade" />
@@ -348,9 +353,9 @@ export function SearchFilters({ filters, onFiltersChange, onSearch, loading }: S
             </div>
 
             <div className="space-y-3">
-              <Label htmlFor="min_a_percent">
+              <Label htmlFor="min_a_percent" className={fieldLabel}>
                 Min A Percentage:{" "}
-                {filters.min_a_percent ? `${Math.round(Number.parseFloat(filters.min_a_percent) * 100)}%` : "0%"}
+                <span className="font-mono text-foreground">{filters.min_a_percent ? `${Math.round(Number.parseFloat(filters.min_a_percent) * 100)}%` : "0%"}</span>
               </Label>
               <Slider
                 id="min_a_percent"
@@ -365,7 +370,7 @@ export function SearchFilters({ filters, onFiltersChange, onSearch, loading }: S
 
             <div className="grid grid-cols-1 gap-4">
               <div className="space-y-3">
-                <Label htmlFor="min_cum_gpa">Min Avg GPA: {filters.min_cumulative_gpa || "0.0"}</Label>
+                <Label htmlFor="min_cum_gpa" className={fieldLabel}>Min Avg GPA: <span className="font-mono text-foreground">{filters.min_cumulative_gpa || "0.0"}</span></Label>
                 <Slider
                   id="min_cum_gpa"
                   min={0}
@@ -377,7 +382,7 @@ export function SearchFilters({ filters, onFiltersChange, onSearch, loading }: S
                 />
               </div>
               <div className="space-y-3">
-                <Label htmlFor="min_recent_gpa">Min Recent GPA: {filters.min_most_recent_gpa || "0.0"}</Label>
+                <Label htmlFor="min_recent_gpa" className={fieldLabel}>Min Recent GPA: <span className="font-mono text-foreground">{filters.min_most_recent_gpa || "0.0"}</span></Label>
                 <Slider
                   id="min_recent_gpa"
                   min={0}
@@ -398,14 +403,17 @@ export function SearchFilters({ filters, onFiltersChange, onSearch, loading }: S
       {/* Advanced Filters */}
       <Collapsible open={advancedOpen} onOpenChange={setAdvancedOpen}>
         <CollapsibleTrigger asChild>
-          <Button variant="ghost" className="w-full justify-between p-0">
-            Advanced Filters
-            <ChevronDown className={`h-4 w-4 transition-transform ${advancedOpen ? "rotate-180" : ""}`} />
+          <Button variant="ghost" className="w-full justify-between p-0 font-mono text-xs font-semibold uppercase tracking-[0.12em] text-foreground">
+            <span className="flex items-center gap-2">
+              <span className="text-primary">02</span>
+              Advanced Filters
+            </span>
+            <ChevronDown className={`h-4 w-4 text-text-secondary transition-transform ${advancedOpen ? "rotate-180" : ""}`} />
           </Button>
         </CollapsibleTrigger>
         <CollapsibleContent className="space-y-4 mt-4">
           <div className="space-y-2">
-            <Label htmlFor="min_seats">Min Available Seats</Label>
+            <Label htmlFor="min_seats" className={fieldLabel}>Min Available Seats</Label>
             <Input
               id="min_seats"
               type="number"
@@ -416,7 +424,7 @@ export function SearchFilters({ filters, onFiltersChange, onSearch, loading }: S
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="instruction_mode">Instruction Mode</Label>
+            <Label htmlFor="instruction_mode" className={fieldLabel}>Instruction Mode</Label>
             <Select value={filters.instruction_mode} onValueChange={(value) => updateFilter("instruction_mode", value)}>
               <SelectTrigger>
                 <SelectValue placeholder="Any mode" />
@@ -439,7 +447,7 @@ export function SearchFilters({ filters, onFiltersChange, onSearch, loading }: S
                     checked={filters.l_and_s}
                     onCheckedChange={(checked) => updateFilter("l_and_s", checked as boolean)}
                   />
-                  <Label htmlFor={`l_and_s`} className="text-sm">
+                  <Label htmlFor={`l_and_s`} className="text-sm font-medium text-foreground">
                     L&S Credit
                   </Label>
                 </div>
@@ -447,7 +455,7 @@ export function SearchFilters({ filters, onFiltersChange, onSearch, loading }: S
           </div>
 
           <div className="space-y-3">
-            <Label>General Education Requirements</Label>
+            <Label className={fieldLabel}>General Education Requirements</Label>
             <div className="space-y-2">
               {[
                 { value: "COM A", label: "Communication Part A" },
@@ -461,7 +469,7 @@ export function SearchFilters({ filters, onFiltersChange, onSearch, loading }: S
                     checked={filters.gen_ed === value}
                     onCheckedChange={(checked) => handleGenEdChange(value, checked as boolean)}
                   />
-                  <Label htmlFor={`gen_ed_${value}`} className="text-sm">
+                  <Label htmlFor={`gen_ed_${value}`} className="text-sm font-medium text-foreground">
                     {label}
                   </Label>
                 </div>
@@ -470,7 +478,7 @@ export function SearchFilters({ filters, onFiltersChange, onSearch, loading }: S
           </div>
 
           <div className="space-y-3">
-            <Label>Subject Areas</Label>
+            <Label className={fieldLabel}>Subject Areas</Label>
             <div className="space-y-2">
               {[
                 { key: "ethnic_studies", label: "Ethnic Studies", value: "ETHNIC ST" },
@@ -487,7 +495,7 @@ export function SearchFilters({ filters, onFiltersChange, onSearch, loading }: S
                     checked={filters[key as keyof FilterState] != ""}
                     onCheckedChange={(checked) => updateFilter(key as keyof FilterState, checked ? value : "")}
                   />
-                  <Label htmlFor={key} className="text-sm">
+                  <Label htmlFor={key} className="text-sm font-medium text-foreground">
                     {label}
                   </Label>
                 </div>
@@ -496,7 +504,7 @@ export function SearchFilters({ filters, onFiltersChange, onSearch, loading }: S
           </div>
 
           <div className="space-y-3">
-            <Label>Prerequisite Filters</Label>
+            <Label className={fieldLabel}>Prerequisite Filters</Label>
             <div className="space-y-2">
               {[
                 { key: "no_prereqs", label: "No Prerequisites", value: "No Prereqs" },
@@ -510,7 +518,7 @@ export function SearchFilters({ filters, onFiltersChange, onSearch, loading }: S
                     checked={filters[key as keyof FilterState] as boolean}
                     onCheckedChange={(checked) => updateFilter(key as keyof FilterState, checked as boolean)}
                   />
-                  <Label htmlFor={key} className="text-sm">
+                  <Label htmlFor={key} className="text-sm font-medium text-foreground">
                     {label}
                   </Label>
                 </div>
@@ -525,14 +533,17 @@ export function SearchFilters({ filters, onFiltersChange, onSearch, loading }: S
       {/* RMP Filters */}
       <Collapsible open={rmpOpen} onOpenChange={setRmpOpen}>
         <CollapsibleTrigger asChild>
-          <Button variant="ghost" className="w-full justify-between p-0">
-            Rate My Professor Filters
-            <ChevronDown className={`h-4 w-4 transition-transform ${rmpOpen ? "rotate-180" : ""}`} />
+          <Button variant="ghost" className="w-full justify-between p-0 font-mono text-xs font-semibold uppercase tracking-[0.12em] text-foreground">
+            <span className="flex items-center gap-2">
+              <span className="text-primary">03</span>
+              Rate My Professor Filters
+            </span>
+            <ChevronDown className={`h-4 w-4 text-text-secondary transition-transform ${rmpOpen ? "rotate-180" : ""}`} />
           </Button>
         </CollapsibleTrigger>
         <CollapsibleContent className="space-y-4 mt-4">
           <div className="space-y-2">
-            <Label htmlFor="min_rating">Min Section Rating</Label>
+            <Label htmlFor="min_rating" className={fieldLabel}>Min Section Rating</Label>
             <Input
               id="min_rating"
               type="number"
@@ -544,7 +555,7 @@ export function SearchFilters({ filters, onFiltersChange, onSearch, loading }: S
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="min_difficulty">Min Section Difficulty</Label>
+            <Label htmlFor="min_difficulty" className={fieldLabel}>Min Section Difficulty</Label>
             <Input
               id="min_difficulty"
               type="number"
@@ -556,7 +567,7 @@ export function SearchFilters({ filters, onFiltersChange, onSearch, loading }: S
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="min_total_ratings">Min Total Ratings</Label>
+            <Label htmlFor="min_total_ratings" className={fieldLabel}>Min Total Ratings</Label>
             <Input
               id="min_total_ratings"
               type="number"
@@ -567,7 +578,7 @@ export function SearchFilters({ filters, onFiltersChange, onSearch, loading }: S
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="min_would_take_again">Min Would Take Again %</Label>
+            <Label htmlFor="min_would_take_again" className={fieldLabel}>Min Would Take Again %</Label>
             <Input
               id="min_would_take_again"
               type="number"
