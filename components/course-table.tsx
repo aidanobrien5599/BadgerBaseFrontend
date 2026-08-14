@@ -3,6 +3,7 @@
 import { Badge } from "@/components/ui/badge"
 import {
   Users,
+  ChevronRight,
   Star,
   TrendingUp,
   BarChart3,
@@ -261,7 +262,7 @@ export function CourseTable({
                     toggleCourse(course.course_id)
                   }
                 }}
-                className={`grid grid-cols-[44px_minmax(280px,380px)_repeat(5,minmax(0,1fr))] min-w-[780px] items-stretch cursor-pointer transition-colors ${
+                className={`grid grid-cols-[44px_minmax(160px,240px)_repeat(5,minmax(0,1fr))_30px] min-w-[720px] items-stretch cursor-pointer transition-colors ${
                   isExpanded ? "bg-surface-sunken" : "hover:bg-surface-sunken"
                 }`}
               >
@@ -279,13 +280,6 @@ export function CourseTable({
                   <div className="text-[13.5px] text-foreground font-medium leading-snug truncate">
                     {course.course_title}
                   </div>
-                </div>
-
-                {/* Status badge — first after name */}
-                <div className="flex items-center px-3">
-                  <Badge variant="outline" className={`${statusBadge.classes} font-semibold text-[11.5px]`}>
-                    {statusBadge.label}
-                  </Badge>
                 </div>
 
                 {/* Credits */}
@@ -332,6 +326,22 @@ export function CourseTable({
                   <span className="font-mono text-[9px] uppercase tracking-[0.12em] text-muted-foreground mt-1">
                     Recent
                   </span>
+                </div>
+
+                {/* Status badge — last stat before chevron */}
+                <div className="flex items-center px-3">
+                  <Badge variant="outline" className={`${statusBadge.classes} font-semibold text-[11.5px] rounded-[4px]`}>
+                    {statusBadge.label}
+                  </Badge>
+                </div>
+
+                {/* Chevron */}
+                <div className="flex items-center justify-center">
+                  <ChevronRight
+                    className={`h-4 w-4 transition-transform ${
+                      isExpanded ? "rotate-90 text-primary" : "text-muted-foreground"
+                    }`}
+                  />
                 </div>
               </div>
               </div>
