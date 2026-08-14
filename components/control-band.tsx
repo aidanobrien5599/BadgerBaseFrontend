@@ -218,21 +218,25 @@ export function ControlBand({ filters, onFiltersChange, onSearch, loading }: Con
 
         <button
           onClick={() => setAdvancedOpen(!advancedOpen)}
-          className={`h-7 px-2.5 rounded-[5px] border border-dashed font-mono text-[11px] uppercase tracking-[0.08em] flex items-center gap-1.5 transition-colors ${
-            advancedOpen ? "border-primary text-primary" : "border-border/70 text-foreground hover:border-primary/40"
+          className={`h-7 px-3 rounded-[5px] border font-mono text-[11px] font-semibold uppercase tracking-[0.08em] flex items-center gap-1.5 transition-colors ${
+            advancedOpen
+              ? "bg-primary text-primary-foreground border-primary"
+              : "bg-primary/10 text-primary border-primary/50 hover:bg-primary/15"
           }`}
         >
-          Advanced
+          Course Filters
           <ChevronDown className={`h-3 w-3 transition-transform ${advancedOpen ? "rotate-180" : ""}`} />
         </button>
       </div>
 
-      {/* Advanced strip — expanded sections */}
+      {/* Advanced strip — plain sections, bounded height so results stay visible */}
       {advancedOpen && (
-        <div className="px-4 sm:px-5 py-4 border-t border-border/70 grid grid-cols-1 md:grid-cols-3 gap-6">
-          <GpaFilterSection filters={filters} onFiltersChange={onFiltersChange} defaultOpen />
-          <AdvancedFilterSection filters={filters} onFiltersChange={onFiltersChange} defaultOpen />
-          <RmpFilterSection filters={filters} onFiltersChange={onFiltersChange} defaultOpen />
+        <div className="px-4 sm:px-5 py-4 border-t border-border/70 max-h-[60vh] overflow-y-auto">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <GpaFilterSection filters={filters} onFiltersChange={onFiltersChange} expandable={false} />
+            <AdvancedFilterSection filters={filters} onFiltersChange={onFiltersChange} expandable={false} />
+            <RmpFilterSection filters={filters} onFiltersChange={onFiltersChange} expandable={false} />
+          </div>
         </div>
       )}
     </div>
