@@ -1,9 +1,10 @@
 "use client"
 
-import { useMemo, useState } from "react"
+import { useMemo } from "react"
 import Link from "next/link"
 import { ChevronLeft } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { HierarchicalSections } from "./hierarchical-sections"
 
 export interface Meeting {
   meeting_number: number
@@ -103,21 +104,6 @@ const levelLabel = (level: string) => {
     default:
       return level || "—"
   }
-}
-
-const statusLabel = (s: string) => {
-  const u = s.toUpperCase()
-  if (u.includes("OPEN")) return { label: "OPEN", cls: "b-open" }
-  if (u.includes("WAIT")) return { label: "WAITLIST", cls: "b-wait" }
-  return { label: "CLOSED", cls: "b-closed" }
-}
-
-const typeColor = (t: string) => {
-  const u = t.toUpperCase()
-  if (u.includes("LEC")) return "text-[#2E5AA8]"
-  if (u.includes("DIS")) return "text-success"
-  if (u.includes("LAB")) return "text-[#7A3FB0]"
-  return "text-muted-foreground"
 }
 
 /* ============ Grade Distribution ============ */
@@ -273,160 +259,6 @@ function Instructors({ course }: { course: CourseDetailData }) {
   )
 }
 
-/* ============ Section table ============ */
-
-function SectionTable({ sections }: { sections: SectionDetail[] }) {
-  const [openSec, setOpenSec] = useState<number | null>(null)
-  const [hideClosed, setHideClosed] = useState(false)
-  const [hideWait, setHideWait] = useState(false)
-
-  const filtered = sections.filter((s) => {
-    const st = statusLabel(s.status).label
-    if (hideClosed && st === "CLOSED") return false
-    if (hideWait && st === "WAITLIST") return false
-    return true
-  })
-
-  const firstMeeting = (s: SectionDetail) => s.meetings?.[0]
-  const daysOf = (s: SectionDetail) => firstMeeting(s)?.meeting_days || "—"
-  const timeOf = (s: SectionDetail) =>
-    firstMeeting(s) ? `${firstMeeting(s)!.start_time}–${firstMeeting(s)!.end_time}` : "—"
-  const roomOf = (s: SectionDetail) => firstMeeting(s)?.location || "—"
-  const instrOf = (s: SectionDetail) => s.instructors.map((i) => i.name).join(", ") || "—"
-
-  return (
-    <section className="bg-surface border border-border/70">
-      <header className="flex flex-wrap items-center gap-2 px-4 py-2.5 border-b border-border/70">
-        <h2 className="font-display text-[19px] font-semibold tracking-[-0.01em]">Sections</h2>
-        <span className="font-mono text-[10.5px] tracking-[0.1em] text-muted-foreground">CLICK A ROW FOR MEETING DETAIL</span>
-        <div className="flex items-center gap-4 ml-auto">
-          <label className="flex items-center gap-2 cursor-pointer select-none font-mono text-[11px] tracking-[0.09em] text-muted-foreground">
-            <input type="checkbox" checked={hideClosed} onChange={(e) => setHideClosed(e.target.checked)} className="hidden" />
-            <span className={cn("w-[30px] h-4 border border-border/70 bg-surface relative transition-colors", hideClosed && "bg-foreground border-foreground")}>
-              <span className={cn("absolute top-[2px] left-[2px] w-[10px] h-[10px] bg-muted-foreground transition-all", hideClosed && "left-[16px] bg-white")} />
-            </span>
-            HIDE CLOSED
-          </label>
-          <label className="flex items-center gap-2 cursor-pointer select-none font-mono text-[11px] tracking-[0.09em] text-muted-foreground">
-            <input type="checkbox" checked={hideWait} onChange={(e) => setHideWait(e.target.checked)} className="hidden" />
-            <span className={cn("w-[30px] h-4 border border-border/70 bg-surface relative transition-colors", hideWait && "bg-foreground border-foreground")}>
-              <span className={cn("absolute top-[2px] left-[2px] w-[10px] h-[10px] bg-muted-foreground transition-all", hideWait && "left-[16px] bg-white")} />
-            </span>
-            HIDE WAITLISTED
-          </label>
-          <span className="font-mono font-semibold text-[11px] tracking-[0.1em] text-primary whitespace-nowrap">
-            {filtered.length} OF {sections.length} SECTIONS
-          </span>
-        </div>
-      </header>
-
-      <div className="overflow-x-auto">
-        <table className="w-full border-collapse text-[13px] min-w-[980px]">
-          <thead>
-            <tr className="border-b border-border/70">
-              {["SECTION", "TYPE", "DAYS", "TIME", "ROOM", "INSTRUCTOR", "ENROLLED / CAP", "OPEN", "WAIT", "STATUS", "MODE"].map((h) => (
-                <th key={h} className="font-mono font-semibold text-[10.5px] tracking-[0.1em] text-muted-foreground text-left px-2 py-2 border-r border-border/50 last:border-r-0">
-                  {h}
-                </th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {filtered.map((s) => {
-              const st = statusLabel(s.status)
-              const isOpen = openSec === s.section_id
-              const filled = s.capacity > 0 ? Math.round((s.enrolled / s.capacity) * 100) : 0
-              const mt = firstMeeting(s)
-              return (
-                <FragmentRow key={s.section_id} open={isOpen}>
-                  <tr
-                    className={cn("cursor-pointer hover:bg-surface-sunken", isOpen && "bg-surface-sunken")}
-                    onClick={() => setOpenSec(isOpen ? null : s.section_id)}
-                  >
-                    <td className="font-mono text-[12.5px] px-2 py-[8px] border-b border-border/50 tabular-nums">
-                      {mt?.section_number || s.section_id}
-                    </td>
-                    <td className={cn("font-mono font-semibold text-[11px] tracking-[0.06em] px-2 py-[8px] border-b border-border/50", typeColor(mt?.meeting_type || ""))}>
-                      {mt?.meeting_type || "—"}
-                    </td>
-                    <td className="font-mono text-[12.5px] px-2 py-[8px] border-b border-border/50">{daysOf(s)}</td>
-                    <td className="font-mono text-[12.5px] px-2 py-[8px] border-b border-border/50 whitespace-nowrap">{timeOf(s)}</td>
-                    <td className="font-mono text-[12.5px] px-2 py-[8px] border-b border-border/50">{roomOf(s)}</td>
-                    <td className="px-2 py-[8px] border-b border-border/50 whitespace-nowrap">{instrOf(s)}</td>
-                    <td className="px-2 py-[8px] border-b border-border/50">
-                      <span className="flex items-center gap-1.5">
-                        <span className="inline-block w-9 h-[6px] bg-border/70 relative">
-                          <span
-                            className={cn(
-                              "absolute inset-0",
-                              st.label === "CLOSED" ? "bg-destructive" : st.label === "WAITLIST" ? "bg-warning" : "bg-foreground"
-                            )}
-                            style={{ width: `${filled}%` }}
-                          />
-                        </span>
-                        <span className="font-mono text-[12px] tabular-nums whitespace-nowrap">{s.enrolled}/{s.capacity}</span>
-                      </span>
-                    </td>
-                    <td className={cn("font-mono font-semibold text-[12.5px] tabular-nums px-2 py-[8px] border-b border-border/50", s.available_seats > 0 ? "text-success" : "text-muted-foreground")}>
-                      {s.available_seats}
-                    </td>
-                    <td className={cn("font-mono font-semibold text-[12.5px] tabular-nums px-2 py-[8px] border-b border-border/50", s.waitlist_total > 0 ? "text-warning" : "text-muted-foreground")}>
-                      {s.waitlist_total}
-                    </td>
-                    <td className="px-2 py-[8px] border-b border-border/50">
-                      <span className={cn(
-                        "inline-block font-mono font-semibold text-[10px] tracking-[0.1em] px-2 py-[2px] border",
-                        st.cls === "b-open" && "border-success/40 bg-success/10 text-success",
-                        st.cls === "b-wait" && "border-warning/40 bg-warning/10 text-warning",
-                        st.cls === "b-closed" && "border-destructive/40 bg-destructive/10 text-destructive"
-                      )}>
-                        {st.label}
-                      </span>
-                    </td>
-                    <td className="font-mono text-[12.5px] px-2 py-[8px] border-b border-border/50">{s.instruction_mode || "—"}</td>
-                  </tr>
-                  {isOpen && (
-                    <tr>
-                      <td colSpan={11} className="bg-surface-sunken p-0 border-b border-border/50">
-                        <div className="px-3.5 py-3">
-                          {s.section_requisites && (
-                            <div className="text-[13px] text-muted-foreground leading-relaxed">
-                              <b className="text-foreground">Requisite:</b> {s.section_requisites}
-                            </div>
-                          )}
-                          {String(s.is_asynchronous) === "true" && (
-                            <div className="text-[13px] text-muted-foreground mt-1">Asynchronous online course.</div>
-                          )}
-                          {!s.section_requisites && String(s.is_asynchronous) !== "true" && (
-                            <div className="font-mono text-[11px] tracking-[0.08em] text-muted-foreground">
-                              No additional section details.
-                            </div>
-                          )}
-                        </div>
-                      </td>
-                    </tr>
-                  )}
-                </FragmentRow>
-              )
-            })}
-            {filtered.length === 0 && (
-              <tr>
-                <td colSpan={11} className="px-4 py-6 font-mono text-[11px] text-muted-foreground">
-                  No sections match the current filters.
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
-      </div>
-    </section>
-  )
-}
-
-function FragmentRow({ children, open }: { children: React.ReactNode; open: boolean }) {
-  return <>{children}</>
-}
-
 /* ============ Main detail ============ */
 
 export function CourseDetail({ course }: { course: CourseDetailData }) {
@@ -497,7 +329,7 @@ export function CourseDetail({ course }: { course: CourseDetailData }) {
 
           <GradeDistribution course={course} />
           <Instructors course={course} />
-          <SectionTable sections={course.sections} />
+          <HierarchicalSections sections={course.sections} courseTitle={course.course_title} />
         </div>
       </div>
     </div>
