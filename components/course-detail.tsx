@@ -227,23 +227,23 @@ function Instructors({ course }: { course: CourseDetailData }) {
       <div className="grid grid-cols-1 sm:grid-cols-2">
         {instructors.map((i, idx) => (
           <div key={i.name} className={cn("px-4 py-3.5", idx < instructors.length - 1 && "border-b border-border/70", "sm:border-b-0", idx % 2 === 0 && "sm:border-r border-border/70")}>
-            <div className="flex items-baseline gap-3 mb-2 flex-wrap">
-              <div>
+            <div className="mb-2">
+              <div className="flex items-baseline gap-3 flex-wrap">
                 <div className="font-medium text-[15px] text-foreground font-display">{i.name}</div>
-                <div className="font-mono text-[10.5px] tracking-[0.08em] text-muted-foreground mt-0.5">
-                  {i.secs.map((s) => (s.length > 3 ? `SEC ${s}` : s)).join(" · ") || "ALL SECTIONS"}
-                </div>
+                {i.rmpId && (
+                  <a
+                    href={`https://www.ratemyprofessors.com/professor/${i.rmpId}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="font-mono text-[12px] font-semibold tracking-[0.08em] text-primary border-b border-border/70 hover:border-primary whitespace-nowrap"
+                  >
+                    RATE MY PROFESSORS ↗
+                  </a>
+                )}
               </div>
-              {i.rmpId && (
-                <a
-                  href={`https://www.ratemyprofessors.com/professor/${i.rmpId}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="font-mono text-[12px] font-semibold tracking-[0.08em] text-primary border-b border-border/70 hover:border-primary whitespace-nowrap"
-                >
-                  RATE MY PROFESSORS ↗
-                </a>
-              )}
+              <div className="font-mono text-[10.5px] tracking-[0.08em] text-muted-foreground mt-0.5">
+                {i.secs.map((s) => (s.length > 3 ? `SEC ${s}` : s)).join(" · ") || "ALL SECTIONS"}
+              </div>
             </div>
             <div className="mb-2.5">
               {i.rating != null ? <Stars rating={i.rating} /> : <span className="font-mono text-[13px] text-muted-foreground">No ratings</span>}
