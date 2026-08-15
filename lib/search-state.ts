@@ -33,3 +33,25 @@ export function clearSearchState() {
     // storage unavailable — ignore
   }
 }
+
+export function encodeSearchStateToQuery(state: { filters: unknown; currentPage: number }): string {
+  const json = JSON.stringify({ f: state.filters, p: state.currentPage })
+  return btoa(encodeURIComponent(json)).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "")
+}
+
+export function loadSearchStateFromUrl<TFilters>(): { filters: TFilters; currentPage: number } | null {
+  if (typeof window === "undefined") return null
+  const raw = new URLSearchParams(window.location.search).get("bb")
+  if (!raw) return null
+  try {
+    const padded = raw.replace(/-/g, "+").replace(/_/g, "/")
+    const json = decodeURIComponent(atob(padded.padEnd(Math.ceil(padded.length / 4) * 4, "=")))
+    const parsed = JSON.parse(json)
+    if (parsed && typeof parsed === "object" && parsed.f) {
+      return { filters: parsed.f as TFilters, currentPage: Number(parsed.p) || 1 }
+    }
+  } catch {
+    return null
+  }
+  return null
+}

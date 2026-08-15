@@ -1,6 +1,6 @@
 "use client"
 
-import { useMemo } from "react"
+import { useMemo, useState, useEffect } from "react"
 import Link from "next/link"
 import { ChevronLeft } from "lucide-react"
 import { cn } from "@/lib/utils"
@@ -262,10 +262,15 @@ function Instructors({ course }: { course: CourseDetailData }) {
 /* ============ Main detail ============ */
 
 export function CourseDetail({ course }: { course: CourseDetailData }) {
+  const [returnQuery, setReturnQuery] = useState("")
+  useEffect(() => {
+    setReturnQuery(window.location.search)
+  }, [])
+
   return (
     <div className="mx-auto max-w-7xl px-4 sm:px-5 lg:px-6 pb-16">
       <div className="py-3">
-        <Link href="/" className="inline-flex items-center gap-1 font-mono text-[10px] tracking-[0.09em] text-muted-foreground hover:text-primary">
+        <Link href={`/${returnQuery}`} className="inline-flex items-center gap-1 font-mono text-[10px] tracking-[0.09em] text-muted-foreground hover:text-primary">
           <ChevronLeft className="h-3.5 w-3.5" />
           BACK TO COURSE SEARCH
         </Link>
@@ -283,7 +288,7 @@ export function CourseDetail({ course }: { course: CourseDetailData }) {
                 {course.course_title}
               </h1>
               <Link
-                href="/"
+                href={`/${returnQuery}`}
                 className="font-mono text-[14px] font-semibold tracking-[0.08em] text-primary border-b border-border/70 hover:border-primary whitespace-nowrap mb-3"
               >
                 COURSE SEARCH ↗

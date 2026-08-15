@@ -6,7 +6,7 @@ import { ControlBand } from "@/components/control-band"
 import { CourseTable } from "@/components/course-table"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Loader2 } from "lucide-react"
-import { saveSearchState, loadSearchState } from "@/lib/search-state"
+import { saveSearchState, loadSearchState, loadSearchStateFromUrl } from "@/lib/search-state"
 
 interface Course {
   course_id: number
@@ -137,18 +137,19 @@ export default function HomePage() {
     sort: "",
   })
 
-  const searchCourses = async (page = 1) => {
+  const searchCourses = async (page = 1, filterOverride?: FilterState) => {
     setLoading(true)
     setError(null)
 
     try {
       const params = new URLSearchParams()
+      const activeFilters = filterOverride ?? filters
 
       // Add pagination parameter
       params.append("page", page.toString())
 
       // Add all non-empty filters to params
-      Object.entries(filters).forEach(([key, value]) => {
+      Object.entries(activeFilters).forEach(([key, value]) => {
         if (value && value !== "" && value !== false) {
           if (typeof value === "boolean") {
             params.append(key, "true")
@@ -157,8 +158,6 @@ export default function HomePage() {
           }
         }
       })
-
-      console.log(params.toString())
 
       const response = await fetch(`/api/proxy?${params.toString()}`)
 
@@ -172,7 +171,7 @@ export default function HomePage() {
       setTotalCount(data.total_count || 0)
       setHasMore(data.has_more || false)
       saveSearchState({
-        filters,
+        filters: activeFilters,
         currentPage: page,
         courses: data.data || [],
         totalCount: data.total_count || 0,
@@ -191,6 +190,13 @@ export default function HomePage() {
 
   // Search on initial load
   useEffect(() => {
+    const fromUrl = loadSearchStateFromUrl<FilterState>()
+    if (fromUrl) {
+      setFilters(fromUrl.filters)
+      searchCourses(fromUrl.currentPage, fromUrl.filters)
+      window.history.replaceState({}, "", "/")
+      return
+    }
     const saved = loadSearchState<FilterState, Course>()
     if (saved) {
       setFilters(saved.filters)

@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import { useParams } from "next/navigation"
 import Link from "next/link"
 import { ChevronLeft } from "lucide-react"
@@ -8,14 +8,22 @@ import { CourseDetail, type CourseDetailData } from "@/components/course-detail"
 
 export default function CoursePage() {
   const params = useParams<{ designation: string }>()
-  let designation = params?.designation
-  try {
-    designation = designation ? decodeURIComponent(designation) : undefined
-  } catch {
-    designation = undefined
-  }
+  const designation = useMemo(() => {
+    const raw = params?.designation
+    if (!raw) return undefined
+    try {
+      return decodeURIComponent(raw)
+    } catch {
+      return undefined
+    }
+  }, [params])
   const [course, setCourse] = useState<CourseDetailData | null>(null)
   const [status, setStatus] = useState<"loading" | "ready" | "error">("loading")
+  const [returnQuery, setReturnQuery] = useState("")
+
+  useEffect(() => {
+    setReturnQuery(window.location.search)
+  }, [])
 
   useEffect(() => {
     if (!designation) return
@@ -61,7 +69,7 @@ export default function CoursePage() {
             We couldn&apos;t load the course for this designation.
           </p>
           <Link
-            href="/"
+            href={`/${returnQuery}`}
             className="inline-flex items-center gap-1 font-mono text-[10px] tracking-[0.09em] text-primary hover:underline"
           >
             <ChevronLeft className="h-3.5 w-3.5" />
