@@ -79,6 +79,34 @@ interface ApiResponse {
   filters_applied: any
 }
 
+const SEARCH_STATE_KEY = "bb-search-state"
+
+interface SavedSearchState {
+  filters: FilterState
+  currentPage: number
+  courses: Course[]
+  totalCount: number
+  hasMore: boolean
+}
+
+function saveSearchState(state: SavedSearchState) {
+  try {
+    sessionStorage.setItem(SEARCH_STATE_KEY, JSON.stringify(state))
+  } catch {
+    // storage unavailable — ignore
+  }
+}
+
+function loadSearchState(): SavedSearchState | null {
+  if (typeof window === "undefined") return null
+  try {
+    const raw = sessionStorage.getItem(SEARCH_STATE_KEY)
+    return raw ? (JSON.parse(raw) as SavedSearchState) : null
+  } catch {
+    return null
+  }
+}
+
 export default function HomePage() {
   const [courses, setCourses] = useState<Course[]>([])
   const [loading, setLoading] = useState(false)
@@ -168,6 +196,13 @@ export default function HomePage() {
       setCurrentPage(page)
       setTotalCount(data.total_count || 0)
       setHasMore(data.has_more || false)
+      saveSearchState({
+        filters,
+        currentPage: page,
+        courses: data.data || [],
+        totalCount: data.total_count || 0,
+        hasMore: data.has_more || false,
+      })
     } catch (err) {
       setError(err instanceof Error ? err.message : "An error occurred")
       setCourses([])
@@ -181,7 +216,16 @@ export default function HomePage() {
 
   // Search on initial load
   useEffect(() => {
-    searchCourses(1)
+    const saved = loadSearchState()
+    if (saved) {
+      setFilters(saved.filters)
+      setCurrentPage(saved.currentPage)
+      setCourses(saved.courses)
+      setTotalCount(saved.totalCount)
+      setHasMore(saved.hasMore)
+    } else {
+      searchCourses(1)
+    }
   }, [])
 
   const handlePageChange = (page: number) => {
@@ -243,6 +287,13 @@ export default function HomePage() {
         setCurrentPage(1)
         setTotalCount(data.total_count || 0)
         setHasMore(data.has_more || false)
+        saveSearchState({
+          filters: updatedFilters,
+          currentPage: 1,
+          courses: data.data || [],
+          totalCount: data.total_count || 0,
+          hasMore: data.has_more || false,
+        })
       })
       .catch((err) => {
         setError(err instanceof Error ? err.message : "An error occurred")
