@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Search, RotateCcw, ChevronDown } from "lucide-react"
+import { clearSearchState } from "@/lib/search-state"
 import {
   AvailabilityFilter,
   GpaFilterSection,
@@ -36,6 +37,7 @@ export function ControlBand({ filters, onFiltersChange, onSearch, loading }: Con
   }
 
   const resetFilters = () => {
+    clearSearchState()
     onFiltersChange({
       search_param: "",
       status: "",

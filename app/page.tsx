@@ -6,6 +6,7 @@ import { ControlBand } from "@/components/control-band"
 import { CourseTable } from "@/components/course-table"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Loader2 } from "lucide-react"
+import { saveSearchState, loadSearchState } from "@/lib/search-state"
 
 interface Course {
   course_id: number
@@ -80,32 +81,6 @@ interface ApiResponse {
 }
 
 const SEARCH_STATE_KEY = "bb-search-state"
-
-interface SavedSearchState {
-  filters: FilterState
-  currentPage: number
-  courses: Course[]
-  totalCount: number
-  hasMore: boolean
-}
-
-function saveSearchState(state: SavedSearchState) {
-  try {
-    sessionStorage.setItem(SEARCH_STATE_KEY, JSON.stringify(state))
-  } catch {
-    // storage unavailable — ignore
-  }
-}
-
-function loadSearchState(): SavedSearchState | null {
-  if (typeof window === "undefined") return null
-  try {
-    const raw = sessionStorage.getItem(SEARCH_STATE_KEY)
-    return raw ? (JSON.parse(raw) as SavedSearchState) : null
-  } catch {
-    return null
-  }
-}
 
 export default function HomePage() {
   const [courses, setCourses] = useState<Course[]>([])
@@ -216,7 +191,7 @@ export default function HomePage() {
 
   // Search on initial load
   useEffect(() => {
-    const saved = loadSearchState()
+    const saved = loadSearchState<FilterState, Course>()
     if (saved) {
       setFilters(saved.filters)
       setCurrentPage(saved.currentPage)
