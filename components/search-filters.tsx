@@ -244,7 +244,6 @@ export function GpaFilterSection({
 
   const heading = (
     <span className="flex items-center gap-2">
-      <span className="text-primary">01</span>
       GPA Filters
     </span>
   )
@@ -368,7 +367,6 @@ export function AdvancedFilterSection({
 
   const heading = (
     <span className="flex items-center gap-2">
-      <span className="text-primary">02</span>
       Course Filters
     </span>
   )
@@ -535,7 +533,6 @@ export function RmpFilterSection({
 
   const heading = (
     <span className="flex items-center gap-2">
-      <span className="text-primary">03</span>
       Rate My Professor Filters
     </span>
   )
