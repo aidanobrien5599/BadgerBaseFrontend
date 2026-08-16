@@ -283,7 +283,7 @@ export function CourseDetail({ course }: { course: CourseDetailData }) {
                 {course.course_title}
               </h1>
               <a
-                href={`https://public.enroll.wisc.edu/search?keywords=${encodeURIComponent(course.course_designation)}`}
+                href={`https://public.enroll.wisc.edu/search?term=1272&keywords=${encodeURIComponent(course.course_designation)}&closed=true`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="font-mono text-[14px] font-semibold tracking-[0.08em] text-primary border-b border-border/70 hover:border-primary whitespace-nowrap mb-3"
