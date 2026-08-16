@@ -19,11 +19,6 @@ export default function CoursePage() {
   }, [params])
   const [course, setCourse] = useState<CourseDetailData | null>(null)
   const [status, setStatus] = useState<"loading" | "ready" | "error">("loading")
-  const [returnQuery, setReturnQuery] = useState("")
-
-  useEffect(() => {
-    setReturnQuery(window.location.search)
-  }, [])
 
   useEffect(() => {
     if (!designation) return
@@ -69,7 +64,7 @@ export default function CoursePage() {
             We couldn&apos;t load the course for this designation.
           </p>
           <Link
-            href={`/${returnQuery}`}
+            href="/"
             className="inline-flex items-center gap-1 font-mono text-[10px] tracking-[0.09em] text-primary hover:underline"
           >
             <ChevronLeft className="h-3.5 w-3.5" />

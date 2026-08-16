@@ -8,7 +8,6 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { Separator } from "@/components/ui/separator"
 import { Search, RotateCcw, Calendar, X, ChevronDown } from "lucide-react"
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible"
-import { clearSearchState } from "@/lib/search-state"
 import { useState } from "react"
 import { Slider } from "@/components/ui/slider"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
@@ -624,7 +623,6 @@ export function SearchFilters({ filters, onFiltersChange, onSearch, loading }: S
   }
 
   const resetFilters = () => {
-    clearSearchState()
     onFiltersChange(EMPTY_FILTERS)
   }
 

@@ -6,7 +6,6 @@ import { ControlBand } from "@/components/control-band"
 import { CourseTable } from "@/components/course-table"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Loader2 } from "lucide-react"
-import { saveSearchState, loadSearchState, loadSearchStateFromUrl } from "@/lib/search-state"
 
 interface Course {
   course_id: number
@@ -80,8 +79,6 @@ interface ApiResponse {
   filters_applied: any
 }
 
-const SEARCH_STATE_KEY = "bb-search-state"
-
 export default function HomePage() {
   const [courses, setCourses] = useState<Course[]>([])
   const [loading, setLoading] = useState(false)
@@ -137,19 +134,18 @@ export default function HomePage() {
     sort: "",
   })
 
-  const searchCourses = async (page = 1, filterOverride?: FilterState) => {
+  const searchCourses = async (page = 1) => {
     setLoading(true)
     setError(null)
 
     try {
       const params = new URLSearchParams()
-      const activeFilters = filterOverride ?? filters
 
       // Add pagination parameter
       params.append("page", page.toString())
 
       // Add all non-empty filters to params
-      Object.entries(activeFilters).forEach(([key, value]) => {
+      Object.entries(filters).forEach(([key, value]) => {
         if (value && value !== "" && value !== false) {
           if (typeof value === "boolean") {
             params.append(key, "true")
@@ -170,13 +166,6 @@ export default function HomePage() {
       setCurrentPage(page)
       setTotalCount(data.total_count || 0)
       setHasMore(data.has_more || false)
-      saveSearchState({
-        filters: activeFilters,
-        currentPage: page,
-        courses: data.data || [],
-        totalCount: data.total_count || 0,
-        hasMore: data.has_more || false,
-      })
     } catch (err) {
       setError(err instanceof Error ? err.message : "An error occurred")
       setCourses([])
@@ -190,23 +179,7 @@ export default function HomePage() {
 
   // Search on initial load
   useEffect(() => {
-    const fromUrl = loadSearchStateFromUrl<FilterState>()
-    if (fromUrl) {
-      setFilters(fromUrl.filters)
-      searchCourses(fromUrl.currentPage, fromUrl.filters)
-      window.history.replaceState({}, "", "/")
-      return
-    }
-    const saved = loadSearchState<FilterState, Course>()
-    if (saved) {
-      setFilters(saved.filters)
-      setCurrentPage(saved.currentPage)
-      setCourses(saved.courses)
-      setTotalCount(saved.totalCount)
-      setHasMore(saved.hasMore)
-    } else {
-      searchCourses(1)
-    }
+    searchCourses(1)
   }, [])
 
   const handlePageChange = (page: number) => {
@@ -268,13 +241,6 @@ export default function HomePage() {
         setCurrentPage(1)
         setTotalCount(data.total_count || 0)
         setHasMore(data.has_more || false)
-        saveSearchState({
-          filters: updatedFilters,
-          currentPage: 1,
-          courses: data.data || [],
-          totalCount: data.total_count || 0,
-          hasMore: data.has_more || false,
-        })
       })
       .catch((err) => {
         setError(err instanceof Error ? err.message : "An error occurred")

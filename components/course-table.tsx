@@ -4,7 +4,6 @@ import { Badge } from "@/components/ui/badge"
 import { ChevronRight } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { PaginationControls } from "./pagination-controls"
-import { loadSearchState, encodeSearchStateToQuery } from "@/lib/search-state"
 
 interface Instructor {
   name: string
@@ -121,9 +120,7 @@ export function CourseTable({
   const router = useRouter()
 
   const openCourse = (course: Course) => {
-    const saved = loadSearchState()
-    const query = saved ? `?bb=${encodeSearchStateToQuery(saved)}` : ""
-    router.push(`/course/${encodeURIComponent(course.course_designation)}${query}`)
+    router.push(`/course/${encodeURIComponent(course.course_designation)}`)
   }
 
   if (courses.length === 0) {
