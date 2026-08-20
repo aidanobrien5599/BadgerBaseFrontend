@@ -127,7 +127,7 @@ export default function AboutPage() {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {filterBlocks.map((block) => (
           <div key={block.title} className="border border-border/70 rounded-lg bg-surface p-5">
-            <div className="font-display text-sm font-bold text-foreground mb-3 flex items-center gap-2">
+            <div className="font-display text-[13px] font-bold text-foreground mb-3 flex items-center gap-2">
               <span className="w-[7px] h-[7px] rounded-full bg-primary" />
               {block.title}
             </div>
@@ -176,11 +176,11 @@ export default function AboutPage() {
       <div className="bg-primary-hover rounded-xl px-8 lg:px-11 py-10 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6 mt-12 text-white shadow-[0_24px_50px_-24px_rgba(142,3,8,0.55)]">
         <div>
           <div className="font-display text-2xl font-bold tracking-[-0.01em]">Ready to find your perfect courses?</div>
-          <div className="text-[13.5px] text-[#F3D9D7] mt-1.5">Search the catalog now — it only takes a minute.</div>
+          <div className="text-[13.5px] text-white/80 mt-1.5">Search the catalog now — it only takes a minute.</div>
         </div>
         <Link
           href="/"
-          className="inline-flex items-center gap-2 bg-white text-primary-hover px-7 py-3 rounded-lg font-bold text-sm hover:bg-[#FAE9E8] transition-colors"
+          className="inline-flex items-center gap-2 bg-white text-primary-hover px-7 py-3 rounded-lg font-bold text-[13px] hover:bg-primary-subtle transition-colors"
         >
           <Search className="h-4 w-4" />
           Start Searching

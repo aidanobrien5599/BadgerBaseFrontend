@@ -20,9 +20,9 @@ export function Navigation() {
   
   // Helper function to get link classes
   const getLinkClasses = (path: string, isMobile = false) => {
-    const baseClasses = isMobile 
-      ? "block px-3 py-2 font-medium"
-      : "font-medium"
+    const baseClasses = isMobile
+      ? "block px-3 py-2 font-mono text-[13px] uppercase tracking-[0.08em] font-medium"
+      : "font-mono text-[13px] uppercase tracking-[0.08em] font-medium"
     
     const activeClasses = "text-primary"
     const inactiveClasses = "text-text-secondary hover:text-primary"

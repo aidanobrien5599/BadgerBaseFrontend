@@ -1,8 +1,10 @@
 "use client"
 
+import { useState } from "react"
 import { Badge } from "@/components/ui/badge"
 import { ChevronRight } from "lucide-react"
-import { useRouter } from "next/navigation"
+import { cn } from "@/lib/utils"
+import { CourseDetail, type CourseDetailData } from "@/components/course-detail"
 import { PaginationControls } from "./pagination-controls"
 
 interface Instructor {
@@ -25,7 +27,8 @@ interface Meeting {
 }
 
 interface Section {
-  section_id: number
+  section_id: string | number
+  section_uuid?: string
   status: string
   available_seats: number
   waitlist_total: number
@@ -43,7 +46,7 @@ interface Section {
 }
 
 interface Course {
-  course_id: number
+  course_id: string | number
   subject_code: string
   course_designation: string
   full_course_designation: string
@@ -60,13 +63,13 @@ interface Course {
   c_percent: number
   d_percent: number
   f_percent: number
-  ethnic_studies: string | null
-  social_science: string | null
-  humanities: string | null
-  biological_science: string | null
-  physical_science: string | null
-  natural_science: string | null
-  literature: string | null
+  ethnic_studies: string | boolean | null
+  social_science: string | boolean | null
+  humanities: string | boolean | null
+  biological_science: string | boolean | null
+  physical_science: string | boolean | null
+  natural_science: string | boolean | null
+  literature: string | boolean | null
   course_title: string
   course_description: string | null
   enrollment_prerequisites: string | null
@@ -75,8 +78,8 @@ interface Course {
   general_education: string | null
   typically_offered: string | null
   workplace_experience_description: string | null
-  repeatable_for_credit: string | null
-  status: number // 0 = closed/full, 1 = waitlist, 2 = open
+  repeatable_for_credit: string | boolean | null
+  status?: number
 }
 
 interface CourseTableProps {
@@ -91,6 +94,13 @@ interface CourseTableProps {
   onSortChange: (sort: string) => void
   view: "sidebar" | "band"
   onViewChange: (view: "sidebar" | "band") => void
+}
+
+function deriveStatus(course: Course): number {
+  if (course.status != null) return course.status
+  if (course.sections?.some((s) => s.status === "OPEN")) return 2
+  if (course.sections?.some((s) => s.status === "WAITLISTED")) return 1
+  return 0
 }
 
 const getStatusBadge = (status: number) => {
@@ -117,10 +127,15 @@ export function CourseTable({
   view,
   onViewChange,
 }: CourseTableProps) {
-  const router = useRouter()
+  const [expandedCourseIds, setExpandedCourseIds] = useState<Set<string | number>>(new Set())
 
-  const openCourse = (course: Course) => {
-    router.push(`/course/${encodeURIComponent(course.course_designation)}`)
+  const toggleCourse = (courseId: string | number) => {
+    setExpandedCourseIds((prev) => {
+      const next = new Set(prev)
+      if (next.has(courseId)) next.delete(courseId)
+      else next.add(courseId)
+      return next
+    })
   }
 
   if (courses.length === 0) {
@@ -128,7 +143,7 @@ export function CourseTable({
       <div className="border-b border-border/70">
         <div className="py-16 text-center">
           <p className="font-mono text-xs uppercase tracking-[0.16em] text-muted-foreground mb-2">No courses found</p>
-          <p className="text-sm text-muted-foreground">Try adjusting your search criteria.</p>
+          <p className="text-[13px] text-muted-foreground">Try adjusting your search criteria.</p>
         </div>
       </div>
     )
@@ -151,11 +166,13 @@ export function CourseTable({
 
       <div>
         {courses.map((course, index) => {
-          const statusBadge = getStatusBadge(course.status)
+          const statusBadge = getStatusBadge(deriveStatus(course))
           const rowNumber = (currentPage - 1) * resultsPerPage + index + 1
           const designationMatch = course.course_designation.match(/^(\D+)\s*(.+)$/)
           const designationSubject = designationMatch ? designationMatch[1].trim() : course.course_designation
           const designationNumber = designationMatch ? designationMatch[2].trim() : ""
+
+          const isExpanded = expandedCourseIds.has(course.course_id)
 
           return (
             <div key={course.course_id} className="border-b border-border/70">
@@ -164,14 +181,18 @@ export function CourseTable({
               <div
                 role="button"
                 tabIndex={0}
-                onClick={() => openCourse(course)}
+                aria-expanded={isExpanded}
+                onClick={() => toggleCourse(course.course_id)}
                 onKeyDown={(e) => {
                   if (e.key === "Enter" || e.key === " ") {
                     e.preventDefault()
-                    openCourse(course)
+                    toggleCourse(course.course_id)
                   }
                 }}
-                className={`grid grid-cols-[44px_minmax(160px,240px)_repeat(5,minmax(0,1fr))_30px] min-w-[720px] items-stretch cursor-pointer transition-colors hover:bg-surface-sunken`}
+                className={cn(
+                  "grid grid-cols-[44px_minmax(160px,240px)_repeat(5,minmax(0,1fr))_30px] min-w-[720px] items-stretch cursor-pointer transition-colors",
+                  isExpanded ? "bg-surface-sunken" : "hover:bg-surface-sunken"
+                )}
               >
                 {/* Row index */}
                 <div className="flex items-center justify-center font-mono text-[11px] font-semibold text-primary border-r border-border/70">
@@ -191,7 +212,7 @@ export function CourseTable({
 
                 {/* Credits */}
                 <div className="flex flex-col justify-center items-center text-center px-3 border-r border-border/70">
-                  <span className="font-display text-lg font-bold leading-none">
+                  <span className="font-display text-[18px] font-bold leading-none">
                     {course.minimum_credits === course.maximum_credits
                       ? course.minimum_credits
                       : `${course.minimum_credits}-${course.maximum_credits}`}
@@ -204,11 +225,11 @@ export function CourseTable({
                 {/* Median grade */}
                 <div className="flex flex-col justify-center items-center text-center px-3 border-r border-border/70">
                   {course.median_grade ? (
-                    <span className="font-display text-lg font-bold leading-none tabular-nums">
+                    <span className="font-display text-[18px] font-bold leading-none tabular-nums">
                       {course.median_grade}
                     </span>
                   ) : (
-                    <span className="font-mono text-sm text-muted-foreground leading-none">N/A</span>
+                    <span className="font-mono text-[13px] text-muted-foreground leading-none">N/A</span>
                   )}
                   <span className="font-mono text-[9px] uppercase tracking-[0.12em] text-muted-foreground mt-1">
                     Median
@@ -217,7 +238,7 @@ export function CourseTable({
 
                 {/* Cumulative GPA */}
                 <div className="flex flex-col justify-center items-center text-center px-3 border-r border-border/70">
-                  <span className="font-display text-lg font-bold leading-none tabular-nums">
+                  <span className="font-display text-[18px] font-bold leading-none tabular-nums">
                     {course.cumulative_gpa ? course.cumulative_gpa.toFixed(2) : "N/A"}
                   </span>
                   <span className="font-mono text-[9px] uppercase tracking-[0.12em] text-muted-foreground mt-1">
@@ -227,7 +248,7 @@ export function CourseTable({
 
                 {/* Recent GPA */}
                 <div className="flex flex-col justify-center items-center text-center px-3 border-r border-border/70">
-                  <span className="font-display text-lg font-bold leading-none tabular-nums">
+                  <span className="font-display text-[18px] font-bold leading-none tabular-nums">
                     {course.most_recent_gpa ? course.most_recent_gpa.toFixed(2) : "N/A"}
                   </span>
                   <span className="font-mono text-[9px] uppercase tracking-[0.12em] text-muted-foreground mt-1">
@@ -244,10 +265,14 @@ export function CourseTable({
 
                 {/* Chevron */}
                 <div className="flex items-center justify-center">
-                  <ChevronRight className="h-4 w-4 text-muted-foreground" />
+                  <ChevronRight className={cn("h-4 w-4 text-muted-foreground transition-transform duration-200", isExpanded && "rotate-90")} />
                 </div>
               </div>
               </div>
+
+              {isExpanded && (
+                <CourseDetail course={course as unknown as CourseDetailData} inline />
+              )}
             </div>
           )
         })}

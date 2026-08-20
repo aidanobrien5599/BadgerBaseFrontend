@@ -5,11 +5,10 @@ import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Search, RotateCcw, ChevronDown } from "lucide-react"
+import { MultiSelectDropdown } from "@/components/ui/multi-select-dropdown"
+import { Slider } from "@/components/ui/slider"
 import {
   AvailabilityFilter,
-  GpaFilterSection,
-  AdvancedFilterSection,
-  RmpFilterSection,
   fieldLabel,
   type FilterState,
 } from "./search-filters"
@@ -77,7 +76,7 @@ export function ControlBand({ filters, onFiltersChange, onSearch, loading }: Con
     "h-10 w-full bg-surface border-border/70 rounded-[5px] px-3 font-mono text-xs uppercase tracking-[0.06em]"
 
   return (
-    <div className="bg-surface border-b border-border/70 sticky top-16 z-40">
+    <div className="bg-surface border-b border-border/70">
       {/* Band primary — search + quick filters */}
       <div className="px-4 sm:px-5 py-3 flex flex-col xl:flex-row gap-3 xl:items-end">
         <div className="flex-1 min-w-0">
@@ -94,32 +93,32 @@ export function ControlBand({ filters, onFiltersChange, onSearch, loading }: Con
         <div className="grid grid-cols-2 sm:grid-cols-3 xl:flex xl:gap-3 gap-3">
           <div className="min-w-[120px]">
             <label className={fieldLabel}>Status</label>
-            <Select value={filters.status} onValueChange={(value) => updateFilter("status", value)}>
-              <SelectTrigger className={`${ddTrigger} mt-1.5`}>
-                <SelectValue placeholder="Any" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="any">Any</SelectItem>
-                <SelectItem value="OPEN">Open</SelectItem>
-                <SelectItem value="CLOSED">Closed</SelectItem>
-                <SelectItem value="WAITLIST">Waitlist</SelectItem>
-              </SelectContent>
-            </Select>
+            <MultiSelectDropdown
+              value={filters.status}
+              onValueChange={(v) => updateFilter("status", v)}
+              options={[
+                { value: "OPEN", label: "Open" },
+                { value: "CLOSED", label: "Closed" },
+                { value: "WAITLISTED", label: "Waitlist" },
+              ]}
+              placeholder="Any"
+              triggerClassName={`${ddTrigger} mt-1.5`}
+            />
           </div>
 
           <div className="min-w-[120px]">
             <label className={fieldLabel}>Level</label>
-            <Select value={filters.level} onValueChange={(value) => updateFilter("level", value)}>
-              <SelectTrigger className={`${ddTrigger} mt-1.5`}>
-                <SelectValue placeholder="Any" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="any">Any</SelectItem>
-                <SelectItem value="E">Elementary</SelectItem>
-                <SelectItem value="I">Intermediate</SelectItem>
-                <SelectItem value="A">Advanced</SelectItem>
-              </SelectContent>
-            </Select>
+            <MultiSelectDropdown
+              value={filters.level}
+              onValueChange={(v) => updateFilter("level", v)}
+              options={[
+                { value: "E", label: "Elementary" },
+                { value: "I", label: "Intermediate" },
+                { value: "A", label: "Advanced" },
+              ]}
+              placeholder="Any"
+              triggerClassName={`${ddTrigger} mt-1.5`}
+            />
           </div>
 
           <div className="min-w-[120px]">
@@ -229,13 +228,150 @@ export function ControlBand({ filters, onFiltersChange, onSearch, loading }: Con
         </button>
       </div>
 
-      {/* Advanced strip — plain sections, bounded height so results stay visible */}
+      {/* Advanced strip — compact horizontal rows */}
       {advancedOpen && (
-        <div className="px-4 sm:px-5 py-4 border-t border-border/70 max-h-[60vh] overflow-y-auto">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <GpaFilterSection filters={filters} onFiltersChange={onFiltersChange} expandable={false} />
-            <AdvancedFilterSection filters={filters} onFiltersChange={onFiltersChange} expandable={false} />
-            <RmpFilterSection filters={filters} onFiltersChange={onFiltersChange} expandable={false} />
+        <div className="px-4 sm:px-5 py-3 border-t border-border/70">
+          {/* Row 1: GPA sliders | RMP inputs | Min Seats */}
+          <div className="flex items-start gap-3 flex-wrap">
+            <div className="flex flex-col gap-1">
+              <span className={fieldLabel}>GPA</span>
+              <div className="flex items-center gap-3.5 flex-wrap">
+                <div className="flex items-center gap-2">
+                  <span className="font-mono text-[10px] uppercase tracking-[0.06em] text-muted-foreground w-[70px]">Min A%</span>
+                  <Slider
+                    min={0} max={1} step={0.01}
+                    value={[Number.parseFloat(filters.min_a_percent) || 0]}
+                    onValueChange={(v) => updateFilter("min_a_percent", v[0].toString())}
+                    className="w-[100px]"
+                  />
+                  <span className="font-mono text-[11px] font-semibold tabular-nums w-7 text-right">
+                    {filters.min_a_percent ? `${Math.round(Number.parseFloat(filters.min_a_percent) * 100)}%` : "0%"}
+                  </span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="font-mono text-[10px] uppercase tracking-[0.06em] text-muted-foreground w-[70px]">Avg GPA</span>
+                  <Slider
+                    min={0} max={4} step={0.01}
+                    value={[Number.parseFloat(filters.min_cumulative_gpa) || 0]}
+                    onValueChange={(v) => updateFilter("min_cumulative_gpa", v[0].toString())}
+                    className="w-[100px]"
+                  />
+                  <span className="font-mono text-[11px] font-semibold tabular-nums w-7 text-right">
+                    {filters.min_cumulative_gpa || "0.0"}
+                  </span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="font-mono text-[10px] uppercase tracking-[0.06em] text-muted-foreground w-[70px]">Recent GPA</span>
+                  <Slider
+                    min={0} max={4} step={0.01}
+                    value={[Number.parseFloat(filters.min_most_recent_gpa) || 0]}
+                    onValueChange={(v) => updateFilter("min_most_recent_gpa", v[0].toString())}
+                    className="w-[100px]"
+                  />
+                  <span className="font-mono text-[11px] font-semibold tabular-nums w-7 text-right">
+                    {filters.min_most_recent_gpa || "0.0"}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <div className="w-px self-stretch bg-border/70" />
+
+            <div className="flex flex-col gap-1">
+              <span className={fieldLabel}>Rate My Professor</span>
+              <div className="flex items-center gap-2.5 flex-wrap">
+                {[
+                  { label: "Rating", key: "min_section_avg_rating" as const },
+                  { label: "Difficulty", key: "min_section_avg_difficulty" as const },
+                  { label: "# Ratings", key: "min_section_total_ratings" as const },
+                  { label: "WTA%", key: "min_section_avg_would_take_again" as const },
+                ].map(({ label, key }) => (
+                  <div key={key} className="flex items-center gap-1.5">
+                    <span className="font-mono text-[10px] uppercase tracking-[0.06em] text-muted-foreground">{label}</span>
+                    <Input
+                      type="number"
+                      step={key === "min_section_total_ratings" ? "1" : "0.1"}
+                      placeholder="—"
+                      value={filters[key]}
+                      onChange={(e) => updateFilter(key, e.target.value)}
+                      className="w-[52px] h-7 px-1.5 text-center font-mono text-[11px] tabular-nums"
+                    />
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="w-px self-stretch bg-border/70" />
+
+            <div className="flex flex-col gap-1">
+              <span className={fieldLabel}>Seats</span>
+              <div className="flex items-center gap-1.5">
+                <span className="font-mono text-[10px] uppercase tracking-[0.06em] text-muted-foreground">Min</span>
+                <Input
+                  type="number"
+                  placeholder="0"
+                  value={filters.min_available_seats}
+                  onChange={(e) => updateFilter("min_available_seats", e.target.value)}
+                  className="w-[52px] h-7 px-1.5 text-center font-mono text-[11px] tabular-nums"
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Row 2: Breadth chips | Prereq chips */}
+          <div className="flex items-start gap-3 flex-wrap mt-2 pt-2 border-t border-border/70">
+            <div className="flex flex-col gap-1">
+              <span className={fieldLabel}>Breadth / Subject Area</span>
+              <div className="flex items-center gap-1.5 flex-wrap">
+                {[
+                  { key: "ethnic_studies" as const, label: "Ethnic St", value: "ETHNIC ST" },
+                  { key: "social_science" as const, label: "Social Sci", value: "S" },
+                  { key: "humanities" as const, label: "Humanities", value: "H" },
+                  { key: "biological_science" as const, label: "Bio Sci", value: "BO" },
+                  { key: "physical_science" as const, label: "Physical Sci", value: "P" },
+                  { key: "natural_science" as const, label: "Natural Sci", value: "N" },
+                  { key: "literature" as const, label: "Literature", value: "L" },
+                ].map(({ key, label, value }) => (
+                  <button
+                    key={key}
+                    onClick={() => updateFilter(key, filters[key] ? "" : value)}
+                    className={`h-[26px] px-2.5 rounded-[4px] border font-mono text-[10px] uppercase tracking-[0.06em] transition-colors ${
+                      filters[key]
+                        ? "bg-primary text-primary-foreground border-primary"
+                        : "bg-transparent border-border/70 text-foreground hover:border-primary/40"
+                    }`}
+                  >
+                    {label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="w-px self-stretch bg-border/70" />
+
+            <div className="flex flex-col gap-1">
+              <span className={fieldLabel}>Prerequisites</span>
+              <div className="flex items-center gap-1.5 flex-wrap">
+                {[
+                  { key: "no_prereqs" as const, label: "No Prereqs" },
+                  { key: "sophomore_standing" as const, label: "Sophomore Standing" },
+                  { key: "junior_standing" as const, label: "Junior Standing" },
+                  { key: "senior_standing" as const, label: "Senior Standing" },
+                ].map(({ key, label }) => (
+                  <button
+                    key={key}
+                    onClick={() => updateFilter(key, !filters[key])}
+                    className={`h-[26px] px-2.5 rounded-[4px] border font-mono text-[10px] uppercase tracking-[0.06em] transition-colors ${
+                      filters[key]
+                        ? "bg-primary text-primary-foreground border-primary"
+                        : "bg-transparent border-border/70 text-foreground hover:border-primary/40"
+                    }`}
+                  >
+                    {label}
+                  </button>
+                ))}
+              </div>
+            </div>
           </div>
         </div>
       )}

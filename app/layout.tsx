@@ -46,12 +46,12 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className={`${plexSans.variable} ${plexMono.variable} ${spaceGrotesk.variable}`}>
-      <body>
+      <body className="flex flex-col min-h-screen">
         <Suspense fallback={<div>Loading...</div>}>
           <PostHogProvider>
             <Navigation />
             <ScrollToTop />
-            <main className="min-h-screen bg-background">{children}</main>
+            <main className="flex-1 bg-background">{children}</main>
             <Footer />
             <Analytics />
             <Toaster />

@@ -4,9 +4,9 @@ import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Checkbox } from "@/components/ui/checkbox"
 import { Separator } from "@/components/ui/separator"
 import { Search, RotateCcw, Calendar, X, ChevronDown } from "lucide-react"
+import { MultiSelectDropdown } from "@/components/ui/multi-select-dropdown"
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible"
 import { useState } from "react"
 import { Slider } from "@/components/ui/slider"
@@ -269,46 +269,48 @@ export function GpaFilterSection({
         </Select>
       </div>
 
-      <div className="space-y-3">
-        <Label htmlFor="min_a_percent" className={fieldLabel}>
-          Min A Percentage:{" "}
-          <span className="font-mono text-foreground">{filters.min_a_percent ? `${Math.round(Number.parseFloat(filters.min_a_percent) * 100)}%` : "0%"}</span>
-        </Label>
-        <Slider
-          id="min_a_percent"
-          min={0}
-          max={1}
-          step={0.01}
-          value={[Number.parseFloat(filters.min_a_percent) || 0]}
-          onValueChange={(value) => updateFilter("min_a_percent", value[0].toString())}
-          className="w-full"
-        />
+      <div className="space-y-1.5">
+        <Label className={fieldLabel}>Min A%</Label>
+        <div className="flex items-center gap-2">
+          <Slider
+            min={0} max={1} step={0.01}
+            value={[Number.parseFloat(filters.min_a_percent) || 0]}
+            onValueChange={(value) => updateFilter("min_a_percent", value[0].toString())}
+            className="flex-1"
+          />
+          <span className="font-mono text-[11px] font-semibold tabular-nums w-7 text-right shrink-0">
+            {filters.min_a_percent ? `${Math.round(Number.parseFloat(filters.min_a_percent) * 100)}%` : "0%"}
+          </span>
+        </div>
       </div>
 
-      <div className="grid grid-cols-1 gap-4">
-        <div className="space-y-3">
-          <Label htmlFor="min_cum_gpa" className={fieldLabel}>Min Avg GPA: <span className="font-mono text-foreground">{filters.min_cumulative_gpa || "0.0"}</span></Label>
+      <div className="space-y-1.5">
+        <Label className={fieldLabel}>Avg GPA</Label>
+        <div className="flex items-center gap-2">
           <Slider
-            id="min_cum_gpa"
-            min={0}
-            max={4}
-            step={0.01}
+            min={0} max={4} step={0.01}
             value={[Number.parseFloat(filters.min_cumulative_gpa) || 0]}
             onValueChange={(value) => updateFilter("min_cumulative_gpa", value[0].toString())}
-            className="w-full"
+            className="flex-1"
           />
+          <span className="font-mono text-[11px] font-semibold tabular-nums w-7 text-right shrink-0">
+            {filters.min_cumulative_gpa || "0.0"}
+          </span>
         </div>
-        <div className="space-y-3">
-          <Label htmlFor="min_recent_gpa" className={fieldLabel}>Min Recent GPA: <span className="font-mono text-foreground">{filters.min_most_recent_gpa || "0.0"}</span></Label>
+      </div>
+
+      <div className="space-y-1.5">
+        <Label className={fieldLabel}>Recent GPA</Label>
+        <div className="flex items-center gap-2">
           <Slider
-            id="min_recent_gpa"
-            min={0}
-            max={4}
-            step={0.01}
+            min={0} max={4} step={0.01}
             value={[Number.parseFloat(filters.min_most_recent_gpa) || 0]}
             onValueChange={(value) => updateFilter("min_most_recent_gpa", value[0].toString())}
-            className="w-full"
+            className="flex-1"
           />
+          <span className="font-mono text-[11px] font-semibold tabular-nums w-7 text-right shrink-0">
+            {filters.min_most_recent_gpa || "0.0"}
+          </span>
         </div>
       </div>
     </div>
@@ -399,89 +401,89 @@ export function AdvancedFilterSection({
         </Select>
       </div>
 
-      <div className="space-y-3">
-        <div className="space-y-2">
-            <div className="flex items-center space-x-2">
-              <Checkbox
-                id={`l_and_s`}
-                checked={filters.l_and_s}
-                onCheckedChange={(checked) => updateFilter("l_and_s", checked as boolean)}
-              />
-              <Label htmlFor={`l_and_s`} className="text-sm font-medium text-foreground">
-                L&S Credit
-              </Label>
-            </div>
-        </div>
-      </div>
-
-      <div className="space-y-3">
-        <Label className={fieldLabel}>General Education Requirements</Label>
-        <div className="space-y-2">
+      <div className="space-y-2">
+        <Label className={fieldLabel}>General Education</Label>
+        <div className="grid grid-cols-2 gap-1.5">
+          <button
+            onClick={() => updateFilter("l_and_s", !filters.l_and_s)}
+            className={`h-8 px-2.5 rounded-[5px] border font-mono text-[11px] uppercase tracking-[0.08em] transition-colors ${
+              filters.l_and_s
+                ? "bg-primary text-primary-foreground border-primary"
+                : "bg-transparent border-border/70 text-foreground hover:border-primary/40"
+            }`}
+          >
+            L&S
+          </button>
           {[
-            { value: "COM A", label: "Communication Part A" },
-            { value: "COM B", label: "Communication Part B" },
-            { value: "QR-A", label: "Quantitative Reasoning Part A" },
-            { value: "QR-B", label: "Quantitative Reasoning Part B" },
+            { value: "COM A", label: "COM A" },
+            { value: "COM B", label: "COM B" },
+            { value: "QR-A", label: "QR-A" },
+            { value: "QR-B", label: "QR-B" },
           ].map(({ value, label }) => (
-            <div key={value} className="flex items-center space-x-2">
-              <Checkbox
-                id={`gen_ed_${value}`}
-                checked={filters.gen_ed === value}
-                onCheckedChange={(checked) => handleGenEdChange(value, checked as boolean)}
-              />
-              <Label htmlFor={`gen_ed_${value}`} className="text-sm font-medium text-foreground">
-                {label}
-              </Label>
-            </div>
+            <button
+              key={value}
+              onClick={() => handleGenEdChange(value, filters.gen_ed !== value)}
+              className={`h-8 px-2.5 rounded-[5px] border font-mono text-[11px] uppercase tracking-[0.08em] transition-colors ${
+                filters.gen_ed === value
+                  ? "bg-primary text-primary-foreground border-primary"
+                  : "bg-transparent border-border/70 text-foreground hover:border-primary/40"
+              }`}
+            >
+              {label}
+            </button>
           ))}
         </div>
       </div>
 
-      <div className="space-y-3">
+      <div className="space-y-2">
         <Label className={fieldLabel}>Subject Areas</Label>
-        <div className="space-y-2">
+        <div className="grid grid-cols-2 gap-1.5">
           {[
-            { key: "ethnic_studies", label: "Ethnic Studies", value: "ETHNIC ST" },
-            { key: "social_science", label: "Social Science", value: "S" },
+            { key: "ethnic_studies", label: "Ethnic St", value: "ETHNIC ST" },
+            { key: "social_science", label: "Social Sci", value: "S" },
             { key: "humanities", label: "Humanities", value: "H" },
-            { key: "biological_science", label: "Biological Science", value: "BO" },
-            { key: "physical_science", label: "Physical Science", value: "P" },
-            { key: "natural_science", label: "Natural Science", value: "N" },
+            { key: "biological_science", label: "Bio Sci", value: "BO" },
+            { key: "physical_science", label: "Physical Sci", value: "P" },
+            { key: "natural_science", label: "Natural Sci", value: "N" },
             { key: "literature", label: "Literature", value: "L" },
-          ].map(({ key, label, value }) => (
-            <div key={key} className="flex items-center space-x-2">
-              <Checkbox
-                id={key}
-                checked={filters[key as keyof FilterState] != ""}
-                onCheckedChange={(checked) => updateFilter(key as keyof FilterState, checked ? value : "")}
-              />
-              <Label htmlFor={key} className="text-sm font-medium text-foreground">
-                {label}
-              </Label>
-            </div>
+          ].map(({ key, label, value }, idx, arr) => (
+            <button
+              key={key}
+              onClick={() => updateFilter(key as keyof FilterState, filters[key as keyof FilterState] ? "" : value)}
+              className={`h-8 px-2.5 rounded-[5px] border font-mono text-[11px] uppercase tracking-[0.08em] transition-colors ${
+                idx === arr.length - 1 && arr.length % 2 === 1 ? "col-span-2" : ""
+              } ${
+                filters[key as keyof FilterState]
+                  ? "bg-primary text-primary-foreground border-primary"
+                  : "bg-transparent border-border/70 text-foreground hover:border-primary/40"
+              }`}
+            >
+              {label}
+            </button>
           ))}
         </div>
       </div>
 
-      <div className="space-y-3">
-        <Label className={fieldLabel}>Prerequisite Filters</Label>
-        <div className="space-y-2">
+      <div className="space-y-2">
+        <Label className={fieldLabel}>Prerequisites</Label>
+        <div className="grid grid-cols-2 gap-1.5">
           {[
-            { key: "no_prereqs", label: "No Prerequisites", value: "No Prereqs" },
-            { key: "sophomore_standing", label: "Sophomore Standing", value: "Sophomore" },
-            { key: "junior_standing", label: "Junior Standing", value: "Junior" },
-            { key: "senior_standing", label: "Senior Standing", value: "Senior" },
-          ].map(({ key, label, value }) => (
-            <div key={key} className="flex items-center space-x-2">
-              <Checkbox
-                id={key}
-                checked={filters[key as keyof FilterState] as boolean}
-                onCheckedChange={(checked) => updateFilter(key as keyof FilterState, checked as boolean)}
-              />
-              <Label htmlFor={key} className="text-sm font-medium text-foreground">
-                {label}
-              </Label>
-            </div>
+            { key: "no_prereqs", label: "No Prereqs" },
+            { key: "sophomore_standing", label: "Soph. Standing" },
+            { key: "junior_standing", label: "Junior Standing" },
+            { key: "senior_standing", label: "Senior Standing" },
+          ].map(({ key, label }) => (
+            <button
+              key={key}
+              onClick={() => updateFilter(key as keyof FilterState, !filters[key as keyof FilterState])}
+              className={`h-8 px-2.5 rounded-[5px] border font-mono text-[11px] uppercase tracking-[0.08em] transition-colors ${
+                filters[key as keyof FilterState]
+                  ? "bg-primary text-primary-foreground border-primary"
+                  : "bg-transparent border-border/70 text-foreground hover:border-primary/40"
+              }`}
+            >
+              {label}
+            </button>
           ))}
         </div>
       </div>
@@ -642,33 +644,31 @@ export function SearchFilters({ filters, onFiltersChange, onSearch, loading }: S
       {/* Basic Filters */}
       <div className="space-y-4">
         <div className="space-y-2">
-          <Label htmlFor="status" className={fieldLabel}>Status</Label>
-          <Select value={filters.status} onValueChange={(value) => updateFilter("status", value)}>
-            <SelectTrigger>
-              <SelectValue placeholder="Any status" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="any">Any status</SelectItem>
-              <SelectItem value="OPEN">Open</SelectItem>
-              <SelectItem value="CLOSED">Closed</SelectItem>
-              <SelectItem value="WAITLIST">Waitlist</SelectItem>
-            </SelectContent>
-          </Select>
+          <Label className={fieldLabel}>Status</Label>
+          <MultiSelectDropdown
+            value={filters.status}
+            onValueChange={(v) => updateFilter("status", v)}
+            options={[
+              { value: "OPEN", label: "Open" },
+              { value: "CLOSED", label: "Closed" },
+              { value: "WAITLISTED", label: "Waitlist" },
+            ]}
+            placeholder="Any status"
+          />
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="level" className={fieldLabel}>Course Level</Label>
-          <Select value={filters.level} onValueChange={(value) => updateFilter("level", value)}>
-            <SelectTrigger>
-              <SelectValue placeholder="Any level" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="any">Any level</SelectItem>
-              <SelectItem value="E">Elementary</SelectItem>
-              <SelectItem value="I">Intermediate</SelectItem>
-              <SelectItem value="A">Advanced</SelectItem>
-            </SelectContent>
-          </Select>
+          <Label className={fieldLabel}>Course Level</Label>
+          <MultiSelectDropdown
+            value={filters.level}
+            onValueChange={(v) => updateFilter("level", v)}
+            options={[
+              { value: "E", label: "Elementary" },
+              { value: "I", label: "Intermediate" },
+              { value: "A", label: "Advanced" },
+            ]}
+            placeholder="Any level"
+          />
         </div>
 
         <div className="grid grid-cols-2 gap-2">

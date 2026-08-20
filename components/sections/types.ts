@@ -43,7 +43,8 @@ export interface Meeting {
 }
 
 export interface Section {
-  section_id: number
+  section_id: string | number
+  section_uuid?: string
   status: string
   available_seats: number
   waitlist_total: number
