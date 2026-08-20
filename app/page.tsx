@@ -1,14 +1,15 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { SearchFilters } from "@/components/search-filters"
+import { SearchFilters, type FilterState } from "@/components/search-filters"
+import { ControlBand } from "@/components/control-band"
 import { CourseTable } from "@/components/course-table"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Loader2 } from "lucide-react"
 
 interface Course {
-  course_id: number
+  course_id: string | number
+  course_uuid?: string
   subject_code: string
   course_designation: string
   full_course_designation: string
@@ -25,13 +26,13 @@ interface Course {
   c_percent: number
   d_percent: number
   f_percent: number
-  ethnic_studies: string | null
-  social_science: string | null
-  humanities: string | null
-  biological_science: string | null
-  physical_science: string | null
-  natural_science: string | null
-  literature: string | null
+  ethnic_studies: string | boolean | null
+  social_science: string | boolean | null
+  humanities: string | boolean | null
+  biological_science: string | boolean | null
+  physical_science: string | boolean | null
+  natural_science: string | boolean | null
+  literature: string | boolean | null
   course_title: string
   course_description: string | null
   enrollment_prerequisites: string | null
@@ -40,12 +41,16 @@ interface Course {
   general_education: string | null
   typically_offered: string | null
   workplace_experience_description: string | null
-  repeatable_for_credit: string | null
-  status: number // 0 = closed/full, 1 = waitlist, 2 = open
+  repeatable_for_credit: string | boolean | null
+  letters_and_science_credits?: string | boolean | null
+  open_to_first_year?: string | boolean | null
+  grading_basis_description?: string | null
+  status?: number
 }
 
 interface Section {
-  section_id: number
+  section_id: string | number
+  section_uuid?: string
   status: string
   available_seats: number
   waitlist_total: number
@@ -79,50 +84,6 @@ interface ApiResponse {
   filters_applied: any
 }
 
-interface FilterState {
-  search_param: string
-  status: string
-  min_available_seats: string
-  instruction_mode: string
-  limit: string
-  min_credits: string
-  max_credits: string
-  level: string
-  ethnic_studies: string
-  social_science: string
-  humanities: string
-  biological_science: string
-  physical_science: string
-  natural_science: string
-  literature: string
-  min_cumulative_gpa: string
-  min_most_recent_gpa: string
-  median_grade: string
-  min_a_percent: string
-  min_section_avg_rating: string
-  min_section_avg_difficulty: string
-  min_section_total_ratings: string
-  min_section_avg_would_take_again: string
-  no_prereqs: boolean
-  sophomore_standing: boolean
-  junior_standing: boolean
-  senior_standing: boolean
-  // Availability parameters
-  mondayStartTime?: string
-  mondayEndTime?: string
-  tuesdayStartTime?: string
-  tuesdayEndTime?: string
-  wednesdayStartTime?: string
-  wednesdayEndTime?: string
-  thursdayStartTime?: string
-  thursdayEndTime?: string
-  fridayStartTime?: string
-  fridayEndTime?: string
-  gen_ed?: string
-  l_and_s?: boolean
-  sort?: string
-}
-
 export default function HomePage() {
   const [courses, setCourses] = useState<Course[]>([])
   const [loading, setLoading] = useState(false)
@@ -130,6 +91,11 @@ export default function HomePage() {
   const [currentPage, setCurrentPage] = useState(1)
   const [totalCount, setTotalCount] = useState(0)
   const [hasMore, setHasMore] = useState(false)
+  const [view, setView] = useState<"sidebar" | "band">(() => {
+    if (typeof window === "undefined") return "sidebar"
+    if (window.innerWidth < 1024) return "sidebar"
+    return (localStorage.getItem("bb-view") as "sidebar" | "band") || "sidebar"
+  })
   const [filters, setFilters] = useState<FilterState>({
     search_param: "",
     status: "",
@@ -169,6 +135,7 @@ export default function HomePage() {
     fridayStartTime: "",
     fridayEndTime: "",
     gen_ed: "",
+    l_and_s: false,
     sort: "",
   })
 
@@ -192,8 +159,6 @@ export default function HomePage() {
           }
         }
       })
-
-      console.log(params.toString())
 
       const response = await fetch(`/api/proxy?${params.toString()}`)
 
@@ -225,6 +190,21 @@ export default function HomePage() {
   const handlePageChange = (page: number) => {
     searchCourses(page)
   }
+
+  const handleViewChange = (newView: "sidebar" | "band") => {
+    setView(newView)
+    localStorage.setItem("bb-view", newView)
+  }
+
+  useEffect(() => {
+    const onResize = () => {
+      if (window.innerWidth < 1024 && view === "band") {
+        setView("sidebar")
+      }
+    }
+    window.addEventListener("resize", onResize)
+    return () => window.removeEventListener("resize", onResize)
+  }, [view])
 
   const handleSearch = () => {
     setCurrentPage(1)
@@ -281,52 +261,53 @@ export default function HomePage() {
 
   const totalPages = Math.ceil(totalCount / Number.parseInt(filters.limit))
 
+  const results = (
+    <section className="min-w-0">
+      {error && (
+        <div className="px-6 pt-4">
+          <Alert variant="destructive">
+            <AlertDescription>{error}</AlertDescription>
+          </Alert>
+        </div>
+      )}
+
+      {loading ? (
+        <div className="flex items-center justify-center gap-3 py-24 border-b border-border/70">
+          <Loader2 className="h-5 w-5 animate-spin text-primary" />
+          <span className="font-mono text-xs uppercase tracking-[0.14em] text-muted-foreground">Loading courses</span>
+        </div>
+      ) : (
+        <CourseTable
+          courses={courses}
+          currentPage={currentPage}
+          totalPages={totalPages}
+          totalCount={totalCount}
+          hasMore={hasMore}
+          onPageChange={handlePageChange}
+          resultsPerPage={Number.parseInt(filters.limit)}
+          currentSort={filters.sort || ""}
+          onSortChange={handleSortChange}
+          view={view}
+          onViewChange={handleViewChange}
+        />
+      )}
+    </section>
+  )
+
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-        {/* Filters Sidebar */}
-        <div className="lg:col-span-1">
-          <Card>
-            <CardHeader>
-              <CardTitle>Search & Filters</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <SearchFilters filters={filters} onFiltersChange={setFilters} onSearch={handleSearch} loading={loading} />
-            </CardContent>
-          </Card>
-        </div>
+    <div>
+      {view === "band" && (
+        <ControlBand filters={filters} onFiltersChange={setFilters} onSearch={handleSearch} loading={loading} />
+      )}
 
-        {/* Results */}
-        <div className="lg:col-span-3">
-          {error && (
-            <Alert className="mb-6" variant="destructive">
-              <AlertDescription>{error}</AlertDescription>
-            </Alert>
-          )}
+      <div className={view === "sidebar" ? "grid grid-cols-1 lg:grid-cols-[300px_1fr]" : ""}>
+        {view === "sidebar" && (
+          <aside className="bg-surface border-b border-border/70 lg:border-b-0 lg:border-r lg:border-border/70 lg:sticky lg:top-16 lg:h-[calc(100vh-4rem)] lg:overflow-y-auto px-5 py-5">
+            <SearchFilters filters={filters} onFiltersChange={setFilters} onSearch={handleSearch} loading={loading} />
+          </aside>
+        )}
 
-          {loading ? (
-            <Card>
-              <CardContent className="flex items-center justify-center py-12">
-                <Loader2 className="h-8 w-8 animate-spin mr-2" />
-                <span>Loading courses...</span>
-              </CardContent>
-            </Card>
-          ) : (
-            <div className="space-y-6">
-              <CourseTable
-                courses={courses}
-                currentPage={currentPage}
-                totalPages={totalPages}
-                totalCount={totalCount}
-                hasMore={hasMore}
-                onPageChange={handlePageChange}
-                resultsPerPage={Number.parseInt(filters.limit)}
-                currentSort={filters.sort || ""}
-                onSortChange={handleSortChange}
-              />
-            </div>
-          )}
-        </div>
+        {results}
       </div>
     </div>
   )

@@ -1,16 +1,33 @@
 import type React from "react"
 import type { Metadata } from "next"
-import { Inter } from "next/font/google"
+import { IBM_Plex_Mono, IBM_Plex_Sans, Space_Grotesk } from "next/font/google"
 import "./globals.css"
 import { Navigation } from "@/components/navigation"
 import { Footer } from "@/components/footer"
+import { ScrollToTop } from "@/components/scroll-to-top"
 import { Analytics } from "@vercel/analytics/react"
 import { PostHogProvider } from "@/components/PostHogProvider"
 
 import { Suspense } from "react"
 import { Toaster } from "sonner"
 
-const inter = Inter({ subsets: ["latin"] })
+const plexSans = IBM_Plex_Sans({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+  variable: "--font-plex-sans",
+})
+
+const plexMono = IBM_Plex_Mono({
+  subsets: ["latin"],
+  weight: ["400", "500"],
+  variable: "--font-plex-mono",
+})
+
+const spaceGrotesk = Space_Grotesk({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+  variable: "--font-space-grotesk",
+})
 
 export const metadata: Metadata = {
   title: "BadgerBase",
@@ -28,12 +45,13 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en">
-      <body className={inter.className}>
+    <html lang="en" className={`${plexSans.variable} ${plexMono.variable} ${spaceGrotesk.variable}`}>
+      <body className="flex flex-col min-h-screen">
         <Suspense fallback={<div>Loading...</div>}>
           <PostHogProvider>
             <Navigation />
-            <main className="min-h-screen bg-background">{children}</main>
+            <ScrollToTop />
+            <main className="flex-1 bg-background">{children}</main>
             <Footer />
             <Analytics />
             <Toaster />
