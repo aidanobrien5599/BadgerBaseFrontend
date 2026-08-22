@@ -1,5 +1,4 @@
 import { fetchWithRetry } from '@/lib/fetch-with-retry'
-import PostHogClient from '@/lib/posthog'
 
 const ALLOWED_ORIGINS = [
   "https://sconniegrades.com",
@@ -9,19 +8,6 @@ const ALLOWED_ORIGINS = [
   "http://localhost:3000",
   "http://localhost:3001",
 ]
-
-async function usePgApi(): Promise<boolean> {
-  if (process.env.FORCE_PG === "true") return true
-
-  try {
-    const posthog = PostHogClient()
-    const enabled = await posthog.isFeatureEnabled("postgres-migration", "server")
-    await posthog.shutdown()
-    return enabled === true
-  } catch {
-    return false
-  }
-}
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url)
@@ -37,11 +23,8 @@ export async function GET(request: Request) {
   const API_BASE_URL = process.env.API_BASE_URL || "http://localhost:3002"
   const API_KEY = process.env.API_KEY || ""
 
-  const pg = await usePgApi()
-  const basePath = pg ? "/v2/api/query" : "/api/query"
-
   try {
-    const response = await fetchWithRetry(`${API_BASE_URL}${basePath}?${searchParams.toString()}`, {
+    const response = await fetchWithRetry(`${API_BASE_URL}/v2/api/query?${searchParams.toString()}`, {
       headers: {
         "x-api-key": API_KEY,
         "Content-Type": "application/json",

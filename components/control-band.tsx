@@ -324,13 +324,13 @@ export function ControlBand({ filters, onFiltersChange, onSearch, loading }: Con
               <span className={fieldLabel}>Breadth / Subject Area</span>
               <div className="flex items-center gap-1.5 flex-wrap">
                 {[
-                  { key: "ethnic_studies" as const, label: "Ethnic St", value: "ETHNIC ST" },
-                  { key: "social_science" as const, label: "Social Sci", value: "S" },
-                  { key: "humanities" as const, label: "Humanities", value: "H" },
-                  { key: "biological_science" as const, label: "Bio Sci", value: "BO" },
-                  { key: "physical_science" as const, label: "Physical Sci", value: "P" },
-                  { key: "natural_science" as const, label: "Natural Sci", value: "N" },
-                  { key: "literature" as const, label: "Literature", value: "L" },
+                  { key: "ethnic_studies" as const, label: "Ethnic St", value: "true" },
+                  { key: "social_science" as const, label: "Social Sci", value: "true" },
+                  { key: "humanities" as const, label: "Humanities", value: "true" },
+                  { key: "biological_science" as const, label: "Bio Sci", value: "true" },
+                  { key: "physical_science" as const, label: "Physical Sci", value: "true" },
+                  { key: "natural_science" as const, label: "Natural Sci", value: "true" },
+                  { key: "literature" as const, label: "Literature", value: "true" },
                 ].map(({ key, label, value }) => (
                   <button
                     key={key}
