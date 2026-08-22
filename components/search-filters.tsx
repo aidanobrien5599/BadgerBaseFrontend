@@ -439,13 +439,13 @@ export function AdvancedFilterSection({
         <Label className={fieldLabel}>Subject Areas</Label>
         <div className="grid grid-cols-2 gap-1.5">
           {[
-            { key: "ethnic_studies", label: "Ethnic St", value: "ETHNIC ST" },
-            { key: "social_science", label: "Social Sci", value: "S" },
-            { key: "humanities", label: "Humanities", value: "H" },
-            { key: "biological_science", label: "Bio Sci", value: "BO" },
-            { key: "physical_science", label: "Physical Sci", value: "P" },
-            { key: "natural_science", label: "Natural Sci", value: "N" },
-            { key: "literature", label: "Literature", value: "L" },
+            { key: "ethnic_studies", label: "Ethnic St", value: "true" },
+            { key: "social_science", label: "Social Sci", value: "true" },
+            { key: "humanities", label: "Humanities", value: "true" },
+            { key: "biological_science", label: "Bio Sci", value: "true" },
+            { key: "physical_science", label: "Physical Sci", value: "true" },
+            { key: "natural_science", label: "Natural Sci", value: "true" },
+            { key: "literature", label: "Literature", value: "true" },
           ].map(({ key, label, value }, idx, arr) => (
             <button
               key={key}
