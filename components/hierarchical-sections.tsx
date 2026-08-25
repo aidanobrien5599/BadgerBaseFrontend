@@ -172,21 +172,69 @@ function RowStats({ section, small }: { section: SectionShape; small?: boolean }
   )
 }
 
+function InstructorRow({ instructor }: { instructor: InstructorShape }) {
+  const hasRmp = !!instructor.rmp_instructor_id
+  const hasData = instructor.avg_rating != null && instructor.num_ratings != null && instructor.num_ratings > 0
+
+  return (
+    <div className="flex flex-wrap items-baseline gap-x-4 gap-y-1.5 py-1.5">
+      <span className="font-display text-[14px] font-semibold text-foreground shrink-0">{instructor.name}</span>
+      {hasRmp && (
+        <a
+          href={`https://www.ratemyprofessors.com/professor/${instructor.rmp_instructor_id}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="font-mono text-[10.5px] font-semibold tracking-[0.08em] text-primary border-b border-border/70 hover:border-primary whitespace-nowrap shrink-0"
+        >
+          RMP ↗
+        </a>
+      )}
+      {hasData ? (
+        <div className="flex gap-3.5 ml-auto">
+          {[
+            { l: "RATING", v: instructor.avg_rating!.toFixed(1), good: true },
+            { l: "DIFF", v: instructor.avg_difficulty != null ? instructor.avg_difficulty.toFixed(1) : "—", warn: true },
+            { l: "RATINGS", v: String(instructor.num_ratings) },
+            { l: "WTA", v: instructor.would_take_again_percent != null ? `${Math.round(instructor.would_take_again_percent)}%` : "—", good: true },
+          ].map((s) => (
+            <div key={s.l} className="flex items-baseline gap-1">
+              <span className="font-mono text-[9.5px] tracking-[0.1em] text-muted-foreground">{s.l}</span>
+              <span className={cn(
+                "font-mono font-semibold text-[13px] tabular-nums",
+                s.good && s.v !== "—" && "text-success",
+                s.warn && s.v !== "—" && "text-warning",
+                s.v === "—" && "text-muted-foreground"
+              )}>
+                {s.v}
+              </span>
+            </div>
+          ))}
+        </div>
+      ) : hasRmp ? (
+        <div className="flex gap-3.5 ml-auto">
+          {[{ l: "RATING", v: "—" }, { l: "DIFF", v: "—" }, { l: "RATINGS", v: "0" }, { l: "WTA", v: "—" }].map((s) => (
+            <div key={s.l} className="flex items-baseline gap-1">
+              <span className="font-mono text-[9.5px] tracking-[0.1em] text-muted-foreground">{s.l}</span>
+              <span className="font-mono font-semibold text-[13px] tabular-nums text-muted-foreground">{s.v}</span>
+            </div>
+          ))}
+        </div>
+      ) : (
+        <span className="font-mono text-[11px] tracking-[0.06em] text-muted-foreground italic ml-auto">No RMP profile</span>
+      )}
+    </div>
+  )
+}
+
 function DetailStrip({ section, className }: { section: SectionShape; className?: string }) {
   const async = String(section.is_asynchronous) === "true"
   const instructors = section.instructors.filter((i) => i.name)
   return (
     <div className={cn("bg-surface-sunken px-4 py-3 space-y-2", className)}>
       {instructors.length > 0 && (
-        <div className="flex flex-col gap-1">
-          <div className="font-mono text-[10px] tracking-[0.12em] text-muted-foreground">INSTRUCTORS</div>
+        <div className="divide-y divide-border/50">
           {instructors.map((i) => (
-            <div key={i.name} className="font-mono text-[11.5px] text-foreground tabular-nums">
-              {i.name}
-              {i.avg_rating != null && <span className="text-muted-foreground"> · {i.avg_rating.toFixed(1)} rating</span>}
-              {i.avg_difficulty != null && <span className="text-muted-foreground"> · {i.avg_difficulty.toFixed(1)} difficulty</span>}
-              {i.num_ratings != null && <span className="text-muted-foreground"> · {i.num_ratings} ratings</span>}
-            </div>
+            <InstructorRow key={i.name} instructor={i} />
           ))}
         </div>
       )}
