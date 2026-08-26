@@ -1,22 +1,12 @@
 import { fetchWithRetry } from '@/lib/fetch-with-retry'
-
-const ALLOWED_ORIGINS = [
-  "https://sconniegrades.com",
-  "https://www.sconniegrades.com",
-  "https://badgerbase.app",
-  "https://www.badgerbase.app",
-  "http://localhost:3000",
-  "http://localhost:3001",
-]
+import { isAllowedOrigin } from '@/lib/allowed-origins'
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url)
 
   const origin = request.headers.get("origin") || request.headers.get("referer")
 
-  const isAllowed = ALLOWED_ORIGINS.some((allowed) => origin?.startsWith(allowed))
-
-  if (!isAllowed) {
+  if (!isAllowedOrigin(origin)) {
     return new Response("Forbidden: Invalid origin", { status: 403 })
   }
 
