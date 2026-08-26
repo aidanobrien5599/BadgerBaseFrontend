@@ -190,7 +190,7 @@ function InstructorRow({ instructor }: { instructor: InstructorShape }) {
         </a>
       )}
       {hasData ? (
-        <div className="flex gap-3.5 ml-auto">
+        <div className="flex gap-3.5">
           {[
             { l: "RATING", v: instructor.avg_rating!.toFixed(1), good: true },
             { l: "DIFF", v: instructor.avg_difficulty != null ? instructor.avg_difficulty.toFixed(1) : "—", warn: true },
@@ -211,7 +211,7 @@ function InstructorRow({ instructor }: { instructor: InstructorShape }) {
           ))}
         </div>
       ) : hasRmp ? (
-        <div className="flex gap-3.5 ml-auto">
+        <div className="flex gap-3.5">
           {[{ l: "RATING", v: "—" }, { l: "DIFF", v: "—" }, { l: "RATINGS", v: "0" }, { l: "WTA", v: "—" }].map((s) => (
             <div key={s.l} className="flex items-baseline gap-1">
               <span className="font-mono text-[9.5px] tracking-[0.1em] text-muted-foreground">{s.l}</span>
@@ -220,7 +220,7 @@ function InstructorRow({ instructor }: { instructor: InstructorShape }) {
           ))}
         </div>
       ) : (
-        <span className="font-mono text-[11px] tracking-[0.06em] text-muted-foreground italic ml-auto">No RMP profile</span>
+        <span className="font-mono text-[11px] tracking-[0.06em] text-muted-foreground italic">No RMP profile</span>
       )}
     </div>
   )
