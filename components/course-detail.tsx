@@ -193,89 +193,6 @@ function GradeDistribution({ course }: { course: CourseDetailData }) {
   )
 }
 
-/* ============ Instructors ============ */
-
-function Stars({ rating }: { rating: number }) {
-  return (
-    <span className="font-mono font-semibold text-[15px] text-foreground tabular-nums">
-      {rating.toFixed(1)}
-      <span className="text-muted-foreground"> / 5</span>
-    </span>
-  )
-}
-
-function Instructors({ course }: { course: CourseDetailData }) {
-  const instructors = useMemo(() => {
-    const map = new Map<string, { name: string; secs: string[]; rating: number | null; difficulty: number | null; ratings: number | null; wta: number | null; rmpId: string | null }>()
-    course.sections.forEach((s) => {
-      s.instructors.forEach((i) => {
-        if (!i.name) return
-        const key = i.name.toLowerCase()
-        if (!map.has(key)) {
-          map.set(key, { name: i.name, secs: [], rating: i.avg_rating, difficulty: i.avg_difficulty, ratings: i.num_ratings, wta: i.would_take_again_percent, rmpId: i.rmp_instructor_id })
-        }
-        const secNum = s.meetings?.[0]?.section_number || String(s.section_id)
-        const entry = map.get(key)!
-        if (!entry.secs.includes(secNum)) entry.secs.push(secNum)
-      })
-    })
-    return [...map.values()]
-  }, [course])
-
-  return (
-    <section className="bg-surface border border-border/70">
-      <header className="flex flex-wrap items-baseline gap-2 px-4 py-2.5 border-b border-border/70">
-        <h2 className="font-display text-[19px] font-semibold tracking-[-0.01em]">Instructors</h2>
-      </header>
-      <div className="grid grid-cols-1 sm:grid-cols-2">
-        {instructors.map((i, idx) => (
-          <div key={i.name} className={cn("px-4 py-3.5", idx < instructors.length - 1 && "border-b border-border/70", "sm:border-b-0", idx % 2 === 0 && "sm:border-r border-border/70")}>
-            <div className="mb-2">
-              <div className="flex items-baseline gap-3 flex-wrap">
-                <div className="font-medium text-[15px] text-foreground font-display">{i.name}</div>
-                {i.rmpId && (
-                  <a
-                    href={`https://www.ratemyprofessors.com/professor/${i.rmpId}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="font-mono text-[12px] font-semibold tracking-[0.08em] text-primary border-b border-border/70 hover:border-primary whitespace-nowrap"
-                  >
-                    RATE MY PROFESSORS ↗
-                  </a>
-                )}
-              </div>
-              <div className="font-mono text-[10.5px] tracking-[0.08em] text-muted-foreground mt-0.5">
-                {i.secs.map((s) => (s.length > 3 ? `SEC ${s}` : s)).join(" · ") || "ALL SECTIONS"}
-              </div>
-            </div>
-            <div className="mb-2.5">
-              {i.rating != null ? <Stars rating={i.rating} /> : <span className="font-mono text-[13px] text-muted-foreground">No ratings</span>}
-            </div>
-            <div className="grid grid-cols-4 gap-1.5">
-              {[
-                { l: "RATING", v: i.rating != null ? i.rating.toFixed(1) : "—", hi: true },
-                { l: "DIFFICULTY", v: i.difficulty != null ? i.difficulty.toFixed(1) : "—", lo: true },
-                { l: "RATINGS", v: i.ratings != null ? String(i.ratings) : "—" },
-                { l: "WTA %", v: i.wta != null ? `${Math.round(i.wta)}%` : "—", hi: true },
-              ].map((s) => (
-                <div key={s.l}>
-                  <div className="font-mono text-[9.5px] tracking-[0.1em] text-muted-foreground">{s.l}</div>
-                  <div className={cn("font-mono font-semibold text-[14px] tabular-nums mt-0.5", s.hi && (s.v !== "—" ? "text-success" : ""), s.lo && (s.v !== "—" ? "text-warning" : ""))}>
-                    {s.v}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        ))}
-        {instructors.length === 0 && (
-          <div className="px-4 py-6 font-mono text-[13px] text-muted-foreground">No instructor data available.</div>
-        )}
-      </div>
-    </section>
-  )
-}
-
 /* ============ Main detail ============ */
 
 function deriveStatus(course: CourseDetailData): number {
@@ -399,7 +316,6 @@ export function CourseDetail({ course, inline }: { course: CourseDetailData; inl
       </div>
 
       <GradeDistribution course={course} />
-      <Instructors course={course} />
       <HierarchicalSections sections={course.sections} courseTitle={course.course_title} />
     </div>
   )

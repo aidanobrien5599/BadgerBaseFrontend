@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge"
 import { ChevronRight } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { CourseDetail, type CourseDetailData } from "@/components/course-detail"
+import { NotificationButton } from "./notification-button"
 import { PaginationControls } from "./pagination-controls"
 
 interface Instructor {
@@ -256,11 +257,23 @@ export function CourseTable({
                   </span>
                 </div>
 
-                {/* Status badge — last stat before chevron */}
+                {/* Status badge — closed courses get a notify button badge */}
                 <div className="flex items-center justify-center px-3">
-                  <Badge variant="outline" className={`${statusBadge.classes} font-semibold text-[11.5px] rounded-[4px]`}>
-                    {statusBadge.label}
-                  </Badge>
+                  {deriveStatus(course) === 0 ? (
+                    <div onClick={(e) => e.stopPropagation()}>
+                      <NotificationButton
+                        type="course"
+                        id={typeof course.course_id === "string" ? parseInt(course.course_id, 10) : course.course_id}
+                        isEnabled={true}
+                        courseTitle={course.course_title}
+                        compact
+                      />
+                    </div>
+                  ) : (
+                    <Badge variant="outline" className={`${statusBadge.classes} font-semibold text-[11.5px] rounded-[4px]`}>
+                      {statusBadge.label}
+                    </Badge>
+                  )}
                 </div>
 
                 {/* Chevron */}
