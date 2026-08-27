@@ -103,6 +103,38 @@ describe("useSearchSuggestions", () => {
     await waitFor(() => expect(result.current.suggestions).toEqual([]))
   })
 
+  it("does not repaint with a stale response that resolves after a newer query", async () => {
+    const STALE = { ...COURSE, value: "STALE COURSE", label: "STALE COURSE" }
+    const NEWER = { ...COURSE, value: "NEWER COURSE", label: "NEWER COURSE" }
+
+    let resolveFirst: (response: Response) => void = () => {}
+    vi.mocked(fetch)
+      .mockImplementationOnce(
+        () =>
+          new Promise<Response>((resolve) => {
+            resolveFirst = resolve
+          })
+      )
+      .mockImplementationOnce(() =>
+        Promise.resolve(jsonResponse({ suggestions: [NEWER] }))
+      )
+
+    const { result, rerender } = renderHook(({ q }) => useSearchSuggestions(q), {
+      initialProps: { q: "comp" },
+    })
+    await waitFor(() => expect(fetch).toHaveBeenCalledTimes(1))
+
+    rerender({ q: "comp sci" })
+    await waitFor(() => expect(result.current.suggestions).toEqual([NEWER]))
+
+    resolveFirst(jsonResponse({ suggestions: [STALE] }))
+    await act(async () => {
+      await new Promise((r) => setTimeout(r, 0))
+    })
+
+    expect(result.current.suggestions).toEqual([NEWER])
+  })
+
   it("does not report an abort as an error", async () => {
     vi.mocked(fetch).mockImplementation((_url, init) => {
       const signal = (init as RequestInit).signal as AbortSignal
