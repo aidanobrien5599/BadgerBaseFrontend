@@ -28,7 +28,7 @@ interface Meeting {
 }
 
 interface Section {
-  section_id: string | number
+  section_id: string
   section_uuid?: string
   status: string
   available_seats: number
@@ -47,7 +47,7 @@ interface Section {
 }
 
 interface Course {
-  course_id: string | number
+  course_id: string
   subject_code: string
   course_designation: string
   full_course_designation: string
@@ -64,13 +64,13 @@ interface Course {
   c_percent: number
   d_percent: number
   f_percent: number
-  ethnic_studies: string | boolean | null
-  social_science: string | boolean | null
-  humanities: string | boolean | null
-  biological_science: string | boolean | null
-  physical_science: string | boolean | null
-  natural_science: string | boolean | null
-  literature: string | boolean | null
+  ethnic_studies: boolean | null
+  social_science: boolean | null
+  humanities: boolean | null
+  biological_science: boolean | null
+  physical_science: boolean | null
+  natural_science: boolean | null
+  literature: boolean | null
   course_title: string
   course_description: string | null
   enrollment_prerequisites: string | null
@@ -79,8 +79,7 @@ interface Course {
   general_education: string | null
   typically_offered: string | null
   workplace_experience_description: string | null
-  repeatable_for_credit: string | boolean | null
-  status?: number
+  repeatable_for_credit: boolean | null
 }
 
 interface CourseTableProps {
@@ -98,7 +97,6 @@ interface CourseTableProps {
 }
 
 function deriveStatus(course: Course): number {
-  if (course.status != null) return course.status
   if (course.sections?.some((s) => s.status === "OPEN")) return 2
   if (course.sections?.some((s) => s.status === "WAITLISTED")) return 1
   return 0
@@ -128,9 +126,9 @@ export function CourseTable({
   view,
   onViewChange,
 }: CourseTableProps) {
-  const [expandedCourseIds, setExpandedCourseIds] = useState<Set<string | number>>(new Set())
+  const [expandedCourseIds, setExpandedCourseIds] = useState<Set<string>>(new Set())
 
-  const toggleCourse = (courseId: string | number) => {
+  const toggleCourse = (courseId: string) => {
     setExpandedCourseIds((prev) => {
       const next = new Set(prev)
       if (next.has(courseId)) next.delete(courseId)
@@ -261,9 +259,13 @@ export function CourseTable({
                 <div className="flex items-center justify-center px-3">
                   {deriveStatus(course) === 0 ? (
                     <div onClick={(e) => e.stopPropagation()}>
+                      {/* FIXME(mysql-decommission PR 2): course_id is a zero-padded string
+                          ("024794"). parseInt is correct for the v1 MySQL subscription API,
+                          but the /v2 handler matches on the raw string, so this must send
+                          course_id unparsed at cutover. */}
                       <NotificationButton
                         type="course"
-                        id={typeof course.course_id === "string" ? parseInt(course.course_id, 10) : course.course_id}
+                        id={parseInt(course.course_id, 10)}
                         isEnabled={true}
                         courseTitle={course.course_title}
                         compact

@@ -8,7 +8,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Loader2 } from "lucide-react"
 
 interface Course {
-  course_id: string | number
+  course_id: string
   course_uuid?: string
   subject_code: string
   course_designation: string
@@ -26,13 +26,13 @@ interface Course {
   c_percent: number
   d_percent: number
   f_percent: number
-  ethnic_studies: string | boolean | null
-  social_science: string | boolean | null
-  humanities: string | boolean | null
-  biological_science: string | boolean | null
-  physical_science: string | boolean | null
-  natural_science: string | boolean | null
-  literature: string | boolean | null
+  ethnic_studies: boolean | null
+  social_science: boolean | null
+  humanities: boolean | null
+  biological_science: boolean | null
+  physical_science: boolean | null
+  natural_science: boolean | null
+  literature: boolean | null
   course_title: string
   course_description: string | null
   enrollment_prerequisites: string | null
@@ -41,15 +41,14 @@ interface Course {
   general_education: string | null
   typically_offered: string | null
   workplace_experience_description: string | null
-  repeatable_for_credit: string | boolean | null
-  letters_and_science_credits?: string | boolean | null
-  open_to_first_year?: string | boolean | null
+  repeatable_for_credit: boolean | null
+  letters_and_science_credits?: boolean | null
+  open_to_first_year?: boolean | null
   grading_basis_description?: string | null
-  status?: number
 }
 
 interface Section {
-  section_id: string | number
+  section_id: string
   section_uuid?: string
   status: string
   available_seats: number
