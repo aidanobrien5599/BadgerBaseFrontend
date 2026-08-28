@@ -57,7 +57,7 @@ export async function POST(request: Request) {
     }
 
     // Forward the request to the Railway backend with retry logic
-    const response = await fetchWithRetry(`${SUBSCRIPTION_URL}/course-subscription`, {
+    const response = await fetchWithRetry(`${SUBSCRIPTION_URL}/v2/course-subscription`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -139,7 +139,7 @@ export async function DELETE(request: Request) {
     }
 
     // Forward the DELETE request to the Railway backend with retry logic
-    const response = await fetchWithRetry(`${SUBSCRIPTION_URL}/course-subscription`, {
+    const response = await fetchWithRetry(`${SUBSCRIPTION_URL}/v2/course-subscription`, {
       method: 'DELETE',
       headers: {
         'Content-Type': 'application/json',

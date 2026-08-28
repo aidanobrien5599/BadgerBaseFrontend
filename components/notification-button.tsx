@@ -24,7 +24,7 @@ import { useRouter } from "next/navigation"
 
 interface NotificationButtonProps {
   type: "course" | "section"
-  id: number
+  id: string
   isEnabled: boolean
   courseTitle?: string
   sectionNames?: string[]

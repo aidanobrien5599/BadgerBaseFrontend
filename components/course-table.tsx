@@ -259,13 +259,9 @@ export function CourseTable({
                 <div className="flex items-center justify-center px-3">
                   {deriveStatus(course) === 0 ? (
                     <div onClick={(e) => e.stopPropagation()}>
-                      {/* FIXME(mysql-decommission PR 2): course_id is a zero-padded string
-                          ("024794"). parseInt is correct for the v1 MySQL subscription API,
-                          but the /v2 handler matches on the raw string, so this must send
-                          course_id unparsed at cutover. */}
                       <NotificationButton
                         type="course"
-                        id={parseInt(course.course_id, 10)}
+                        id={course.course_id}
                         isEnabled={true}
                         courseTitle={course.course_title}
                         compact
