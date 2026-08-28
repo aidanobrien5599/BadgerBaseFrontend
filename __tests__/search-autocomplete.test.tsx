@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest"
-import { render, screen, waitFor } from "@testing-library/react"
+import { render, screen, waitFor, fireEvent } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import { useState } from "react"
 import { SearchAutocomplete } from "@/components/search-autocomplete"
@@ -57,7 +57,11 @@ describe("SearchAutocomplete", () => {
     render(<Harness />)
 
     await user.type(screen.getByRole("combobox"), "comp")
-    await waitFor(() => expect(screen.getByRole("listbox")).toBeInTheDocument())
+    // Wait for actual suggestion data, not merely "the listbox exists": the
+    // listbox now renders in every open state (loading/empty/populated, per
+    // the aria-controls fix below), so its mere presence in the DOM no
+    // longer implies the debounced fetch has resolved.
+    await waitFor(() => expect(screen.getAllByRole("option").length).toBeGreaterThan(0))
     // Plain string matching can't find this: the matched "COMP" prefix is
     // wrapped in its own <mark> element (per the approved highlight design),
     // so RTL's default getByText — which only reads an element's *direct*
@@ -77,7 +81,8 @@ describe("SearchAutocomplete", () => {
 
     const input = screen.getByRole("combobox")
     await user.type(input, "comp")
-    await waitFor(() => expect(screen.getByRole("listbox")).toBeInTheDocument())
+    // See note above on waiting for real options, not just an open listbox.
+    await waitFor(() => expect(screen.getAllByRole("option").length).toBeGreaterThan(0))
     // See note above: match on full textContent since "COMP" is split into
     // its own <mark> element.
     await user.click(screen.getByText((_, el) => el?.textContent === "COMP SCI 400"))
@@ -95,7 +100,8 @@ describe("SearchAutocomplete", () => {
 
     const input = screen.getByRole("combobox")
     await user.type(input, "comp")
-    await waitFor(() => expect(screen.getByRole("listbox")).toBeInTheDocument())
+    // See note above on waiting for real options, not just an open listbox.
+    await waitFor(() => expect(screen.getAllByRole("option").length).toBeGreaterThan(0))
 
     await user.keyboard("{ArrowDown}{Enter}")
     expect((input as HTMLInputElement).value).toBe("COMP SCI 200")
@@ -109,7 +115,8 @@ describe("SearchAutocomplete", () => {
 
     const input = screen.getByRole("combobox")
     await user.type(input, "comp")
-    await waitFor(() => expect(screen.getByRole("listbox")).toBeInTheDocument())
+    // See note above on waiting for real options, not just an open listbox.
+    await waitFor(() => expect(screen.getAllByRole("option").length).toBeGreaterThan(0))
 
     await user.keyboard("{ArrowDown}{ArrowDown}{Enter}")
     expect((input as HTMLInputElement).value).toBe("COMP SCI 400")
@@ -122,7 +129,8 @@ describe("SearchAutocomplete", () => {
 
     const input = screen.getByRole("combobox")
     await user.type(input, "comp")
-    await waitFor(() => expect(screen.getByRole("listbox")).toBeInTheDocument())
+    // See note above on waiting for real options, not just an open listbox.
+    await waitFor(() => expect(screen.getAllByRole("option").length).toBeGreaterThan(0))
 
     await user.keyboard("{ArrowUp}{Enter}")
     expect((input as HTMLInputElement).value).toBe("Jim Williams")
@@ -157,6 +165,28 @@ describe("SearchAutocomplete", () => {
     expect((input as HTMLInputElement).value).toBe("comp")
   })
 
+  it("refocusing before the blur-close timer fires keeps the panel open", async () => {
+    // Regression test: onBlur arms a 150ms setTimeout(close). If the input
+    // regains focus before that timer fires (e.g. Tab away and Shift+Tab
+    // straight back), the orphaned timer must not survive to slam the panel
+    // shut later while the input is sitting there focused.
+    mockSuggest()
+    const user = userEvent.setup()
+    render(<Harness />)
+
+    const input = screen.getByRole("combobox")
+    await user.type(input, "comp")
+    await waitFor(() => expect(screen.getByRole("listbox")).toBeInTheDocument())
+
+    fireEvent.blur(input)
+    fireEvent.focus(input)
+
+    // Past the 150ms blur-close delay the orphaned timer would have fired at.
+    await new Promise((r) => setTimeout(r, 200))
+
+    expect(screen.getByRole("listbox")).toBeInTheDocument()
+  })
+
   it("sets aria-expanded to reflect dropdown state", async () => {
     mockSuggest()
     const user = userEvent.setup()
@@ -176,7 +206,8 @@ describe("SearchAutocomplete", () => {
 
     const input = screen.getByRole("combobox")
     await user.type(input, "comp")
-    await waitFor(() => expect(screen.getByRole("listbox")).toBeInTheDocument())
+    // See note above on waiting for real options, not just an open listbox.
+    await waitFor(() => expect(screen.getAllByRole("option").length).toBeGreaterThan(0))
 
     await user.keyboard("{ArrowDown}")
     const activeId = input.getAttribute("aria-activedescendant")
@@ -191,6 +222,25 @@ describe("SearchAutocomplete", () => {
 
     await user.type(screen.getByRole("combobox"), "zzzz")
     await waitFor(() => expect(screen.getByText(/no matches/i)).toBeInTheDocument())
+  })
+
+  it("aria-controls points at a real listbox element in the empty state", async () => {
+    // Regression test: aria-controls/aria-expanded on the input claim a
+    // listbox exists whenever isOpen, but the <ul role="listbox"> used to
+    // only render in the populated branch — leaving the empty and loading
+    // states advertising a listbox that wasn't actually in the a11y tree.
+    mockSuggest([])
+    const user = userEvent.setup()
+    render(<Harness />)
+
+    const input = screen.getByRole("combobox")
+    await user.type(input, "zzzz")
+    await waitFor(() => expect(screen.getByText(/no matches/i)).toBeInTheDocument())
+
+    const controlsId = input.getAttribute("aria-controls")
+    expect(controlsId).toBeTruthy()
+    expect(document.getElementById(controlsId!)).not.toBeNull()
+    expect(document.getElementById(controlsId!)).toHaveAttribute("role", "listbox")
   })
 
   it("stays usable as a plain input when the fetch fails", async () => {

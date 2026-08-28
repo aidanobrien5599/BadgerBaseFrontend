@@ -1,6 +1,6 @@
 "use client"
 
-import { useId, useRef, useState } from "react"
+import { useEffect, useId, useRef, useState } from "react"
 import { Input } from "@/components/ui/input"
 import { Popover, PopoverAnchor, PopoverContent } from "@/components/ui/popover"
 import { useSearchSuggestions, type Suggestion } from "@/hooks/use-search-suggestions"
@@ -64,6 +64,17 @@ export function SearchAutocomplete({
 
   const optionId = (index: number) => `${optionIdPrefix}-option-${index}`
 
+  // The blur handler arms a close on a delay so a mouse click on an option
+  // can land first. If the input regains focus (e.g. Tab away and Shift+Tab
+  // straight back) before that delay elapses, the orphaned timer must not be
+  // left free to fire later and slam the panel shut out from under a focused
+  // input — clear it whenever we unmount or refocus.
+  useEffect(() => {
+    return () => {
+      if (blurTimer.current) clearTimeout(blurTimer.current)
+    }
+  }, [])
+
   function close() {
     setOpen(false)
     setActiveIndex(-1)
@@ -125,7 +136,10 @@ export function SearchAutocomplete({
             setOpen(true)
             setActiveIndex(-1)
           }}
-          onFocus={() => value.trim().length >= 2 && setOpen(true)}
+          onFocus={() => {
+            if (blurTimer.current) clearTimeout(blurTimer.current)
+            if (value.trim().length >= 2) setOpen(true)
+          }}
           onBlur={() => {
             // Delay so a mouse click on an option lands before the close.
             blurTimer.current = setTimeout(close, 150)
@@ -137,19 +151,35 @@ export function SearchAutocomplete({
       <PopoverContent
         className="w-[var(--radix-popover-trigger-width)] max-h-72 overflow-y-auto"
         onOpenAutoFocus={(e) => e.preventDefault()}
+        // The anchor (our Input) sits structurally outside PopoverContent's
+        // own react tree, so Radix's DismissableLayer treats any refocus of
+        // it while open as "focus arrived outside" and immediately calls
+        // onDismiss — racing and overriding our own onFocus/onBlur timer
+        // logic below. We already own the full open/close lifecycle
+        // ourselves (onBlur, onFocus, Escape, option click), so suppress
+        // Radix's redundant focus-outside dismissal; outside pointer-down
+        // dismissal is untouched and still closes the panel on outside
+        // clicks.
+        onFocusOutside={(e) => e.preventDefault()}
       >
-        {loading && suggestions.length === 0 ? (
-          <p className="px-3 py-2.5 font-mono text-[11px] uppercase tracking-[0.12em] text-text-secondary">
-            Searching…
-          </p>
-        ) : suggestions.length === 0 ? (
-          <p className="px-3 py-2.5 font-mono text-[11px] uppercase tracking-[0.12em] text-text-secondary">
-            No matches — press Enter to search anyway
-          </p>
-        ) : (
-          <ul id={listboxId} role="listbox" className="py-1">
-            {suggestions.map((suggestion, index) => (
-              <li
+        {/*
+          `aria-controls`/`aria-expanded` on the input point at this element
+          whenever isOpen, in every state — loading, empty, and populated —
+          so the listbox must actually exist in all three. The status
+          messages live inside it rather than replacing it.
+        */}
+        <div id={listboxId} role="listbox" className="py-1">
+          {loading && suggestions.length === 0 ? (
+            <p className="px-3 py-2.5 font-mono text-[11px] uppercase tracking-[0.12em] text-text-secondary">
+              Searching…
+            </p>
+          ) : suggestions.length === 0 ? (
+            <p className="px-3 py-2.5 font-mono text-[11px] uppercase tracking-[0.12em] text-text-secondary">
+              No matches — press Enter to search anyway
+            </p>
+          ) : (
+            suggestions.map((suggestion, index) => (
+              <div
                 key={`${suggestion.type}-${suggestion.value}`}
                 id={optionId(index)}
                 role="option"
@@ -174,10 +204,10 @@ export function SearchAutocomplete({
                     {suggestion.sublabel}
                   </span>
                 )}
-              </li>
-            ))}
-          </ul>
-        )}
+              </div>
+            ))
+          )}
+        </div>
       </PopoverContent>
     </Popover>
   )
