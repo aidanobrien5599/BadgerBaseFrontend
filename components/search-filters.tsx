@@ -12,6 +12,7 @@ import { useState } from "react"
 import { Slider } from "@/components/ui/slider"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { AvailabilityCalendar } from "./availability-calendar"
+import { SearchAutocomplete } from "./search-autocomplete"
 
 export interface FilterState {
   search_param: string
@@ -630,12 +631,12 @@ export function SearchFilters({ filters, onFiltersChange, onSearch, loading }: S
       {/* Search */}
       <div className="space-y-2">
         <Label htmlFor="search" className={fieldLabel}>Search Courses</Label>
-        <Input
+        <SearchAutocomplete
           id="search"
           placeholder="COMP SCI 400, John Doe, etc."
           value={filters.search_param}
-          onChange={(e) => updateFilter("search_param", e.target.value)}
-          onKeyDown={(e) => e.key === "Enter" && onSearch()}
+          onValueChange={(value) => updateFilter("search_param", value)}
+          onSearch={onSearch}
         />
       </div>
 
