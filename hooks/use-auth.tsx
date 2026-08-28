@@ -1,32 +1,21 @@
 "use client"
 
-import { useState, useEffect } from "react"
-import { createClient } from "@/lib/supabase/client"
-import { User } from "@supabase/supabase-js"
+import { authClient } from "@/lib/auth-client"
 
-export function useAuth() {
-  const [user, setUser] = useState<User | null>(null)
-  const [loading, setLoading] = useState(true)
-  const supabase = createClient()
-
-  useEffect(() => {
-    // Get initial session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setUser(session?.user ?? null)
-      setLoading(false)
-    })
-
-    // Listen for auth changes
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user ?? null)
-      setLoading(false)
-    })
-
-    return () => subscription.unsubscribe()
-  }, [supabase])
-
-  return { user, loading, isAuthenticated: !!user }
+export interface AuthUser {
+  id: string
+  email: string
+  name?: string | null
+  image?: string | null
 }
 
+/**
+ * Same return shape as the Supabase-era hook, so consuming components need no
+ * changes beyond their import of the user type.
+ */
+export function useAuth() {
+  const { data, isPending } = authClient.useSession()
+  const user = (data?.user as AuthUser | undefined) ?? null
+
+  return { user, loading: isPending, isAuthenticated: !!user }
+}
