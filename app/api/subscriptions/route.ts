@@ -45,7 +45,7 @@ export async function GET(request: Request) {
     }
 
     // Forward the request to the Railway backend with retry logic
-    const response = await fetchWithRetry(`${SUBSCRIPTION_URL}/subscriptions?email=${encodeURIComponent(userEmail)}`, {
+    const response = await fetchWithRetry(`${SUBSCRIPTION_URL}/v2/subscriptions?email=${encodeURIComponent(userEmail)}`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
