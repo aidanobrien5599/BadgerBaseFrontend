@@ -33,7 +33,7 @@ export interface Meeting {
 }
 
 export interface SectionDetail {
-  section_id: string | number
+  section_id: string
   unique_section_id?: string
   section_uuid?: string
   status: string
@@ -69,7 +69,7 @@ export interface CourseDetailData {
   full_course_designation: string
   subject_code: string
   enrollment_prerequisites: string | null
-  letters_and_science_credits: string | boolean | null
+  letters_and_science_credits: boolean | null
   course_description: string | null
   minimum_credits: number
   maximum_credits: number
@@ -84,57 +84,38 @@ export interface CourseDetailData {
   c_percent: number
   d_percent: number
   f_percent: number
-  ethnic_studies: string | boolean | null
-  social_science: string | boolean | null
-  humanities: string | boolean | null
-  biological_science: string | boolean | null
-  physical_science: string | boolean | null
-  natural_science: string | boolean | null
-  literature: string | boolean | null
+  ethnic_studies: boolean | null
+  social_science: boolean | null
+  humanities: boolean | null
+  biological_science: boolean | null
+  physical_science: boolean | null
+  natural_science: boolean | null
+  literature: boolean | null
   general_education: string | null
   typically_offered: string | null
-  repeatable_for_credit: string | boolean | null
+  repeatable_for_credit: boolean | null
   madgrades_course_uuid: string
-  status?: number
   sections: SectionDetail[]
   all_course_designations?: string | null
-  open_to_first_year?: string | boolean | null
+  open_to_first_year?: boolean | null
   grading_basis_description?: string | null
 }
 
-const levelLabel = (level: string) => {
-  switch (level) {
-    case "E":
-    case "Elementary":
-      return "Elementary"
-    case "I":
-    case "Intermediate":
-      return "Intermediate"
-    case "A":
-    case "Advanced":
-      return "Advanced"
-    default:
-      return level || "—"
-  }
-}
+const levelLabel = (level: string) => level || "—"
 
 /* ============ Grade Distribution ============ */
 
 function GradeDistribution({ course }: { course: CourseDetailData }) {
   const grades = useMemo(() => {
-    const rawPcts = [course.a_percent, course.ab_percent, course.b_percent, course.bc_percent, course.c_percent, course.d_percent, course.f_percent]
-    // PG API returns 0-100 values; legacy API returns 0-1 proportions
-    const sum = rawPcts.reduce((a, b) => a + (b || 0), 0)
-    const norm = (v: number) => (sum > 2 ? v / 100 : v)
-
+    // Grade percentages arrive as 0-1 proportions.
     const raw = [
-      { label: "A", pct: norm(course.a_percent) },
-      { label: "AB", pct: norm(course.ab_percent) },
-      { label: "B", pct: norm(course.b_percent) },
-      { label: "BC", pct: norm(course.bc_percent) },
-      { label: "C", pct: norm(course.c_percent) },
-      { label: "D", pct: norm(course.d_percent) },
-      { label: "F", pct: norm(course.f_percent) },
+      { label: "A", pct: course.a_percent },
+      { label: "AB", pct: course.ab_percent },
+      { label: "B", pct: course.b_percent },
+      { label: "BC", pct: course.bc_percent },
+      { label: "C", pct: course.c_percent },
+      { label: "D", pct: course.d_percent },
+      { label: "F", pct: course.f_percent },
     ]
     const max = Math.max(...raw.map((r) => r.pct || 0))
     return raw.map((r) => ({ ...r, width: max > 0 ? Math.round((r.pct / max) * 100) : 0 }))
@@ -196,7 +177,6 @@ function GradeDistribution({ course }: { course: CourseDetailData }) {
 /* ============ Main detail ============ */
 
 function deriveStatus(course: CourseDetailData): number {
-  if (course.status != null) return course.status
   if (course.sections?.some((s) => s.status === "OPEN")) return 2
   if (course.sections?.some((s) => s.status === "WAITLISTED")) return 1
   return 0
@@ -291,7 +271,7 @@ export function CourseDetail({ course, inline }: { course: CourseDetailData; inl
                 course.literature && "Literature",
               ].filter(Boolean).join(", ") || "—" },
             { l: "TYPICAL OFFERING", v: course.typically_offered && course.typically_offered !== "Not Applicable" ? course.typically_offered : "—" },
-            { l: "REPEATABLE", v: course.repeatable_for_credit === "Y" || course.repeatable_for_credit === true ? "YES" : "—" },
+            { l: "REPEATABLE", v: course.repeatable_for_credit ? "YES" : "—" },
           ].map((m) => (
             <span key={m.l} className="font-mono text-[10.5px] tracking-[0.12em] text-muted-foreground py-[7px] pr-3.5 mr-3.5 border-r border-border/70 last:border-r-0">
               {m.l}
