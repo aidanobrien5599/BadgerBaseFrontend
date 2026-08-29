@@ -1,7 +1,7 @@
 "use client"
 
-import { useState, useEffect } from "react"
-import { createClient } from "@/lib/supabase/client"
+import { useState } from "react"
+import { useAuth } from "@/hooks/use-auth"
 import { Bell, BellRing, Loader2 } from "lucide-react"
 import { toast } from "sonner"
 import { cn } from "@/lib/utils"
@@ -34,28 +34,11 @@ interface NotificationButtonProps {
 }
 
 export function NotificationButton({ type, id, isEnabled, courseTitle, sectionNames, compact, onSuccess, onError }: NotificationButtonProps) {
-  const [user, setUser] = useState<any>(null)
-  const [loading, setLoading] = useState(true)
+  const { user, loading } = useAuth()
   const [subscribing, setSubscribing] = useState(false)
   const [subscribed, setSubscribed] = useState(false)
   const [showSignupDialog, setShowSignupDialog] = useState(false)
-  const supabase = createClient()
   const router = useRouter()
-
-  useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setUser(session?.user ?? null)
-      setLoading(false)
-    })
-
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user ?? null)
-    })
-
-    return () => subscription.unsubscribe()
-  }, [])
 
   const handleSubscribe = async (e: React.MouseEvent) => {
     e.stopPropagation()

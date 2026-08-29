@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { createClient } from "@/lib/supabase/client"
+import { authClient } from "@/lib/auth-client"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -18,7 +18,6 @@ export default function SignUpPage() {
   const [confirmPassword, setConfirmPassword] = useState("")
   const [loading, setLoading] = useState(false)
   const [message, setMessage] = useState<{ type: "error" | "success"; text: string } | null>(null)
-  const supabase = createClient()
   const router = useRouter()
 
   const handleSignUp = async (e: React.FormEvent) => {
@@ -57,69 +56,64 @@ export default function SignUpPage() {
       return
     }
 
-    try {
-      const { data, error } = await supabase.auth.signUp({
-        email,
-        password,
-        options: {
-          emailRedirectTo: `${window.location.origin}/auth/callback`,
-          data: { 
-            full_name: fullName,
-            display_name: fullName,
-          },
-        },
-      })
+    const { data, error } = await authClient.signUp.email({
+      email,
+      password,
+      name: fullName,
+      callbackURL: typeof window !== "undefined" ? window.location.origin : "/",
+    })
 
-      if (error) throw error
-
-      // Debug logging to understand Supabase behavior
-      console.log("Sign up response:", {
-        hasUser: !!data.user,
-        hasSession: !!data.session,
-        userEmail: data.user?.email,
-        userConfirmed: data.user?.email_confirmed_at ? "Yes" : "No",
-      })
-
-      // Check if email confirmation is required
-      // If data.session exists, user was auto-confirmed (email confirmation is disabled in Supabase)
-      // If data.session is null, email confirmation is required (user needs to click email link)
-      if (data.user && !data.session) {
-        // Email confirmation required - user needs to verify email
-        const isWisconsinEmail = email.toLowerCase().endsWith("@wisc.edu")
-        
-        if (isWisconsinEmail) {
-          setMessage({
-            type: "success",
-            text: "Success! Check your email (and spam folder) for a confirmation link. ⚠️ Note: @wisc.edu emails may be blocked by the university. We're actively working to fix this issue.",
-          })
-        } else {
-          setMessage({
-            type: "success",
-            text: "Success! Check your email for a confirmation link. If you don't see it, please check your spam folder.",
-          })
-        }
-      } else if (data.user && data.session) {
-        // User was auto-confirmed - this means email confirmation is DISABLED in Supabase
-        console.warn("⚠️ User was auto-confirmed. Email confirmation is likely disabled in Supabase dashboard.")
-        setMessage({ type: "success", text: "Account created successfully!" })
-        setTimeout(() => {
-          router.push("/")
-        }, 1500)
-      } else {
-        // Fallback case
-        setMessage({ type: "success", text: "Account created successfully!" })
-        setTimeout(() => {
-          router.push("/")
-        }, 1500)
-      }
-    } catch (error: any) {
-      console.error("Sign up error:", error)
+    if (error) {
       setMessage({
         type: "error",
         text: error.message || "Failed to create account. Please try again.",
       })
-    } finally {
       setLoading(false)
+      return
+    }
+
+    // Debug logging to understand better-auth behavior
+    console.log("Sign up response:", {
+      hasUser: !!data?.user,
+      hasToken: !!data?.token,
+      userEmail: data?.user?.email,
+      userVerified: data?.user?.emailVerified ? "Yes" : "No",
+    })
+
+    // Check if email verification is required.
+    // If data.token exists, a session was created immediately (auto sign-in).
+    // If data.token is null, email verification is required before sign-in.
+    if (data?.user && !data.token) {
+      // Email verification required - user needs to verify email
+      const isWisconsinEmail = email.toLowerCase().endsWith("@wisc.edu")
+
+      if (isWisconsinEmail) {
+        setMessage({
+          type: "success",
+          text: "Success! Check your email (and spam folder) for a confirmation link. ⚠️ Note: @wisc.edu emails may be blocked by the university. We're actively working to fix this issue.",
+        })
+      } else {
+        setMessage({
+          type: "success",
+          text: "Success! Check your email for a confirmation link. If you don't see it, please check your spam folder.",
+        })
+      }
+      setLoading(false)
+    } else if (data?.user && data.token) {
+      // User was auto-confirmed - email verification is disabled server-side
+      console.warn("⚠️ User was auto-confirmed. Email verification is likely disabled in better-auth config.")
+      setMessage({ type: "success", text: "Account created successfully!" })
+      setLoading(false)
+      setTimeout(() => {
+        router.push("/")
+      }, 1500)
+    } else {
+      // Fallback case
+      setMessage({ type: "success", text: "Account created successfully!" })
+      setLoading(false)
+      setTimeout(() => {
+        router.push("/")
+      }, 1500)
     }
   }
 
