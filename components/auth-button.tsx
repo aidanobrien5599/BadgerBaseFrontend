@@ -1,8 +1,10 @@
 "use client"
 
+import { useState } from "react"
 import { authClient } from "@/lib/auth-client"
 import { useAuth } from "@/hooks/use-auth"
 import { Button } from "@/components/ui/button"
+import { toast } from "sonner"
 import Link from "next/link"
 import {
   DropdownMenu,
@@ -17,9 +19,19 @@ import { LogOut } from "lucide-react"
 
 export function AuthButton() {
   const { user, loading } = useAuth()
+  const [signingOut, setSigningOut] = useState(false)
 
   const handleSignOut = async () => {
-    await authClient.signOut()
+    setSigningOut(true)
+    const { error } = await authClient.signOut()
+
+    if (error) {
+      toast.error(error.message || "Failed to sign out. Please try again.")
+      setSigningOut(false)
+      return
+    }
+
+    setSigningOut(false)
   }
 
   if (loading) {
@@ -63,9 +75,9 @@ export function AuthButton() {
             </div>
           </DropdownMenuLabel>
           <DropdownMenuSeparator />
-          <DropdownMenuItem onClick={handleSignOut}>
+          <DropdownMenuItem onClick={handleSignOut} disabled={signingOut}>
             <LogOut className="mr-2 h-4 w-4" />
-            <span>Log out</span>
+            <span>{signingOut ? "Logging out..." : "Log out"}</span>
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
