@@ -61,13 +61,32 @@ const RESPONSE_HEADER_BLOCKLIST = new Set([
 
 const BODYLESS_STATUSES = new Set([101, 204, 205, 304])
 
+// Every auth request in the app flows through here. Without a ceiling, an
+// upstream that hangs rather than refusing pins the Vercel function until its
+// max duration; a hung upstream should degrade the same way an unreachable
+// one already does.
+const UPSTREAM_TIMEOUT_MS = 10_000
+
 async function proxy(request: Request): Promise<Response> {
   const incoming = new URL(request.url)
   // Preserve any path prefix on the upstream URL rather than clobbering it,
   // and keep the raw (still-encoded) pathname so tokens in magic-link and
   // verification URLs survive the hop untouched.
-  const base = authUpstreamUrl().replace(/\/+$/, "")
-  const target = `${base}${incoming.pathname}${incoming.search}`
+  const upstream_ = new URL(authUpstreamUrl())
+  const basePath = upstream_.pathname.replace(/\/+$/, "")
+  const target = new URL(
+    `${upstream_.origin}${basePath}${incoming.pathname}${incoming.search}`
+  )
+
+  // Defense in depth on the one route that proxies to a privileged host. The
+  // WHATWG URL parser resolves dot segments, and `%2e%2e` is a dot segment to
+  // it, so a crafted catch-all segment could in principle land on a non-auth
+  // upstream path if Next's router hasn't already normalized it away. Bounded
+  // today (fixed host, no injected credentials, /v2 needs an API key), but the
+  // guard is one comparison: anything that escapes /api/auth/ is not ours.
+  if (!target.pathname.startsWith(`${basePath}/api/auth/`)) {
+    return Response.json({ error: "Not found" }, { status: 404 })
+  }
 
   const headers = new Headers()
   request.headers.forEach((value, key) => {
@@ -93,8 +112,11 @@ async function proxy(request: Request): Promise<Response> {
       // Relay it to the browser instead of following it here, which would
       // both lose the redirect and strip the cookies set alongside it.
       redirect: "manual",
+      signal: AbortSignal.timeout(UPSTREAM_TIMEOUT_MS),
     })
   } catch (error) {
+    // Covers a refused connection and a timeout alike -- both are "the auth
+    // server did not answer", and both should fail fast rather than hang.
     console.error("auth proxy: upstream request failed", error)
     return Response.json({ error: "Auth service unavailable" }, { status: 502 })
   }

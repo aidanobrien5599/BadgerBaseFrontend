@@ -181,6 +181,47 @@ describe("/api/auth/[...all] proxy", () => {
     expect(res.status).toBe(204);
   });
 
+  test("bounds the upstream call with a timeout signal", async () => {
+    await GET(new Request("http://localhost:3000/api/auth/get-session"));
+    const signal = lastCall().init.signal;
+    expect(signal).toBeInstanceOf(AbortSignal);
+    expect(signal!.aborted).toBe(false);
+  });
+
+  test("returns 502 when the upstream call aborts on timeout", async () => {
+    const consoleError = vi.spyOn(console, "error").mockImplementation(() => {});
+    fetchMock.mockRejectedValue(
+      Object.assign(new Error("The operation was aborted due to timeout"), {
+        name: "TimeoutError",
+      })
+    );
+    const res = await GET(new Request("http://localhost:3000/api/auth/token"));
+    expect(res.status).toBe(502);
+    expect(await res.json()).toEqual({ error: "Auth service unavailable" });
+    consoleError.mockRestore();
+  });
+
+  // The WHATWG URL parser resolves %2e%2e as a dot segment, so a crafted
+  // catch-all segment must not be able to walk off /api/auth/ onto another
+  // upstream path.
+  test("404s without calling upstream when the path escapes /api/auth/", async () => {
+    const res = await GET(
+      new Request("http://localhost:3000/api/auth/%2e%2e/%2e%2e/v2/subscriptions")
+    );
+    expect(res.status).toBe(404);
+    expect(fetchMock).not.toHaveBeenCalled();
+  });
+
+  test("applies the same guard when the upstream URL has a path prefix", async () => {
+    vi.stubEnv("AUTH_UPSTREAM_URL", "https://auth.example.com/base");
+    const res = await GET(
+      new Request("http://localhost:3000/api/auth/%2e%2e/v2/subscriptions")
+    );
+    expect(res.status).toBe(404);
+    expect(fetchMock).not.toHaveBeenCalled();
+    vi.unstubAllEnvs();
+  });
+
   test("returns 502 when the upstream auth server is unreachable", async () => {
     const consoleError = vi.spyOn(console, "error").mockImplementation(() => {});
     fetchMock.mockRejectedValue(new Error("fetch failed"));
