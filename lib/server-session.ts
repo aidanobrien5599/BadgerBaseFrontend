@@ -14,7 +14,14 @@ export async function getServerSession(
     fetch(`${AUTH_URL}/api/auth/get-session`, { headers: { cookie } }),
     fetch(`${AUTH_URL}/api/auth/token`, { headers: { cookie } }),
   ])
-  if (!sessionRes.ok || !tokenRes.ok) return null
+  if (!sessionRes.ok || !tokenRes.ok) {
+    console.error(
+      "getServerSession: auth server request failed",
+      `get-session -> ${sessionRes.status}`,
+      `token -> ${tokenRes.status}`
+    )
+    return null
+  }
 
   const session = await sessionRes.json()
   const { token } = await tokenRes.json()
