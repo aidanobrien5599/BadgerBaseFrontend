@@ -208,7 +208,7 @@ export default function DashboardPage() {
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       {/* User Info Section */}
       <div className="mb-8 text-center">
-        <h1 className="text-4xl font-bold mb-4">{user?.user_metadata?.full_name || user?.email}</h1>
+        <h1 className="text-4xl font-bold mb-4">{user?.name || user?.email}</h1>
         <div className="flex flex-col md:flex-row items-center justify-center gap-2 md:gap-4 text-lg text-muted-foreground">
           <div className="flex items-center gap-2">
             <Mail className="h-5 w-5" />
