@@ -1,6 +1,6 @@
 export const runtime = 'nodejs'
 
-import { createClient } from '@/lib/supabase/server'
+import { getServerSession } from '@/lib/server-session'
 import { fetchWithRetry } from '@/lib/fetch-with-retry'
 import { NextResponse } from 'next/server'
 
@@ -9,10 +9,9 @@ const SUBSCRIPTION_URL = process.env.SUBSCRIPTION_URL
 export async function POST(request: Request) {
   try {
     // Get the authenticated user's session
-    const supabase = await createClient()
-    const { data: { session }, error: sessionError } = await supabase.auth.getSession()
+    const session = await getServerSession(request)
 
-    if (sessionError || !session) {
+    if (!session) {
       return NextResponse.json(
         { error: 'Unauthorized: Please log in to subscribe to sections' },
         { status: 401 }
@@ -20,8 +19,8 @@ export async function POST(request: Request) {
     }
 
     // Get the access token and user email from the session
-    const accessToken = session.access_token
-    const userEmail = session.user.email
+    const accessToken = session.token
+    const userEmail = session.email
 
     // Get the request body
     const body = await request.json()
@@ -93,10 +92,9 @@ export async function POST(request: Request) {
 export async function DELETE(request: Request) {
   try {
     // Get the authenticated user's session
-    const supabase = await createClient()
-    const { data: { session }, error: sessionError } = await supabase.auth.getSession()
+    const session = await getServerSession(request)
 
-    if (sessionError || !session) {
+    if (!session) {
       return NextResponse.json(
         { error: 'Unauthorized: Please log in to unsubscribe from sections' },
         { status: 401 }
@@ -104,8 +102,8 @@ export async function DELETE(request: Request) {
     }
 
     // Get the access token and user email from the session
-    const accessToken = session.access_token
-    const userEmail = session.user.email
+    const accessToken = session.token
+    const userEmail = session.email
 
     // Get the request body
     const body = await request.json()
