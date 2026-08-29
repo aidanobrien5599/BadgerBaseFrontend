@@ -72,14 +72,6 @@ export default function SignUpPage() {
       return
     }
 
-    // Debug logging to understand better-auth behavior
-    console.log("Sign up response:", {
-      hasUser: !!data?.user,
-      hasToken: !!data?.token,
-      userEmail: data?.user?.email,
-      userVerified: data?.user?.emailVerified ? "Yes" : "No",
-    })
-
     // Check if email verification is required.
     // If data.token exists, a session was created immediately (auto sign-in).
     // If data.token is null, email verification is required before sign-in.
@@ -100,8 +92,10 @@ export default function SignUpPage() {
       }
       setLoading(false)
     } else if (data?.user && data.token) {
-      // User was auto-confirmed - email verification is disabled server-side
-      console.warn("⚠️ User was auto-confirmed. Email verification is likely disabled in better-auth config.")
+      // A session came back, so the server did not require verification.
+      // api-local/auth.ts sets requireEmailVerification, so this branch is
+      // not expected to be reached; it stays as a safe fallback rather than
+      // leaving the user staring at a form that appeared to do nothing.
       setMessage({ type: "success", text: "Account created successfully!" })
       setLoading(false)
       setTimeout(() => {

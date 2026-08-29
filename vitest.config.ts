@@ -15,6 +15,7 @@ export default defineConfig({
     // .env files automatically, so provide test-only values here for the
     // routes that check for them.
     env: {
+      AUTH_UPSTREAM_URL: "https://auth.example.com",
       SUBSCRIPTION_URL: "https://api.example.com",
       SUBSCRIPTION_API_KEY: "test-key",
     },

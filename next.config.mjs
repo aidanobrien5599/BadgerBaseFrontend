@@ -1,18 +1,25 @@
 /** @type {import('next').NextConfig} */
 
-// NEXT_PUBLIC_AUTH_URL is inlined into the client bundle at build time. If it
-// is unset in production, the shipped bundle silently falls back to
-// http://localhost:3002 inside lib/auth-client.ts, so every visitor's
-// browser tries to authenticate against their own machine -- auth fails
-// with no server-side error and nothing in the logs. Fail the build instead,
+// AUTH_UPSTREAM_URL names the upstream better-auth server (the Hono API on
+// Railway). It replaced NEXT_PUBLIC_AUTH_URL, whose meaning no longer holds:
+// the browser now authenticates against this app's own origin via the
+// same-origin proxy in app/api/auth/[...all]/route.ts, so there is nothing
+// left to inline into the client bundle. What is still required is the
+// server-side upstream address, read by that proxy and by
+// lib/server-session.ts.
+//
+// If it is unset in production, both fall back to http://localhost:3002 --
+// on Vercel that is the serverless function's own loopback, so every auth
+// request and every subscription request fails with a connection error and
+// no configuration error anywhere to explain it. Fail the build instead,
 // since build time is the only point where failing is free; the runtime
 // fallback stays in place for local dev, where this variable is set in .env.
-if (process.env.NODE_ENV === "production" && !process.env.NEXT_PUBLIC_AUTH_URL) {
+if (process.env.NODE_ENV === "production" && !process.env.AUTH_UPSTREAM_URL) {
   throw new Error(
-    "NEXT_PUBLIC_AUTH_URL is required for production builds. Without it, " +
-      "the client bundle falls back to http://localhost:3002 and every " +
-      "visitor's browser will try to authenticate against their own " +
-      "machine, silently breaking auth in production."
+    "AUTH_UPSTREAM_URL is required for production builds. It must point at " +
+      "the better-auth API (e.g. https://api-local-production.up.railway.app). " +
+      "Without it, the /api/auth proxy and lib/server-session.ts both fall " +
+      "back to http://localhost:3002 and every authenticated request fails."
   )
 }
 
