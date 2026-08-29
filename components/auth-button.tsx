@@ -23,15 +23,18 @@ export function AuthButton() {
 
   const handleSignOut = async () => {
     setSigningOut(true)
-    const { error } = await authClient.signOut()
 
-    if (error) {
-      toast.error(error.message || "Failed to sign out. Please try again.")
+    try {
+      const { error } = await authClient.signOut()
+
+      if (error) {
+        toast.error(error.message || "Failed to sign out. Please try again.")
+      }
+    } catch {
+      toast.error("Failed to sign out. Please check your connection and try again.")
+    } finally {
       setSigningOut(false)
-      return
     }
-
-    setSigningOut(false)
   }
 
   if (loading) {
