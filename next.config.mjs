@@ -27,16 +27,6 @@ const nextConfig = {
   },
   // This is required to support PostHog trailing slash API requests
   skipTrailingSlashRedirect: true,
-  async headers() {
-    return [
-      {
-        source: "/bimi-logo.svg",
-        headers: [
-          { key: "Content-Type", value: "image/svg+xml" },
-        ],
-      },
-    ];
-  },
 }
 
 export default nextConfig
