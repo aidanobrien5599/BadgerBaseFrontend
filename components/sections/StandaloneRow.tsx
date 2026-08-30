@@ -16,7 +16,7 @@ interface StandaloneRowProps {
 
 export function StandaloneRow({ standalone, standaloneKey, isExpanded, onToggle, courseTitle }: StandaloneRowProps) {
   return (
-    <div className="border rounded-lg bg-white">
+    <div className="border rounded-lg bg-surface">
       <Collapsible open={isExpanded} onOpenChange={() => onToggle(standaloneKey)}>
         <CollapsibleTrigger asChild>
           <div className="p-3 sm:p-4 cursor-pointer transition-colors">
@@ -24,11 +24,11 @@ export function StandaloneRow({ standalone, standaloneKey, isExpanded, onToggle,
               {/* Title and Status Row */}
               <div className="flex items-center gap-2 flex-shrink-0">
                 {isExpanded ? (
-                  <ChevronDown className="h-4 w-4 sm:h-5 sm:w-5 text-red-600 flex-shrink-0" />
+                  <ChevronDown className="h-4 w-4 sm:h-5 sm:w-5 text-primary flex-shrink-0" />
                 ) : (
-                  <ChevronRight className="h-4 w-4 sm:h-5 sm:w-5 text-red-600 flex-shrink-0" />
+                  <ChevronRight className="h-4 w-4 sm:h-5 sm:w-5 text-primary flex-shrink-0" />
                 )}
-                <span className="font-bold text-gray-900 text-sm sm:text-lg truncate">
+                <span className="font-bold text-foreground text-sm sm:text-lg truncate">
                   {getDynamicSectionLabel(standalone.dynamicTypes)} {standalone.meetings[0]?.section_number || ""}
                 </span>
                 <Badge className={`${getStatusColor(standalone.section.status)} border font-medium flex-shrink-0 text-xs sm:text-sm`}>
@@ -39,15 +39,15 @@ export function StandaloneRow({ standalone, standaloneKey, isExpanded, onToggle,
               {/* Meeting Details Row */}
               {standalone.meetings.length > 0 && (
                 <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 flex-1 min-w-0">
-                  <div className="flex items-center gap-2 text-xs sm:text-sm text-gray-700 min-w-0">
-                    <Clock className="h-3 w-3 sm:h-4 sm:w-4 text-red-600 flex-shrink-0" />
+                  <div className="flex items-center gap-2 text-xs sm:text-sm text-muted-foreground min-w-0">
+                    <Clock className="h-3 w-3 sm:h-4 sm:w-4 text-primary flex-shrink-0" />
                     <span className="font-medium truncate">
                       {standalone.meetings[0].meeting_days} {formatMeetingTime(standalone.meetings[0].start_time, standalone.meetings[0].end_time)}
                     </span>
                   </div>
 
-                  <div className="flex items-center gap-2 text-xs sm:text-sm text-gray-700 min-w-0">
-                    <MapPin className="h-3 w-3 sm:h-4 sm:w-4 text-red-600 flex-shrink-0" />
+                  <div className="flex items-center gap-2 text-xs sm:text-sm text-muted-foreground min-w-0">
+                    <MapPin className="h-3 w-3 sm:h-4 sm:w-4 text-primary flex-shrink-0" />
                     <span className="font-medium truncate">
                       {standalone.meetings[0].location || `${standalone.meetings[0].building_name} ${standalone.meetings[0].room}`}
                     </span>

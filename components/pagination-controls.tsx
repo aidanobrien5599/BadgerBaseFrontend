@@ -2,8 +2,7 @@
 
 import { Button } from "@/components/ui/button"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
-import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, ArrowUpDown } from "lucide-react"
+import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from "lucide-react"
 
 interface PaginationControlsProps {
   currentPage: number
@@ -14,6 +13,8 @@ interface PaginationControlsProps {
   resultsPerPage: number
   currentSort: string
   onSortChange: (sort: string) => void
+  view: "sidebar" | "band"
+  onViewChange: (view: "sidebar" | "band") => void
 }
 
 export function PaginationControls({
@@ -25,6 +26,8 @@ export function PaginationControls({
   resultsPerPage,
   currentSort,
   onSortChange,
+  view,
+  onViewChange,
 }: PaginationControlsProps) {
   const startResult = (currentPage - 1) * resultsPerPage + 1
   const endResult = Math.min(currentPage * resultsPerPage, totalCount)
@@ -77,142 +80,124 @@ export function PaginationControls({
     }
   }
 
+  const pager = (
+    <div className="flex items-center gap-1.5">
+      <Button
+        variant="outline"
+        size="sm"
+        onClick={() => onPageChange(1)}
+        disabled={currentPage === 1}
+        className="h-7 w-7 p-0 rounded-[5px] bg-surface border-border/70"
+      >
+        <ChevronsLeft className="h-3.5 w-3.5" />
+      </Button>
+      <Button
+        variant="outline"
+        size="sm"
+        onClick={() => onPageChange(currentPage - 1)}
+        disabled={currentPage === 1}
+        className="h-7 w-7 p-0 rounded-[5px] bg-surface border-border/70"
+      >
+        <ChevronLeft className="h-3.5 w-3.5" />
+      </Button>
+
+      {pageNumbers.map((page, index) => (
+        <div key={index}>
+          {page === "..." ? (
+            <span className="px-1.5 text-sm text-muted-foreground">...</span>
+          ) : (
+            <Button
+              variant={currentPage === page ? "default" : "outline"}
+              size="sm"
+              onClick={() => onPageChange(page as number)}
+              className={`h-7 min-w-7 px-1 rounded-[5px] font-mono text-xs ${
+                currentPage === page ? "" : "bg-surface border-border/70"
+              }`}
+            >
+              {page}
+            </Button>
+          )}
+        </div>
+      ))}
+
+      <Button
+        variant="outline"
+        size="sm"
+        onClick={() => onPageChange(currentPage + 1)}
+        disabled={!hasMore || currentPage === totalPages}
+        className="h-7 w-7 p-0 rounded-[5px] bg-surface border-border/70"
+      >
+        <ChevronRight className="h-3.5 w-3.5" />
+      </Button>
+      <Button
+        variant="outline"
+        size="sm"
+        onClick={() => onPageChange(totalPages)}
+        disabled={currentPage === totalPages}
+        className="h-7 w-7 p-0 rounded-[5px] bg-surface border-border/70"
+      >
+        <ChevronsRight className="h-3.5 w-3.5" />
+      </Button>
+    </div>
+  )
+
   return (
-    <div className="space-y-4">
-      <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
-        {/* Left: Results info */}
-        <div className="text-sm text-gray-600">
-          Showing {startResult.toLocaleString()}-{endResult.toLocaleString()} of {totalCount.toLocaleString()}
+    <div className="flex flex-col gap-3 px-6 py-4 border-b border-border/70 bg-surface">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+        {/* Left: count — cardinal numeral + label + mono sub */}
+        <div className="flex items-baseline gap-2.5 flex-wrap">
+          <span className="font-display text-sm font-semibold text-primary tabular-nums leading-none">
+            {totalCount.toLocaleString()}
+          </span>
+          <span className="font-display text-sm font-semibold text-foreground">courses</span>
+          <span className="font-mono text-[11px] text-muted-foreground">
+            {startResult.toLocaleString()}–{endResult.toLocaleString()}
+          </span>
         </div>
 
-        {/* Center: Desktop pagination with sort filter */}
-        <div className="hidden md:flex items-center gap-3">
-          <div className="flex items-center gap-1">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => onPageChange(1)}
-              disabled={currentPage === 1}
-              className="h-8 w-8 p-0"
+        {/* Right: view toggle + sort + pager */}
+        <div className="flex items-center gap-3 flex-wrap">
+          {/* View toggle — sidebar vs top band (desktop only; mobile is always sidebar) */}
+          <div className="hidden md:flex items-center rounded-[5px] border border-border/70 overflow-hidden">
+            <button
+              onClick={() => onViewChange("sidebar")}
+              className={`h-8 px-2.5 font-mono text-[10px] uppercase tracking-[0.1em] transition-colors ${
+                view === "sidebar" ? "bg-primary text-primary-foreground" : "bg-surface text-muted-foreground hover:text-foreground"
+              }`}
             >
-              <ChevronsLeft className="h-4 w-4" />
-            </Button>
-
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => onPageChange(currentPage - 1)}
-              disabled={currentPage === 1}
-              className="h-8 w-8 p-0"
+              Sidebar
+            </button>
+            <button
+              onClick={() => onViewChange("band")}
+              className={`h-8 px-2.5 font-mono text-[10px] uppercase tracking-[0.1em] transition-colors border-l border-border/70 ${
+                view === "band" ? "bg-primary text-primary-foreground" : "bg-surface text-muted-foreground hover:text-foreground"
+              }`}
             >
-              <ChevronLeft className="h-4 w-4" />
-            </Button>
-
-            {pageNumbers.map((page, index) => (
-              <div key={index}>
-                {page === "..." ? (
-                  <span className="px-2 py-1 text-sm text-gray-500">...</span>
-                ) : (
-                  <Button
-                    variant={currentPage === page ? "default" : "outline"}
-                    size="sm"
-                    onClick={() => onPageChange(page as number)}
-                    className="h-8 w-8 p-0"
-                  >
-                    {page}
-                  </Button>
-                )}
-              </div>
-            ))}
-
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => onPageChange(currentPage + 1)}
-              disabled={!hasMore || currentPage === totalPages}
-              className="h-8 w-8 p-0"
-            >
-              <ChevronRight className="h-4 w-4" />
-            </Button>
-
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => onPageChange(totalPages)}
-              disabled={currentPage === totalPages}
-              className="h-8 w-8 p-0"
-            >
-              <ChevronsRight className="h-4 w-4" />
-            </Button>
+              Top Band
+            </button>
           </div>
 
-          {/* Sort dropdown right next to pagination */}
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="outline" size="sm" className="h-8 gap-1.5 bg-white">
-                <ArrowUpDown className="h-3.5 w-3.5" />
-                <span className="text-xs">{getSortLabel()}</span>
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={() => onSortChange("")}>Catalog Number</DropdownMenuItem>
-              <DropdownMenuItem onClick={() => onSortChange("cumulative_gpa")}>Cumulative GPA</DropdownMenuItem>
-              <DropdownMenuItem onClick={() => onSortChange("recent_gpa")}>Recent GPA</DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
-
-        {/* Mobile pagination */}
-        <div className="flex md:hidden items-center gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => onPageChange(currentPage - 1)}
-            disabled={currentPage === 1}
-          >
-            <ChevronLeft className="h-4 w-4 mr-1" />
-            Previous
-          </Button>
-
-          <Select value={currentPage.toString()} onValueChange={(value) => onPageChange(Number.parseInt(value))}>
-            <SelectTrigger className="w-20 h-8">
-              <SelectValue />
+          <Select value={currentSort} onValueChange={onSortChange}>
+            <SelectTrigger className="h-8 w-[160px] rounded-[5px] bg-surface border-border/70 font-mono text-xs">
+              <SelectValue placeholder="Sort" />
             </SelectTrigger>
             <SelectContent>
-              {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-                <SelectItem key={page} value={page.toString()}>
-                  {page}
-                </SelectItem>
-              ))}
+              <SelectItem value="">Catalog #</SelectItem>
+              <SelectItem value="cumulative_gpa">Cumulative GPA</SelectItem>
+              <SelectItem value="recent_gpa">Recent GPA</SelectItem>
             </SelectContent>
           </Select>
 
-          <span className="text-sm text-gray-500">of {totalPages}</span>
-
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => onPageChange(currentPage + 1)}
-            disabled={!hasMore || currentPage === totalPages}
-          >
-            Next
-            <ChevronRight className="h-4 w-4 ml-1" />
-          </Button>
-
-          {/* Mobile sort filter - icon only */}
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="outline" size="sm" className="h-8 w-8 p-0 bg-white">
-                <ArrowUpDown className="h-4 w-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={() => onSortChange("")}>Catalog Number</DropdownMenuItem>
-              <DropdownMenuItem onClick={() => onSortChange("cumulative_gpa")}>Cumulative GPA</DropdownMenuItem>
-              <DropdownMenuItem onClick={() => onSortChange("recent_gpa")}>Recent GPA</DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+          <div className="hidden md:block">{pager}</div>
         </div>
+      </div>
+
+      {/* Mobile pager */}
+      <div className="flex md:hidden items-center justify-between gap-2">
+        {pager}
+        <span className="font-mono text-[11px] text-muted-foreground">
+          {getSortLabel()} · page {currentPage}/{totalPages}
+        </span>
       </div>
     </div>
   )

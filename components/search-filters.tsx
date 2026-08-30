@@ -4,17 +4,17 @@ import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Checkbox } from "@/components/ui/checkbox"
 import { Separator } from "@/components/ui/separator"
-import { Search, RotateCcw, Calendar, X } from "lucide-react"
+import { Search, RotateCcw, Calendar, X, ChevronDown } from "lucide-react"
+import { MultiSelectDropdown } from "@/components/ui/multi-select-dropdown"
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible"
-import { ChevronDown } from "lucide-react"
 import { useState } from "react"
 import { Slider } from "@/components/ui/slider"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { AvailabilityCalendar } from "./availability-calendar"
+import { SearchAutocomplete } from "./search-autocomplete"
 
-interface FilterState {
+export interface FilterState {
   search_param: string
   status: string
   min_available_seats: string
@@ -59,9 +59,10 @@ interface FilterState {
   sundayStartTime?: string
   sundayEndTime?: string
   gen_ed?: string
+  sort?: string
 }
 
-interface WeeklyAvailability {
+export interface WeeklyAvailability {
   monday: { start: number; end: number }[]
   tuesday: { start: number; end: number }[]
   wednesday: { start: number; end: number }[]
@@ -69,23 +70,68 @@ interface WeeklyAvailability {
   friday: { start: number; end: number }[]
 }
 
-interface SearchFiltersProps {
+export interface SearchFiltersProps {
   filters: FilterState
   onFiltersChange: (filters: FilterState) => void
   onSearch: () => void
   loading: boolean
 }
 
-const DAYS = ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"]
+export const DAYS = ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"]
 
-export function SearchFilters({ filters, onFiltersChange, onSearch, loading }: SearchFiltersProps) {
-  const [advancedOpen, setAdvancedOpen] = useState(false)
-  const [rmpOpen, setRmpOpen] = useState(false)
-  const [gpaOpen, setGpaOpen] = useState(false)
+export const fieldLabel = "font-mono text-[11px] font-medium uppercase tracking-[0.12em] text-text-secondary"
+
+export const EMPTY_FILTERS: FilterState = {
+  search_param: "",
+  status: "",
+  min_available_seats: "",
+  instruction_mode: "",
+  limit: "20",
+  min_credits: "",
+  max_credits: "",
+  level: "",
+  ethnic_studies: "",
+  social_science: "",
+  humanities: "",
+  l_and_s: false,
+  biological_science: "",
+  physical_science: "",
+  natural_science: "",
+  literature: "",
+  min_cumulative_gpa: "",
+  min_most_recent_gpa: "",
+  median_grade: "",
+  min_a_percent: "",
+  min_section_avg_rating: "",
+  min_section_avg_difficulty: "",
+  min_section_total_ratings: "",
+  min_section_avg_would_take_again: "",
+  no_prereqs: false,
+  sophomore_standing: false,
+  junior_standing: false,
+  senior_standing: false,
+  gen_ed: "",
+}
+
+/* ---------- Availability calendar section ---------- */
+
+export function AvailabilityFilter({
+  filters,
+  onFiltersChange,
+  buttonClassName,
+}: {
+  filters: FilterState
+  onFiltersChange: (filters: FilterState) => void
+  buttonClassName?: string
+}) {
   const [availabilityModalOpen, setAvailabilityModalOpen] = useState(false)
 
-  const updateFilter = (key: keyof FilterState, value: string | boolean) => {
-    onFiltersChange({ ...filters, [key]: value })
+  const utcMillisecondsToMinutes = (utcMs: number): number => {
+    const today = new Date()
+    const utcMidnight = new Date(today.getFullYear(), today.getMonth(), today.getDate())
+    const utcTime = new Date(utcMidnight.getTime() + utcMs)
+    const cstTime = new Date(utcTime.getTime() - 6 * 60 * 60 * 1000) // Convert UTC to CST
+    return cstTime.getHours() * 60 + cstTime.getMinutes()
   }
 
   const getInitialAvailability = (): WeeklyAvailability => {
@@ -98,7 +144,6 @@ export function SearchFilters({ filters, onFiltersChange, onSearch, loading }: S
     }
 
     DAYS.slice(0, 5).forEach((day) => {
-      // Only weekdays
       const startTimes = filters[`${day}StartTime` as keyof FilterState]
       const endTimes = filters[`${day}EndTime` as keyof FilterState]
 
@@ -106,7 +151,6 @@ export function SearchFilters({ filters, onFiltersChange, onSearch, loading }: S
         const starts = startTimes.split(",").map(Number)
         const ends = endTimes.split(",").map(Number)
 
-        // Convert UTC milliseconds back to CST minutes
         const slots = starts.map((start: number, index: number) => {
           const startMinutes = utcMillisecondsToMinutes(start)
           const endMinutes = utcMillisecondsToMinutes(ends[index])
@@ -120,57 +164,13 @@ export function SearchFilters({ filters, onFiltersChange, onSearch, loading }: S
     return availability
   }
 
-  const utcMillisecondsToMinutes = (utcMs: number): number => {
-    const today = new Date()
-    const utcMidnight = new Date(today.getFullYear(), today.getMonth(), today.getDate())
-    const utcTime = new Date(utcMidnight.getTime() + utcMs)
-    const cstTime = new Date(utcTime.getTime() - 6 * 60 * 60 * 1000) // Convert UTC to CST
-    return cstTime.getHours() * 60 + cstTime.getMinutes()
-  }
-
-  const resetFilters = () => {
-    onFiltersChange({
-      search_param: "",
-      status: "",
-      min_available_seats: "",
-      instruction_mode: "",
-      limit: "20",
-      min_credits: "",
-      max_credits: "",
-      level: "",
-      ethnic_studies: "",
-      social_science: "",
-      humanities: "",
-      l_and_s: false,
-      biological_science: "",
-      physical_science: "",
-      natural_science: "",
-      literature: "",
-      min_cumulative_gpa: "",
-      min_most_recent_gpa: "",
-      median_grade: "",
-      min_a_percent: "",
-      min_section_avg_rating: "",
-      min_section_avg_difficulty: "",
-      min_section_total_ratings: "",
-      min_section_avg_would_take_again: "",
-      no_prereqs: false,
-      sophomore_standing: false,
-      junior_standing: false,
-      senior_standing: false,
-      gen_ed: "",
-    })
-  }
-
   const handleAvailabilityApply = (params: Record<string, string>) => {
-    // Clear existing availability parameters
     const clearedFilters = { ...filters }
     DAYS.forEach((day) => {
       delete clearedFilters[`${day}StartTime` as keyof FilterState]
       delete clearedFilters[`${day}EndTime` as keyof FilterState]
     })
 
-    // Apply new availability parameters
     onFiltersChange({
       ...clearedFilters,
       ...params,
@@ -179,7 +179,6 @@ export function SearchFilters({ filters, onFiltersChange, onSearch, loading }: S
     setAvailabilityModalOpen(false)
   }
 
-  // Check if any availability filters are set
   const hasAvailabilityFilters = DAYS.some(
     (day) => filters[`${day}StartTime` as keyof FilterState] || filters[`${day}EndTime` as keyof FilterState],
   )
@@ -193,6 +192,174 @@ export function SearchFilters({ filters, onFiltersChange, onSearch, loading }: S
     onFiltersChange(clearedFilters)
   }
 
+  return (
+    <div className="space-y-2">
+      <Label className={fieldLabel}>Schedule Availability</Label>
+      <div className="flex gap-2">
+        <Dialog open={availabilityModalOpen} onOpenChange={setAvailabilityModalOpen}>
+          <DialogTrigger asChild>
+            <Button variant="outline" className={`flex-1 bg-transparent font-mono text-xs uppercase tracking-[0.08em] min-w-0 whitespace-normal text-center leading-tight ${buttonClassName || ""}`}>
+              <Calendar className="h-4 w-4 mr-2" />
+              {hasAvailabilityFilters ? "Edit Availability" : "Set Availability"}
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2">
+                <Calendar className="h-5 w-5" />
+                Set Your Weekly Availability
+              </DialogTitle>
+            </DialogHeader>
+            <AvailabilityCalendar onApply={handleAvailabilityApply} initialAvailability={getInitialAvailability()} />
+          </DialogContent>
+        </Dialog>
+
+        {hasAvailabilityFilters && (
+          <Button variant="ghost" size="sm" onClick={clearAvailabilityFilters} className="px-2">
+            <X className="h-4 w-4" />
+          </Button>
+        )}
+      </div>
+    </div>
+  )
+}
+
+/* ---------- GPA filters section ---------- */
+
+export function GpaFilterSection({
+  filters,
+  onFiltersChange,
+  defaultOpen = false,
+  expandable = true,
+}: {
+  filters: FilterState
+  onFiltersChange: (filters: FilterState) => void
+  defaultOpen?: boolean
+  expandable?: boolean
+}) {
+  const [gpaOpen, setGpaOpen] = useState(defaultOpen)
+
+  const updateFilter = (key: keyof FilterState, value: string | boolean) => {
+    onFiltersChange({ ...filters, [key]: value })
+  }
+
+  const heading = (
+    <span className="flex items-center gap-2">
+      GPA Filters
+    </span>
+  )
+
+  const content = (
+    <div className="space-y-4">
+      <div className="space-y-2">
+        <Label htmlFor="median_grade" className={fieldLabel}>Median Grade</Label>
+        <Select value={filters.median_grade} onValueChange={(value) => updateFilter("median_grade", value)}>
+          <SelectTrigger>
+            <SelectValue placeholder="Any grade" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="any">Any grade</SelectItem>
+            <SelectItem value="A">A</SelectItem>
+            <SelectItem value="AB">AB</SelectItem>
+            <SelectItem value="B">B</SelectItem>
+            <SelectItem value="BC">BC</SelectItem>
+            <SelectItem value="C">C</SelectItem>
+            <SelectItem value="D">D</SelectItem>
+            <SelectItem value="F">F</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+
+      <div className="space-y-1.5">
+        <Label className={fieldLabel}>Min A%</Label>
+        <div className="flex items-center gap-2">
+          <Slider
+            min={0} max={1} step={0.01}
+            value={[Number.parseFloat(filters.min_a_percent) || 0]}
+            onValueChange={(value) => updateFilter("min_a_percent", value[0].toString())}
+            className="flex-1"
+          />
+          <span className="font-mono text-[11px] font-semibold tabular-nums w-7 text-right shrink-0">
+            {filters.min_a_percent ? `${Math.round(Number.parseFloat(filters.min_a_percent) * 100)}%` : "0%"}
+          </span>
+        </div>
+      </div>
+
+      <div className="space-y-1.5">
+        <Label className={fieldLabel}>Avg GPA</Label>
+        <div className="flex items-center gap-2">
+          <Slider
+            min={0} max={4} step={0.01}
+            value={[Number.parseFloat(filters.min_cumulative_gpa) || 0]}
+            onValueChange={(value) => updateFilter("min_cumulative_gpa", value[0].toString())}
+            className="flex-1"
+          />
+          <span className="font-mono text-[11px] font-semibold tabular-nums w-7 text-right shrink-0">
+            {filters.min_cumulative_gpa || "0.0"}
+          </span>
+        </div>
+      </div>
+
+      <div className="space-y-1.5">
+        <Label className={fieldLabel}>Recent GPA</Label>
+        <div className="flex items-center gap-2">
+          <Slider
+            min={0} max={4} step={0.01}
+            value={[Number.parseFloat(filters.min_most_recent_gpa) || 0]}
+            onValueChange={(value) => updateFilter("min_most_recent_gpa", value[0].toString())}
+            className="flex-1"
+          />
+          <span className="font-mono text-[11px] font-semibold tabular-nums w-7 text-right shrink-0">
+            {filters.min_most_recent_gpa || "0.0"}
+          </span>
+        </div>
+      </div>
+    </div>
+  )
+
+  if (!expandable) {
+    return (
+      <div>
+        <div className="flex items-center justify-between font-mono text-xs font-semibold uppercase tracking-[0.12em] text-foreground pb-3">
+          {heading}
+        </div>
+        {content}
+      </div>
+    )
+  }
+
+  return (
+    <Collapsible open={gpaOpen} onOpenChange={setGpaOpen}>
+      <CollapsibleTrigger asChild>
+        <Button variant="ghost" className="w-full justify-between p-0 font-mono text-xs font-semibold uppercase tracking-[0.12em] text-foreground">
+          {heading}
+          <ChevronDown className={`h-4 w-4 text-text-secondary transition-transform ${gpaOpen ? "rotate-180" : ""}`} />
+        </Button>
+      </CollapsibleTrigger>
+      <CollapsibleContent className="space-y-4 mt-4">{content}</CollapsibleContent>
+    </Collapsible>
+  )
+}
+
+/* ---------- Advanced filters section ---------- */
+
+export function AdvancedFilterSection({
+  filters,
+  onFiltersChange,
+  defaultOpen = false,
+  expandable = true,
+}: {
+  filters: FilterState
+  onFiltersChange: (filters: FilterState) => void
+  defaultOpen?: boolean
+  expandable?: boolean
+}) {
+  const [advancedOpen, setAdvancedOpen] = useState(defaultOpen)
+
+  const updateFilter = (key: keyof FilterState, value: string | boolean) => {
+    onFiltersChange({ ...filters, [key]: value })
+  }
+
   const handleGenEdChange = (value: string, checked: boolean) => {
     if (checked) {
       updateFilter("gen_ed", value)
@@ -201,85 +368,313 @@ export function SearchFilters({ filters, onFiltersChange, onSearch, loading }: S
     }
   }
 
+  const heading = (
+    <span className="flex items-center gap-2">
+      Course Filters
+    </span>
+  )
+
+  const content = (
+    <div className="space-y-4">
+      <div className="space-y-2">
+        <Label htmlFor="min_seats" className={fieldLabel}>Min Available Seats</Label>
+        <Input
+          id="min_seats"
+          type="number"
+          placeholder="0"
+          value={filters.min_available_seats}
+          onChange={(e) => updateFilter("min_available_seats", e.target.value)}
+        />
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="instruction_mode" className={fieldLabel}>Instruction Mode</Label>
+        <Select value={filters.instruction_mode} onValueChange={(value) => updateFilter("instruction_mode", value)}>
+          <SelectTrigger>
+            <SelectValue placeholder="Any mode" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="any">Any mode</SelectItem>
+            <SelectItem value="Classroom Instruction">In Person</SelectItem>
+            <SelectItem value="Online Only">Online</SelectItem>
+            <SelectItem value="Online (some classroom)">Hybrid</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+
+      <div className="space-y-2">
+        <Label className={fieldLabel}>General Education</Label>
+        <div className="grid grid-cols-2 gap-1.5">
+          <button
+            onClick={() => updateFilter("l_and_s", !filters.l_and_s)}
+            className={`h-8 px-2.5 rounded-[5px] border font-mono text-[11px] uppercase tracking-[0.08em] transition-colors ${
+              filters.l_and_s
+                ? "bg-primary text-primary-foreground border-primary"
+                : "bg-transparent border-border/70 text-foreground hover:border-primary/40"
+            }`}
+          >
+            L&S
+          </button>
+          {[
+            { value: "COM A", label: "COM A" },
+            { value: "COM B", label: "COM B" },
+            { value: "QR-A", label: "QR-A" },
+            { value: "QR-B", label: "QR-B" },
+          ].map(({ value, label }) => (
+            <button
+              key={value}
+              onClick={() => handleGenEdChange(value, filters.gen_ed !== value)}
+              className={`h-8 px-2.5 rounded-[5px] border font-mono text-[11px] uppercase tracking-[0.08em] transition-colors ${
+                filters.gen_ed === value
+                  ? "bg-primary text-primary-foreground border-primary"
+                  : "bg-transparent border-border/70 text-foreground hover:border-primary/40"
+              }`}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <div className="space-y-2">
+        <Label className={fieldLabel}>Subject Areas</Label>
+        <div className="grid grid-cols-2 gap-1.5">
+          {[
+            { key: "ethnic_studies", label: "Ethnic St", value: "true" },
+            { key: "social_science", label: "Social Sci", value: "true" },
+            { key: "humanities", label: "Humanities", value: "true" },
+            { key: "biological_science", label: "Bio Sci", value: "true" },
+            { key: "physical_science", label: "Physical Sci", value: "true" },
+            { key: "natural_science", label: "Natural Sci", value: "true" },
+            { key: "literature", label: "Literature", value: "true" },
+          ].map(({ key, label, value }, idx, arr) => (
+            <button
+              key={key}
+              onClick={() => updateFilter(key as keyof FilterState, filters[key as keyof FilterState] ? "" : value)}
+              className={`h-8 px-2.5 rounded-[5px] border font-mono text-[11px] uppercase tracking-[0.08em] transition-colors ${
+                idx === arr.length - 1 && arr.length % 2 === 1 ? "col-span-2" : ""
+              } ${
+                filters[key as keyof FilterState]
+                  ? "bg-primary text-primary-foreground border-primary"
+                  : "bg-transparent border-border/70 text-foreground hover:border-primary/40"
+              }`}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <div className="space-y-2">
+        <Label className={fieldLabel}>Prerequisites</Label>
+        <div className="grid grid-cols-2 gap-1.5">
+          {[
+            { key: "no_prereqs", label: "No Prereqs" },
+            { key: "sophomore_standing", label: "Soph. Standing" },
+            { key: "junior_standing", label: "Junior Standing" },
+            { key: "senior_standing", label: "Senior Standing" },
+          ].map(({ key, label }) => (
+            <button
+              key={key}
+              onClick={() => updateFilter(key as keyof FilterState, !filters[key as keyof FilterState])}
+              className={`h-8 px-2.5 rounded-[5px] border font-mono text-[11px] uppercase tracking-[0.08em] transition-colors ${
+                filters[key as keyof FilterState]
+                  ? "bg-primary text-primary-foreground border-primary"
+                  : "bg-transparent border-border/70 text-foreground hover:border-primary/40"
+              }`}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
+      </div>
+    </div>
+  )
+
+  if (!expandable) {
+    return (
+      <div>
+        <div className="flex items-center justify-between font-mono text-xs font-semibold uppercase tracking-[0.12em] text-foreground pb-3">
+          {heading}
+        </div>
+        {content}
+      </div>
+    )
+  }
+
+  return (
+    <Collapsible open={advancedOpen} onOpenChange={setAdvancedOpen}>
+      <CollapsibleTrigger asChild>
+        <Button variant="ghost" className="w-full justify-between p-0 font-mono text-xs font-semibold uppercase tracking-[0.12em] text-foreground">
+          {heading}
+          <ChevronDown className={`h-4 w-4 text-text-secondary transition-transform ${advancedOpen ? "rotate-180" : ""}`} />
+        </Button>
+      </CollapsibleTrigger>
+      <CollapsibleContent className="space-y-4 mt-4">{content}</CollapsibleContent>
+    </Collapsible>
+  )
+}
+
+/* ---------- RMP filters section ---------- */
+
+export function RmpFilterSection({
+  filters,
+  onFiltersChange,
+  defaultOpen = false,
+  expandable = true,
+}: {
+  filters: FilterState
+  onFiltersChange: (filters: FilterState) => void
+  defaultOpen?: boolean
+  expandable?: boolean
+}) {
+  const [rmpOpen, setRmpOpen] = useState(defaultOpen)
+
+  const updateFilter = (key: keyof FilterState, value: string | boolean) => {
+    onFiltersChange({ ...filters, [key]: value })
+  }
+
+  const heading = (
+    <span className="flex items-center gap-2">
+      Rate My Professor Filters
+    </span>
+  )
+
+  const content = (
+    <div className="space-y-4">
+      <div className="space-y-2">
+        <Label htmlFor="min_rating" className={fieldLabel}>Min Section Rating</Label>
+        <Input
+          id="min_rating"
+          type="number"
+          step="0.1"
+          placeholder="0.0"
+          value={filters.min_section_avg_rating}
+          onChange={(e) => updateFilter("min_section_avg_rating", e.target.value)}
+        />
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="min_difficulty" className={fieldLabel}>Min Section Difficulty</Label>
+        <Input
+          id="min_difficulty"
+          type="number"
+          step="0.1"
+          placeholder="0.0"
+          value={filters.min_section_avg_difficulty}
+          onChange={(e) => updateFilter("min_section_avg_difficulty", e.target.value)}
+        />
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="min_total_ratings" className={fieldLabel}>Min Total Ratings</Label>
+        <Input
+          id="min_total_ratings"
+          type="number"
+          placeholder="0"
+          value={filters.min_section_total_ratings}
+          onChange={(e) => updateFilter("min_section_total_ratings", e.target.value)}
+        />
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="min_would_take_again" className={fieldLabel}>Min Would Take Again %</Label>
+        <Input
+          id="min_would_take_again"
+          type="number"
+          step="0.1"
+          placeholder="0.0"
+          value={filters.min_section_avg_would_take_again}
+          onChange={(e) => updateFilter("min_section_avg_would_take_again", e.target.value)}
+        />
+      </div>
+    </div>
+  )
+
+  if (!expandable) {
+    return (
+      <div>
+        <div className="flex items-center justify-between font-mono text-xs font-semibold uppercase tracking-[0.12em] text-foreground pb-3">
+          {heading}
+        </div>
+        {content}
+      </div>
+    )
+  }
+
+  return (
+    <Collapsible open={rmpOpen} onOpenChange={setRmpOpen}>
+      <CollapsibleTrigger asChild>
+        <Button variant="ghost" className="w-full justify-between p-0 font-mono text-xs font-semibold uppercase tracking-[0.12em] text-foreground">
+          {heading}
+          <ChevronDown className={`h-4 w-4 text-text-secondary transition-transform ${rmpOpen ? "rotate-180" : ""}`} />
+        </Button>
+      </CollapsibleTrigger>
+      <CollapsibleContent className="space-y-4 mt-4">{content}</CollapsibleContent>
+    </Collapsible>
+  )
+}
+
+/* ---------- Sidebar composition (default view) ---------- */
+
+export function SearchFilters({ filters, onFiltersChange, onSearch, loading }: SearchFiltersProps) {
+  const updateFilter = (key: keyof FilterState, value: string | boolean) => {
+    onFiltersChange({ ...filters, [key]: value })
+  }
+
+  const resetFilters = () => {
+    onFiltersChange(EMPTY_FILTERS)
+  }
+
   return (
     <div className="space-y-4">
       {/* Search */}
       <div className="space-y-2">
-        <Label htmlFor="search">Search Courses</Label>
-        <Input
+        <Label htmlFor="search" className={fieldLabel}>Search Courses</Label>
+        <SearchAutocomplete
           id="search"
           placeholder="COMP SCI 400, John Doe, etc."
           value={filters.search_param}
-          onChange={(e) => updateFilter("search_param", e.target.value)}
-          onKeyDown={(e) => e.key === "Enter" && onSearch()}
+          onValueChange={(value) => updateFilter("search_param", value)}
+          onSearch={onSearch}
         />
       </div>
 
-      {/* Availability Filter */}
-      <div className="space-y-2">
-        <Label>Schedule Availability</Label>
-        <div className="flex gap-2">
-          <Dialog open={availabilityModalOpen} onOpenChange={setAvailabilityModalOpen}>
-            <DialogTrigger asChild>
-              <Button variant="outline" className="flex-1 bg-transparent">
-                <Calendar className="h-4 w-4 mr-2" />
-                {hasAvailabilityFilters ? "Edit Availability" : "Set Availability"}
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-              <DialogHeader>
-                <DialogTitle className="flex items-center gap-2">
-                  <Calendar className="h-5 w-5" />
-                  Set Your Weekly Availability
-                </DialogTitle>
-              </DialogHeader>
-              <AvailabilityCalendar onApply={handleAvailabilityApply} initialAvailability={getInitialAvailability()} />
-            </DialogContent>
-          </Dialog>
-
-          {hasAvailabilityFilters && (
-            <Button variant="ghost" size="sm" onClick={clearAvailabilityFilters} className="px-2">
-              <X className="h-4 w-4" />
-            </Button>
-          )}
-        </div>
-      </div>
+      <AvailabilityFilter filters={filters} onFiltersChange={onFiltersChange} />
 
       {/* Basic Filters */}
       <div className="space-y-4">
         <div className="space-y-2">
-          <Label htmlFor="status">Status</Label>
-          <Select value={filters.status} onValueChange={(value) => updateFilter("status", value)}>
-            <SelectTrigger>
-              <SelectValue placeholder="Any status" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="any">Any status</SelectItem>
-              <SelectItem value="OPEN">Open</SelectItem>
-              <SelectItem value="CLOSED">Closed</SelectItem>
-              <SelectItem value="WAITLIST">Waitlist</SelectItem>
-            </SelectContent>
-          </Select>
+          <Label className={fieldLabel}>Status</Label>
+          <MultiSelectDropdown
+            value={filters.status}
+            onValueChange={(v) => updateFilter("status", v)}
+            options={[
+              { value: "OPEN", label: "Open" },
+              { value: "CLOSED", label: "Closed" },
+              { value: "WAITLISTED", label: "Waitlist" },
+            ]}
+            placeholder="Any status"
+          />
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="level">Course Level</Label>
-          <Select value={filters.level} onValueChange={(value) => updateFilter("level", value)}>
-            <SelectTrigger>
-              <SelectValue placeholder="Any level" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="any">Any level</SelectItem>
-              <SelectItem value="E">Elementary</SelectItem>
-              <SelectItem value="I">Intermediate</SelectItem>
-              <SelectItem value="A">Advanced</SelectItem>
-            </SelectContent>
-          </Select>
+          <Label className={fieldLabel}>Course Level</Label>
+          <MultiSelectDropdown
+            value={filters.level}
+            onValueChange={(v) => updateFilter("level", v)}
+            options={[
+              { value: "E", label: "Elementary" },
+              { value: "I", label: "Intermediate" },
+              { value: "A", label: "Advanced" },
+            ]}
+            placeholder="Any level"
+          />
         </div>
 
         <div className="grid grid-cols-2 gap-2">
           <div className="space-y-2">
-            <Label htmlFor="min_credits">Min Credits</Label>
+            <Label htmlFor="min_credits" className={fieldLabel}>Min Credits</Label>
             <Input
               id="min_credits"
               type="number"
@@ -289,7 +684,7 @@ export function SearchFilters({ filters, onFiltersChange, onSearch, loading }: S
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="max_credits">Max Credits</Label>
+            <Label htmlFor="max_credits" className={fieldLabel}>Max Credits</Label>
             <Input
               id="max_credits"
               type="number"
@@ -301,7 +696,7 @@ export function SearchFilters({ filters, onFiltersChange, onSearch, loading }: S
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="limit">Results Limit</Label>
+          <Label htmlFor="limit" className={fieldLabel}>Results Limit</Label>
           <Select value={filters.limit} onValueChange={(value) => updateFilter("limit", value)}>
             <SelectTrigger>
               <SelectValue />
@@ -319,266 +714,17 @@ export function SearchFilters({ filters, onFiltersChange, onSearch, loading }: S
       <Separator />
 
       {/* Grade Filters */}
-      <Collapsible open={gpaOpen} onOpenChange={setGpaOpen}>
-        <CollapsibleTrigger asChild>
-          <Button variant="ghost" className="w-full justify-between p-0">
-            GPA Filters
-            <ChevronDown className={`h-4 w-4 transition-transform ${gpaOpen ? "rotate-180" : ""}`} />
-          </Button>
-        </CollapsibleTrigger>
-        <CollapsibleContent className="space-y-4 mt-4">
-          <div className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="median_grade">Median Grade</Label>
-              <Select value={filters.median_grade} onValueChange={(value) => updateFilter("median_grade", value)}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Any grade" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="any">Any grade</SelectItem>
-                  <SelectItem value="A">A</SelectItem>
-                  <SelectItem value="AB">AB</SelectItem>
-                  <SelectItem value="B">B</SelectItem>
-                  <SelectItem value="BC">BC</SelectItem>
-                  <SelectItem value="C">C</SelectItem>
-                  <SelectItem value="D">D</SelectItem>
-                  <SelectItem value="F">F</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="space-y-3">
-              <Label htmlFor="min_a_percent">
-                Min A Percentage:{" "}
-                {filters.min_a_percent ? `${Math.round(Number.parseFloat(filters.min_a_percent) * 100)}%` : "0%"}
-              </Label>
-              <Slider
-                id="min_a_percent"
-                min={0}
-                max={1}
-                step={0.01}
-                value={[Number.parseFloat(filters.min_a_percent) || 0]}
-                onValueChange={(value) => updateFilter("min_a_percent", value[0].toString())}
-                className="w-full"
-              />
-            </div>
-
-            <div className="grid grid-cols-1 gap-4">
-              <div className="space-y-3">
-                <Label htmlFor="min_cum_gpa">Min Avg GPA: {filters.min_cumulative_gpa || "0.0"}</Label>
-                <Slider
-                  id="min_cum_gpa"
-                  min={0}
-                  max={4}
-                  step={0.01}
-                  value={[Number.parseFloat(filters.min_cumulative_gpa) || 0]}
-                  onValueChange={(value) => updateFilter("min_cumulative_gpa", value[0].toString())}
-                  className="w-full"
-                />
-              </div>
-              <div className="space-y-3">
-                <Label htmlFor="min_recent_gpa">Min Recent GPA: {filters.min_most_recent_gpa || "0.0"}</Label>
-                <Slider
-                  id="min_recent_gpa"
-                  min={0}
-                  max={4}
-                  step={0.01}
-                  value={[Number.parseFloat(filters.min_most_recent_gpa) || 0]}
-                  onValueChange={(value) => updateFilter("min_most_recent_gpa", value[0].toString())}
-                  className="w-full"
-                />
-              </div>
-            </div>
-          </div>
-        </CollapsibleContent>
-      </Collapsible>
+      <GpaFilterSection filters={filters} onFiltersChange={onFiltersChange} />
 
       <Separator />
 
       {/* Advanced Filters */}
-      <Collapsible open={advancedOpen} onOpenChange={setAdvancedOpen}>
-        <CollapsibleTrigger asChild>
-          <Button variant="ghost" className="w-full justify-between p-0">
-            Advanced Filters
-            <ChevronDown className={`h-4 w-4 transition-transform ${advancedOpen ? "rotate-180" : ""}`} />
-          </Button>
-        </CollapsibleTrigger>
-        <CollapsibleContent className="space-y-4 mt-4">
-          <div className="space-y-2">
-            <Label htmlFor="min_seats">Min Available Seats</Label>
-            <Input
-              id="min_seats"
-              type="number"
-              placeholder="0"
-              value={filters.min_available_seats}
-              onChange={(e) => updateFilter("min_available_seats", e.target.value)}
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="instruction_mode">Instruction Mode</Label>
-            <Select value={filters.instruction_mode} onValueChange={(value) => updateFilter("instruction_mode", value)}>
-              <SelectTrigger>
-                <SelectValue placeholder="Any mode" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="any">Any mode</SelectItem>
-                <SelectItem value="Classroom Instruction">In Person</SelectItem>
-                <SelectItem value="Online Only">Online</SelectItem>
-                <SelectItem value="Online (some classroom)">Hybrid</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-
-          <div className="space-y-3">
-            <div className="space-y-2">
-                <div className="flex items-center space-x-2">
-                  <Checkbox
-                    id={`l_and_s`}
-                    checked={filters.l_and_s}
-                    onCheckedChange={(checked) => updateFilter("l_and_s", checked as boolean)}
-                  />
-                  <Label htmlFor={`l_and_s`} className="text-sm">
-                    L&S Credit
-                  </Label>
-                </div>
-            </div>
-          </div>
-
-          <div className="space-y-3">
-            <Label>General Education Requirements</Label>
-            <div className="space-y-2">
-              {[
-                { value: "COM A", label: "Communication Part A" },
-                { value: "COM B", label: "Communication Part B" },
-                { value: "QR-A", label: "Quantitative Reasoning Part A" },
-                { value: "QR-B", label: "Quantitative Reasoning Part B" },
-              ].map(({ value, label }) => (
-                <div key={value} className="flex items-center space-x-2">
-                  <Checkbox
-                    id={`gen_ed_${value}`}
-                    checked={filters.gen_ed === value}
-                    onCheckedChange={(checked) => handleGenEdChange(value, checked as boolean)}
-                  />
-                  <Label htmlFor={`gen_ed_${value}`} className="text-sm">
-                    {label}
-                  </Label>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          <div className="space-y-3">
-            <Label>Subject Areas</Label>
-            <div className="space-y-2">
-              {[
-                { key: "ethnic_studies", label: "Ethnic Studies", value: "ETHNIC ST" },
-                { key: "social_science", label: "Social Science", value: "S" },
-                { key: "humanities", label: "Humanities", value: "H" },
-                { key: "biological_science", label: "Biological Science", value: "BO" },
-                { key: "physical_science", label: "Physical Science", value: "P" },
-                { key: "natural_science", label: "Natural Science", value: "N" },
-                { key: "literature", label: "Literature", value: "L" },
-              ].map(({ key, label, value }) => (
-                <div key={key} className="flex items-center space-x-2">
-                  <Checkbox
-                    id={key}
-                    checked={filters[key as keyof FilterState] != ""}
-                    onCheckedChange={(checked) => updateFilter(key as keyof FilterState, checked ? value : "")}
-                  />
-                  <Label htmlFor={key} className="text-sm">
-                    {label}
-                  </Label>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          <div className="space-y-3">
-            <Label>Prerequisite Filters</Label>
-            <div className="space-y-2">
-              {[
-                { key: "no_prereqs", label: "No Prerequisites", value: "No Prereqs" },
-                { key: "sophomore_standing", label: "Sophomore Standing", value: "Sophomore" },
-                { key: "junior_standing", label: "Junior Standing", value: "Junior" },
-                { key: "senior_standing", label: "Senior Standing", value: "Senior" },
-              ].map(({ key, label, value }) => (
-                <div key={key} className="flex items-center space-x-2">
-                  <Checkbox
-                    id={key}
-                    checked={filters[key as keyof FilterState] as boolean}
-                    onCheckedChange={(checked) => updateFilter(key as keyof FilterState, checked as boolean)}
-                  />
-                  <Label htmlFor={key} className="text-sm">
-                    {label}
-                  </Label>
-                </div>
-              ))}
-            </div>
-          </div>
-        </CollapsibleContent>
-      </Collapsible>
+      <AdvancedFilterSection filters={filters} onFiltersChange={onFiltersChange} />
 
       <Separator />
 
       {/* RMP Filters */}
-      <Collapsible open={rmpOpen} onOpenChange={setRmpOpen}>
-        <CollapsibleTrigger asChild>
-          <Button variant="ghost" className="w-full justify-between p-0">
-            Rate My Professor Filters
-            <ChevronDown className={`h-4 w-4 transition-transform ${rmpOpen ? "rotate-180" : ""}`} />
-          </Button>
-        </CollapsibleTrigger>
-        <CollapsibleContent className="space-y-4 mt-4">
-          <div className="space-y-2">
-            <Label htmlFor="min_rating">Min Section Rating</Label>
-            <Input
-              id="min_rating"
-              type="number"
-              step="0.1"
-              placeholder="0.0"
-              value={filters.min_section_avg_rating}
-              onChange={(e) => updateFilter("min_section_avg_rating", e.target.value)}
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="min_difficulty">Min Section Difficulty</Label>
-            <Input
-              id="min_difficulty"
-              type="number"
-              step="0.1"
-              placeholder="0.0"
-              value={filters.min_section_avg_difficulty}
-              onChange={(e) => updateFilter("min_section_avg_difficulty", e.target.value)}
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="min_total_ratings">Min Total Ratings</Label>
-            <Input
-              id="min_total_ratings"
-              type="number"
-              placeholder="0"
-              value={filters.min_section_total_ratings}
-              onChange={(e) => updateFilter("min_section_total_ratings", e.target.value)}
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="min_would_take_again">Min Would Take Again %</Label>
-            <Input
-              id="min_would_take_again"
-              type="number"
-              step="0.1"
-              placeholder="0.0"
-              value={filters.min_section_avg_would_take_again}
-              onChange={(e) => updateFilter("min_section_avg_would_take_again", e.target.value)}
-            />
-          </div>
-        </CollapsibleContent>
-      </Collapsible>
+      <RmpFilterSection filters={filters} onFiltersChange={onFiltersChange} />
 
       <Separator />
 

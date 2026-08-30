@@ -101,7 +101,7 @@ export function TrendingFeed() {
 
   return (
     <Card className="h-[600px] overflow-hidden">
-      <CardHeader className="pb-2 bg-gradient-to-r from-orange-500 to-red-500 text-white">
+      <CardHeader className="pb-2 bg-gradient-to-r from-warning to-destructive text-white">
         <CardTitle className="flex items-center gap-2">
           <Fire className="h-5 w-5 animate-pulse" />
           Live Campus Feed
@@ -115,10 +115,10 @@ export function TrendingFeed() {
       <CardContent className="p-0 h-full overflow-y-auto">
         <div className="space-y-1">
           {posts.map((post) => (
-            <div key={post.id} className="p-4 border-b hover:bg-gray-50 transition-colors">
+            <div key={post.id} className="p-4 border-b hover:bg-muted transition-colors">
               <div className="flex items-start gap-3">
                 <Avatar className="h-8 w-8">
-                  <AvatarFallback className="bg-gradient-to-r from-purple-400 to-pink-400 text-white text-xs">
+                  <AvatarFallback className="bg-gradient-to-r from-highlight to-decorative-border text-white text-xs">
                     {post.avatar}
                   </AvatarFallback>
                 </Avatar>
@@ -130,24 +130,24 @@ export function TrendingFeed() {
                       {post.course}
                     </Badge>
                     {post.trending && (
-                      <Badge className="bg-gradient-to-r from-orange-400 to-red-400 text-white text-xs">
+                      <Badge className="bg-gradient-to-r from-warning to-destructive text-white text-xs">
                         <TrendingUp className="h-2 w-2 mr-1" />
                         HOT
                       </Badge>
                     )}
-                    <span className="text-xs text-gray-500 flex items-center gap-1">
+                    <span className="text-xs text-muted-foreground flex items-center gap-1">
                       <Clock className="h-3 w-3" />
                       {post.timeAgo}
                     </span>
                   </div>
 
-                  <p className="text-sm text-gray-800 mb-2">{post.content}</p>
+                  <p className="text-sm text-foreground mb-2">{post.content}</p>
 
-                  <div className="flex items-center gap-4 text-xs text-gray-500">
+                  <div className="flex items-center gap-4 text-xs text-muted-foreground">
                     <Button
                       variant="ghost"
                       size="sm"
-                      className={`h-6 px-2 ${likedPosts.has(post.id) ? "text-red-500" : ""}`}
+                      className={`h-6 px-2 ${likedPosts.has(post.id) ? "text-destructive" : ""}`}
                       onClick={() => handleLike(post.id)}
                     >
                       <Heart className={`h-3 w-3 mr-1 ${likedPosts.has(post.id) ? "fill-current" : ""}`} />
