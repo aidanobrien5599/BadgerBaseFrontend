@@ -1,9 +1,7 @@
-import { Resend } from "resend";
+import nodemailer from "nodemailer";
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { semantic, colors } from "@/lib/tokens";
-
-const resend = new Resend(process.env.RESEND_API_KEY);
 
 const CATEGORY_LABELS: Record<string, string> = {
   bug: "Bug Report",
@@ -19,8 +17,25 @@ const feedbackSchema = z.object({
   message: z.string().min(10),
 });
 
+let transporter: nodemailer.Transporter | null = null;
+
+function getTransporter(): nodemailer.Transporter {
+  if (!transporter) {
+    transporter = nodemailer.createTransport({
+      host: process.env.SMTP_HOST,
+      port: parseInt(process.env.SMTP_PORT || "465"),
+      secure: true,
+      auth: {
+        user: process.env.SMTP_USER,
+        pass: process.env.SMTP_PASS,
+      },
+    });
+  }
+  return transporter;
+}
+
 export async function POST(req: Request) {
-  if (!process.env.RESEND_API_KEY) {
+  if (!process.env.SMTP_HOST) {
     return NextResponse.json(
       { error: "Email service not configured" },
       { status: 503 }
@@ -46,9 +61,9 @@ export async function POST(req: Request) {
   const categoryLabel = CATEGORY_LABELS[category];
 
   try {
-    const { data, error } = await resend.emails.send({
-      from: "onboarding@resend.dev",
-      to: ["aob55992@gmail.com"],
+    await getTransporter().sendMail({
+      from: process.env.SMTP_FROM || "notifications@badgerbase.app",
+      to: "aob55992@gmail.com",
       subject: `[${categoryLabel}] ${subject}`,
       replyTo: email,
       html: `
@@ -84,11 +99,7 @@ export async function POST(req: Request) {
       `,
     });
 
-    if (error) {
-      return NextResponse.json({ error: error.message }, { status: 500 });
-    }
-
-    return NextResponse.json({ status: "OK", data });
+    return NextResponse.json({ status: "OK" });
   } catch (error) {
     return NextResponse.json(
       { error: error instanceof Error ? error.message : "Unknown error" },
