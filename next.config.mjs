@@ -14,12 +14,30 @@
 // no configuration error anywhere to explain it. Fail the build instead,
 // since build time is the only point where failing is free; the runtime
 // fallback stays in place for local dev, where this variable is set in .env.
-if (process.env.NODE_ENV === "production" && !process.env.API_URL) {
+//
+// The pre-rename names are accepted so that merging the rename does not break
+// a deploy whose dashboard has not been updated yet. SUBSCRIPTION_URL is not
+// among them: it embedded the API's /v2 prefix in its value, so reusing it as
+// a base would yield /v2/v2/... instead of a clean failure.
+const API_URL_FALLBACKS = ["AUTH_UPSTREAM_URL", "API_BASE_URL"]
+const resolvedApiUrl =
+  process.env.API_URL || API_URL_FALLBACKS.map((n) => process.env[n]).find(Boolean)
+
+if (process.env.NODE_ENV === "production" && !resolvedApiUrl) {
   throw new Error(
-    "API_URL is required for production builds. It must point at " +
-      "the better-auth API (e.g. https://api-local-production.up.railway.app). " +
-      "Without it, the /api/auth proxy and lib/server-session.ts both fall " +
-      "back to http://localhost:3002 and every authenticated request fails."
+    "API_URL is required for production builds. It must point at the " +
+      "BadgerBase API host, with no /v2 suffix — that prefix now lives in " +
+      "code (e.g. https://api-local-production.up.railway.app). Without it, " +
+      "the /api/auth proxy and lib/server-session.ts both fall back to " +
+      "http://localhost:3002 and every authenticated request fails."
+  )
+}
+
+if (process.env.NODE_ENV === "production" && !process.env.API_URL) {
+  console.warn(
+    "[next.config] API_URL is unset; falling back to a pre-rename variable. " +
+      "Set API_URL in the deployment environment — the old names will stop " +
+      "being read."
   )
 }
 
