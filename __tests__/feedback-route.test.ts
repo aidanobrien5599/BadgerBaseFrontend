@@ -45,6 +45,20 @@ describe("POST /api/feedback", () => {
     expect(logged).not.toContain("SMTP_HOST");
   });
 
+  test("logs the nodemailer error code when a send fails", async () => {
+    vi.stubEnv("SMTP_HOST", "mail.example.com");
+    vi.stubEnv("SMTP_USER", "n@example.com");
+    vi.stubEnv("SMTP_PASS", "wrong");
+    const boom = Object.assign(new Error("Invalid login"), { code: "EAUTH" });
+    send.mockRejectedValueOnce(boom);
+    const err = vi.spyOn(console, "error").mockImplementation(() => {});
+    const res = await post(VALID);
+    expect(res.status).toBe(500);
+    const logged = err.mock.calls[0]?.[0] as string;
+    expect(logged).toContain("EAUTH");
+    expect(logged).toContain("mail.example.com");
+  });
+
   test("sends when fully configured", async () => {
     vi.stubEnv("SMTP_HOST", "mail.example.com");
     vi.stubEnv("SMTP_USER", "n@example.com");

@@ -116,6 +116,16 @@ export async function POST(req: Request) {
 
     return NextResponse.json({ status: "OK" });
   } catch (error) {
+    // The send path was silent too: the error reached the browser but never
+    // the platform log, so an SMTP failure (bad credentials, unreachable
+    // host, TLS mismatch) left nothing to diagnose from. nodemailer's errors
+    // carry a `code` (EAUTH, ECONNREFUSED, ETIMEDOUT, ESOCKET) that says
+    // which of those it was.
+    const e = error as NodeJS.ErrnoException;
+    console.error(
+      `[feedback] send failed via ${process.env.SMTP_HOST}:${process.env.SMTP_PORT ?? "465"} ` +
+        `as ${process.env.SMTP_USER} — code=${e?.code ?? "none"} message=${e?.message ?? String(error)}`
+    );
     return NextResponse.json(
       { error: error instanceof Error ? error.message : "Unknown error" },
       { status: 500 }
