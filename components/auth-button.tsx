@@ -1,9 +1,10 @@
 "use client"
 
-import { useEffect, useState } from "react"
-import { createClient } from "@/lib/supabase/client"
+import { useState } from "react"
+import { authClient } from "@/lib/auth-client"
+import { useAuth } from "@/hooks/use-auth"
 import { Button } from "@/components/ui/button"
-import { User } from "@supabase/supabase-js"
+import { toast } from "sonner"
 import Link from "next/link"
 import {
   DropdownMenu,
@@ -17,30 +18,23 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { LogOut } from "lucide-react"
 
 export function AuthButton() {
-  const [user, setUser] = useState<User | null>(null)
-  const [loading, setLoading] = useState(true)
-  const supabase = createClient()
-
-  useEffect(() => {
-    // Get initial session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setUser(session?.user ?? null)
-      setLoading(false)
-    })
-
-    // Listen for auth changes
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user ?? null)
-    })
-
-    return () => subscription.unsubscribe()
-  }, [])
+  const { user, loading } = useAuth()
+  const [signingOut, setSigningOut] = useState(false)
 
   const handleSignOut = async () => {
-    await supabase.auth.signOut()
-    setUser(null)
+    setSigningOut(true)
+
+    try {
+      const { error } = await authClient.signOut()
+
+      if (error) {
+        toast.error(error.message || "Failed to sign out. Please try again.")
+      }
+    } catch {
+      toast.error("Failed to sign out. Please check your connection and try again.")
+    } finally {
+      setSigningOut(false)
+    }
   }
 
   if (loading) {
@@ -52,8 +46,8 @@ export function AuthButton() {
   }
 
   if (user) {
-    // Try to get display name from metadata, fallback to email
-    const displayName = user.user_metadata?.display_name || user.user_metadata?.full_name
+    // Try to get display name, fallback to email
+    const displayName = user.name
     const initials = displayName
       ? displayName
           .split(" ")
@@ -84,9 +78,9 @@ export function AuthButton() {
             </div>
           </DropdownMenuLabel>
           <DropdownMenuSeparator />
-          <DropdownMenuItem onClick={handleSignOut}>
+          <DropdownMenuItem onClick={handleSignOut} disabled={signingOut}>
             <LogOut className="mr-2 h-4 w-4" />
-            <span>Log out</span>
+            <span>{signingOut ? "Logging out..." : "Log out"}</span>
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>

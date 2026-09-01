@@ -15,7 +15,7 @@ function req(url: string, origin: string | null = "https://badgerbase.app") {
 
 beforeEach(() => {
   fetchWithRetry.mockReset()
-  process.env.API_BASE_URL = "https://api.example.com"
+  process.env.API_URL = "https://api.example.com"
   process.env.API_KEY = "secret-key"
 })
 

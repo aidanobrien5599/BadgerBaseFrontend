@@ -1,12 +1,12 @@
 "use client"
 
-import { useState, useRef } from "react"
-import { createClient } from "@/lib/supabase/client"
+import { useState } from "react"
+import { authClient } from "@/lib/auth-client"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Alert, AlertDescription } from "@/components/ui/alert"
-import { Loader2, Mail, Key, ArrowLeft, Clipboard } from "lucide-react"
+import { Loader2, Mail, Key, ArrowLeft } from "lucide-react"
 import Link from "next/link"
 import Image from "next/image"
 import { useRouter } from "next/navigation"
@@ -14,170 +14,85 @@ import { useRouter } from "next/navigation"
 export default function LoginPage() {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
-  const [otpDigits, setOtpDigits] = useState<string[]>(["", "", "", "", "", ""])
   const [loading, setLoading] = useState(false)
   const [message, setMessage] = useState<{ type: "error" | "success"; text: string } | null>(null)
-  const [useOTP, setUseOTP] = useState(false)
-  const [otpSent, setOtpSent] = useState(false)
-  const supabase = createClient()
+  const [useMagicLink, setUseMagicLink] = useState(false)
+  const [magicLinkSent, setMagicLinkSent] = useState(false)
   const router = useRouter()
-  const inputRefs = useRef<(HTMLInputElement | null)[]>([])
-
-  const handleOTPDigitChange = (index: number, value: string) => {
-    if (!/^\d*$/.test(value)) return
-
-    const newDigits = [...otpDigits]
-    newDigits[index] = value.slice(-1)
-    setOtpDigits(newDigits)
-
-    if (value && index < 5) {
-      inputRefs.current[index + 1]?.focus()
-    }
-  }
-
-  const handleOTPKeyDown = (index: number, e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Backspace" && !otpDigits[index] && index > 0) {
-      inputRefs.current[index - 1]?.focus()
-    }
-  }
-
-  const handleOTPPaste = (e: React.ClipboardEvent<HTMLInputElement>) => {
-    e.preventDefault()
-    const pastedData = e.clipboardData.getData("text")
-    const digits = pastedData.replace(/\D/g, "").slice(0, 6).split("")
-    const newDigits = [...digits, ...Array(6 - digits.length).fill("")]
-    setOtpDigits(newDigits as string[])
-
-    const nextEmptyIndex = digits.length < 6 ? digits.length : 5
-    inputRefs.current[nextEmptyIndex]?.focus()
-  }
-
-  const handlePaste = async () => {
-    try {
-      const text = await navigator.clipboard.readText()
-      const digits = text.replace(/\D/g, "").slice(0, 6).split("")
-      const newDigits = [...digits, ...Array(6 - digits.length).fill("")]
-      setOtpDigits(newDigits as string[])
-
-      const nextEmptyIndex = digits.length < 6 ? digits.length : 5
-      inputRefs.current[nextEmptyIndex]?.focus()
-    } catch (error) {
-      console.error("Failed to read clipboard:", error)
-    }
-  }
 
   const handlePasswordLogin = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
     setMessage(null)
 
-    try {
-      const { error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      })
+    const { error } = await authClient.signIn.email({
+      email,
+      password,
+    })
 
-      if (error) {
-        // Check if error is due to unconfirmed email
-        if (error.message.includes("Email not confirmed")) {
-          setMessage({
-            type: "error",
-            text: "Please confirm your email address before signing in. Check your inbox for the confirmation link.",
-          })
-          setLoading(false)
-          return
-        }
-        throw error
+    if (error) {
+      // Check if error is due to unverified email
+      if (error.code === "EMAIL_NOT_VERIFIED" || error.message?.toLowerCase().includes("not verified")) {
+        setMessage({
+          type: "error",
+          text: "Please confirm your email address before signing in. Check your inbox for the confirmation link.",
+        })
+        setLoading(false)
+        return
       }
-
-      setMessage({ type: "success", text: "Successfully signed in!" })
-      setTimeout(() => {
-        router.push("/")
-      }, 1000)
-    } catch (error: any) {
-      console.error("Login error:", error)
       setMessage({
         type: "error",
         text: error.message || "Failed to sign in. Please check your credentials.",
       })
-    } finally {
       setLoading(false)
+      return
     }
+
+    setMessage({ type: "success", text: "Successfully signed in!" })
+    setLoading(false)
+    setTimeout(() => {
+      router.push("/")
+    }, 1000)
   }
 
-  const handleOTPRequest = async (e: React.FormEvent) => {
+  const handleMagicLinkRequest = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
     setMessage(null)
 
-    try {
-      // This sends a magic link OTP for EXISTING users to login
-      // shouldCreateUser: false prevents creating new accounts via OTP
-      const { error } = await supabase.auth.signInWithOtp({
-        email,
-        options: {
-          shouldCreateUser: false, // Critical: Only allow existing confirmed users
-        },
-      })
+    // NOTE: better-auth's magic-link client does not accept a per-call
+    // "existing users only" flag (the Supabase shouldCreateUser: false
+    // equivalent). Whether this link can create a new account is controlled
+    // server-side by the magicLink() plugin's `disableSignUp` option.
+    const { error } = await authClient.signIn.magicLink({
+      email,
+      callbackURL: typeof window !== "undefined" ? window.location.origin : "/",
+    })
 
-      if (error) {
-        // Handle case where user doesn't exist or isn't confirmed
-        if (error.message.includes("User not found") || error.message.includes("not found")) {
-          setMessage({
-            type: "error",
-            text: "No account found with this email. Please sign up first.",
-          })
-          setLoading(false)
-          return
-        }
-        throw error
+    if (error) {
+      // Handle case where user doesn't exist or isn't confirmed
+      if (error.message?.toLowerCase().includes("not found")) {
+        setMessage({
+          type: "error",
+          text: "No account found with this email. Please sign up first.",
+        })
+        setLoading(false)
+        return
       }
-
-      setOtpSent(true)
-      setMessage({
-        type: "success",
-        text: "Check your email for the 6-digit verification code!",
-      })
-    } catch (error: any) {
-      console.error("OTP request error:", error)
       setMessage({
         type: "error",
-        text: error.message || "Failed to send verification code.",
+        text: error.message || "Failed to send sign-in link.",
       })
-    } finally {
       setLoading(false)
+      return
     }
-  }
 
-  const handleOTPVerify = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setLoading(true)
-    setMessage(null)
-
-    const otpCode = otpDigits.join("")
-
-    try {
-      const { error } = await supabase.auth.verifyOtp({
-        email,
-        token: otpCode,
-        type: "email",
-      })
-
-      if (error) throw error
-
-      setMessage({ type: "success", text: "Successfully signed in!" })
-      setTimeout(() => {
-        router.push("/")
-      }, 1000)
-    } catch (error: any) {
-      console.error("OTP verification error:", error)
-      setMessage({
-        type: "error",
-        text: error.message || "Invalid verification code.",
-      })
-    } finally {
-      setLoading(false)
-    }
+    setMagicLinkSent(true)
+    setMessage({
+      type: "success",
+      text: "Check your email for the sign-in link!",
+    })
+    setLoading(false)
   }
 
   return (
@@ -210,10 +125,10 @@ export default function LoginPage() {
           <div className="text-center mb-8">
             <h1 className="text-3xl font-bold text-foreground mb-2">Welcome Back</h1>
             <p className="text-sm text-muted-foreground">
-              {useOTP
-                ? otpSent
-                  ? "Enter the verification code sent to your email"
-                  : "Sign in with a verification code"
+              {useMagicLink
+                ? magicLinkSent
+                  ? "Click the link sent to your email to finish signing in"
+                  : "Sign in with a magic link"
                 : "Sign in to your account"}
             </p>
           </div>
@@ -230,74 +145,25 @@ export default function LoginPage() {
             </Alert>
           )}
 
-          {/* OTP verification form */}
-          {useOTP && otpSent ? (
-            <form onSubmit={handleOTPVerify} className="space-y-6">
-              <div className="space-y-4">
-                <div className="flex items-center justify-between px-1">
-                  <Label className="text-sm font-medium">Verification Code</Label>
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    onClick={handlePaste}
-                    disabled={loading}
-                    className="h-8 gap-1.5 text-xs hover:bg-muted transition-colors"
-                  >
-                    <Clipboard className="h-3.5 w-3.5" />
-                    Paste
-                  </Button>
-                </div>
-                <div className="flex gap-2 justify-center">
-                  {otpDigits.map((digit, index) => (
-                    <Input
-                      key={index}
-                      ref={(el) => {
-                        inputRefs.current[index] = el
-                      }}
-                      type="text"
-                      inputMode="numeric"
-                      maxLength={1}
-                      value={digit}
-                      onChange={(e) => handleOTPDigitChange(index, e.target.value)}
-                      onKeyDown={(e) => handleOTPKeyDown(index, e)}
-                      onPaste={handleOTPPaste}
-                      className="w-12 h-14 text-center text-2xl font-semibold transition-all duration-200 focus:scale-105 focus:ring-2 focus:ring-ring"
-                      disabled={loading}
-                      autoFocus={index === 0}
-                    />
-                  ))}
-                </div>
-              </div>
-
-              <div className="space-y-2.5">
-                <Button
-                  type="submit"
-                  className="w-full h-11 bg-primary hover:bg-primary-hover text-primary-foreground font-medium transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
-                  disabled={loading || otpDigits.some((d) => !d)}
-                >
-                  {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                  Verify Code
-                </Button>
-
-                <Button
-                  type="button"
-                  variant="ghost"
-                  className="w-full h-10 transition-colors hover:bg-muted"
-                  onClick={() => {
-                    setOtpSent(false)
-                    setOtpDigits(["", "", "", "", "", ""])
-                    setMessage(null)
-                  }}
-                  disabled={loading}
-                >
-                  Back to email
-                </Button>
-              </div>
-            </form>
+          {/* Magic link sent state */}
+          {useMagicLink && magicLinkSent ? (
+            <div className="space-y-2.5">
+              <Button
+                type="button"
+                variant="ghost"
+                className="w-full h-10 transition-colors hover:bg-muted"
+                onClick={() => {
+                  setMagicLinkSent(false)
+                  setMessage(null)
+                }}
+                disabled={loading}
+              >
+                Back to email
+              </Button>
+            </div>
           ) : (
-            /* Password or OTP request form */
-            <form onSubmit={useOTP ? handleOTPRequest : handlePasswordLogin} className="space-y-5">
+            /* Password or magic link request form */
+            <form onSubmit={useMagicLink ? handleMagicLinkRequest : handlePasswordLogin} className="space-y-5">
               {/* Email */}
               <div className="space-y-2">
                 <Label htmlFor="email" className="text-sm font-medium">
@@ -318,8 +184,8 @@ export default function LoginPage() {
                 </div>
               </div>
 
-              {/* Password (only show if not using OTP) */}
-              {!useOTP && (
+              {/* Password (only show if not using magic link) */}
+              {!useMagicLink && (
                 <div className="space-y-2 animate-in fade-in slide-in-from-bottom-2 duration-300">
                   <Label htmlFor="password" className="text-sm font-medium">
                     Password
@@ -347,21 +213,21 @@ export default function LoginPage() {
                 disabled={loading}
               >
                 {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                {useOTP ? "Send Verification Code" : "Sign In"}
+                {useMagicLink ? "Send Magic Link" : "Sign In"}
               </Button>
 
-              {/* Toggle OTP / Password */}
+              {/* Toggle magic link / password */}
               <Button
                 type="button"
                 variant="ghost"
                 className="w-full h-10 text-sm transition-colors hover:bg-muted"
                 onClick={() => {
-                  setUseOTP(!useOTP)
+                  setUseMagicLink(!useMagicLink)
                   setMessage(null)
                 }}
                 disabled={loading}
               >
-                {useOTP ? "Use password instead" : "Use verification code instead"}
+                {useMagicLink ? "Use password instead" : "Use a magic link instead"}
               </Button>
 
               {/* Sign up link */}

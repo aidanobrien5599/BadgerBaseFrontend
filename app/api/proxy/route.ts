@@ -10,7 +10,7 @@ export async function GET(request: Request) {
     return new Response("Forbidden: Invalid origin", { status: 403 })
   }
 
-  const API_BASE_URL = process.env.API_BASE_URL || "http://localhost:3002"
+  const API_BASE_URL = process.env.API_URL || "http://localhost:3002"
   const API_KEY = process.env.API_KEY || ""
 
   try {
