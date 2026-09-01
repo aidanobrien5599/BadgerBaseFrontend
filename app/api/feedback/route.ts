@@ -34,8 +34,23 @@ function getTransporter(): nodemailer.Transporter {
   return transporter;
 }
 
+/**
+ * SMTP settings this route cannot run without. Checked as a group so the log
+ * names every missing one at once, rather than revealing them one failed
+ * request at a time.
+ */
+const REQUIRED_SMTP_VARS = ["SMTP_HOST", "SMTP_USER", "SMTP_PASS"] as const;
+
 export async function POST(req: Request) {
-  if (!process.env.SMTP_HOST) {
+  const missing = REQUIRED_SMTP_VARS.filter((v) => !process.env[v]);
+  if (missing.length > 0) {
+    // Without this the 503 is silent in the platform log: a bare status code
+    // with nothing indicating that configuration, not code, is at fault.
+    console.error(
+      `[feedback] Email is not configured — missing ${missing.join(", ")}. ` +
+        "Set these in the deployment environment and redeploy; environment " +
+        "changes do not apply to an already-built deployment."
+    );
     return NextResponse.json(
       { error: "Email service not configured" },
       { status: 503 }
@@ -101,6 +116,16 @@ export async function POST(req: Request) {
 
     return NextResponse.json({ status: "OK" });
   } catch (error) {
+    // The send path was silent too: the error reached the browser but never
+    // the platform log, so an SMTP failure (bad credentials, unreachable
+    // host, TLS mismatch) left nothing to diagnose from. nodemailer's errors
+    // carry a `code` (EAUTH, ECONNREFUSED, ETIMEDOUT, ESOCKET) that says
+    // which of those it was.
+    const e = error as NodeJS.ErrnoException;
+    console.error(
+      `[feedback] send failed via ${process.env.SMTP_HOST}:${process.env.SMTP_PORT ?? "465"} ` +
+        `as ${process.env.SMTP_USER} — code=${e?.code ?? "none"} message=${e?.message ?? String(error)}`
+    );
     return NextResponse.json(
       { error: error instanceof Error ? error.message : "Unknown error" },
       { status: 500 }
