@@ -2,8 +2,8 @@ import { describe, test, expect, vi, beforeEach, afterEach } from "vitest";
 
 import { getServerSession } from "@/lib/server-session";
 
-// AUTH_UPSTREAM_URL comes from vitest.config.ts's `env` block.
-const UPSTREAM = "https://auth.example.com";
+// API_URL comes from vitest.config.ts's `env` block.
+const UPSTREAM = "https://api.example.com";
 const COOKIE = "better-auth.session_token=abc123";
 
 const fetchMock = vi.fn();
@@ -60,8 +60,8 @@ describe("getServerSession", () => {
     });
   });
 
-  test("reads the upstream URL from AUTH_UPSTREAM_URL", async () => {
-    vi.stubEnv("AUTH_UPSTREAM_URL", "https://other-auth.example.com");
+  test("reads the upstream URL from API_URL", async () => {
+    vi.stubEnv("API_URL", "https://other-auth.example.com");
     respondOk({ user: { email: "badger@wisc.edu" } }, "jwt-token");
     await getServerSession(withCookie());
     expect(String(fetchMock.mock.calls[0][0])).toContain(

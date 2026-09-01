@@ -1,6 +1,6 @@
 /** @type {import('next').NextConfig} */
 
-// AUTH_UPSTREAM_URL names the upstream better-auth server (the Hono API on
+// API_URL names the BadgerBase API (the Hono server on
 // Railway). It replaced NEXT_PUBLIC_AUTH_URL, whose meaning no longer holds:
 // the browser now authenticates against this app's own origin via the
 // same-origin proxy in app/api/auth/[...all]/route.ts, so there is nothing
@@ -14,9 +14,9 @@
 // no configuration error anywhere to explain it. Fail the build instead,
 // since build time is the only point where failing is free; the runtime
 // fallback stays in place for local dev, where this variable is set in .env.
-if (process.env.NODE_ENV === "production" && !process.env.AUTH_UPSTREAM_URL) {
+if (process.env.NODE_ENV === "production" && !process.env.API_URL) {
   throw new Error(
-    "AUTH_UPSTREAM_URL is required for production builds. It must point at " +
+    "API_URL is required for production builds. It must point at " +
       "the better-auth API (e.g. https://api-local-production.up.railway.app). " +
       "Without it, the /api/auth proxy and lib/server-session.ts both fall " +
       "back to http://localhost:3002 and every authenticated request fails."

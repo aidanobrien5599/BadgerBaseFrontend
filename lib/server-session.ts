@@ -1,4 +1,4 @@
-import { authUpstreamUrl } from "@/lib/auth-upstream"
+import { apiUrl } from "@/lib/api-url"
 
 /**
  * Exchanges the incoming better-auth session cookie for a signed JWT that the
@@ -18,7 +18,7 @@ export async function getServerSession(
   const cookie = request.headers.get("cookie")
   if (!cookie) return null
 
-  const AUTH_URL = authUpstreamUrl()
+  const AUTH_URL = apiUrl()
   const [sessionRes, tokenRes] = await Promise.all([
     fetch(`${AUTH_URL}/api/auth/get-session`, { headers: { cookie } }),
     fetch(`${AUTH_URL}/api/auth/token`, { headers: { cookie } }),

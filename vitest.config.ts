@@ -10,13 +10,10 @@ export default defineConfig({
     // existing file-reading tests (build, tokens, colors) are unaffected.
     include: ["__tests__/**/*.test.{ts,tsx}"],
     setupFiles: ["./__tests__/setup.ts"],
-    // Route handlers read some config (e.g. SUBSCRIPTION_URL) from
-    // process.env at module load time. Vitest doesn't read the repo's
-    // .env files automatically, so provide test-only values here for the
-    // routes that check for them.
+    // Route handlers read config from process.env. Vitest doesn't read the
+    // repo's .env files automatically, so provide test-only values here.
     env: {
-      AUTH_UPSTREAM_URL: "https://auth.example.com",
-      SUBSCRIPTION_URL: "https://api.example.com",
+      API_URL: "https://api.example.com",
       SUBSCRIPTION_API_KEY: "test-key",
     },
   },

@@ -2,9 +2,9 @@ export const runtime = 'nodejs'
 
 import { getServerSession } from '@/lib/server-session'
 import { fetchWithRetry } from '@/lib/fetch-with-retry'
+import { apiUrl } from '@/lib/api-url'
 import { NextResponse } from 'next/server'
 
-const SUBSCRIPTION_URL = process.env.SUBSCRIPTION_URL
 
 
 export async function POST(request: Request) {
@@ -44,19 +44,8 @@ export async function POST(request: Request) {
       )
     }
 
-    if (!SUBSCRIPTION_URL) {
-      // Only log errors, not on every request
-      if (process.env.NODE_ENV === 'development') {
-        console.error('SUBSCRIPTION_URL is not set in environment variables')
-      }
-      return NextResponse.json(
-        { error: 'Server configuration error' },
-        { status: 500 }
-      )
-    }
-
     // Forward the request to the Railway backend with retry logic
-    const response = await fetchWithRetry(`${SUBSCRIPTION_URL}/course-subscription`, {
+    const response = await fetchWithRetry(`${apiUrl()}/v2/course-subscription`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -126,18 +115,8 @@ export async function DELETE(request: Request) {
       )
     }
 
-    if (!SUBSCRIPTION_URL) {
-      if (process.env.NODE_ENV === 'development') {
-        console.error('SUBSCRIPTION_URL is not set in environment variables')
-      }
-      return NextResponse.json(
-        { error: 'Server configuration error' },
-        { status: 500 }
-      )
-    }
-
     // Forward the DELETE request to the Railway backend with retry logic
-    const response = await fetchWithRetry(`${SUBSCRIPTION_URL}/course-subscription`, {
+    const response = await fetchWithRetry(`${apiUrl()}/v2/course-subscription`, {
       method: 'DELETE',
       headers: {
         'Content-Type': 'application/json',

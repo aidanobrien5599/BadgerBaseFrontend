@@ -4,7 +4,7 @@ export const runtime = "nodejs"
 // Never cache or statically optimize an auth request.
 export const dynamic = "force-dynamic"
 
-import { authUpstreamUrl } from "@/lib/auth-upstream"
+import { apiUrl } from "@/lib/api-url"
 
 /**
  * Same-origin proxy for better-auth.
@@ -72,7 +72,7 @@ async function proxy(request: Request): Promise<Response> {
   // Preserve any path prefix on the upstream URL rather than clobbering it,
   // and keep the raw (still-encoded) pathname so tokens in magic-link and
   // verification URLs survive the hop untouched.
-  const upstream_ = new URL(authUpstreamUrl())
+  const upstream_ = new URL(apiUrl())
   const basePath = upstream_.pathname.replace(/\/+$/, "")
   const target = new URL(
     `${upstream_.origin}${basePath}${incoming.pathname}${incoming.search}`

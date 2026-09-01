@@ -7,8 +7,8 @@ import {
   OPTIONS,
 } from "@/app/api/auth/[...all]/route";
 
-// AUTH_UPSTREAM_URL comes from vitest.config.ts's `env` block.
-const UPSTREAM = "https://auth.example.com";
+// API_URL comes from vitest.config.ts's `env` block.
+const UPSTREAM = "https://api.example.com";
 
 const fetchMock = vi.fn();
 
@@ -55,7 +55,7 @@ describe("/api/auth/[...all] proxy", () => {
   });
 
   test("does not clobber a path prefix on the upstream URL", async () => {
-    vi.stubEnv("AUTH_UPSTREAM_URL", "https://auth.example.com/base/");
+    vi.stubEnv("API_URL", "https://auth.example.com/base/");
     await GET(new Request("http://localhost:3000/api/auth/token"));
     expect(lastCall().url).toBe(
       "https://auth.example.com/base/api/auth/token"
@@ -213,7 +213,7 @@ describe("/api/auth/[...all] proxy", () => {
   });
 
   test("applies the same guard when the upstream URL has a path prefix", async () => {
-    vi.stubEnv("AUTH_UPSTREAM_URL", "https://auth.example.com/base");
+    vi.stubEnv("API_URL", "https://auth.example.com/base");
     const res = await GET(
       new Request("http://localhost:3000/api/auth/%2e%2e/v2/subscriptions")
     );
