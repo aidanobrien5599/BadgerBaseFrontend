@@ -64,7 +64,18 @@ export default function SignUpPage() {
       res = await fetch("/api/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password, name: fullName }),
+        body: JSON.stringify({
+          email,
+          password,
+          name: fullName,
+          // Where the emailed verification link lands. Auto sign-in is on,
+          // so the flag is what lets the page confirm it worked instead of
+          // silently dropping them on course search.
+          callbackURL:
+            typeof window !== "undefined"
+              ? `${window.location.origin}/?verified=1`
+              : "/?verified=1",
+        }),
       })
     } catch {
       setMessage({ type: "error", text: "Network error. Please try again." })
