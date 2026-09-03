@@ -1,7 +1,6 @@
 "use client"
 
 import { useState } from "react"
-import { authClient } from "@/lib/auth-client"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -56,59 +55,54 @@ export default function SignUpPage() {
       return
     }
 
-    const { data, error } = await authClient.signUp.email({
-      email,
-      password,
-      name: fullName,
-      callbackURL: typeof window !== "undefined" ? window.location.origin : "/",
-    })
+    // Goes through /api/register rather than better-auth's /sign-up/email:
+    // better-auth deliberately returns a decoy success for an address that
+    // already exists, writing nothing and sending nothing, which leaves the
+    // user with no way to learn why no email ever arrives.
+    let res: Response
+    try {
+      res = await fetch("/api/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password, name: fullName }),
+      })
+    } catch {
+      setMessage({ type: "error", text: "Network error. Please try again." })
+      setLoading(false)
+      return
+    }
 
-    if (error) {
+    const data = await res.json().catch(() => ({}))
+
+    if (res.status === 409 && data.outcome === "ACCOUNT_EXISTS") {
       setMessage({
         type: "error",
-        text: error.message || "Failed to create account. Please try again.",
+        text: "An account with this email already exists. Sign in instead, or reset your password if you've forgotten it.",
       })
       setLoading(false)
       return
     }
 
-    // Check if email verification is required.
-    // If data.token exists, a session was created immediately (auto sign-in).
-    // If data.token is null, email verification is required before sign-in.
-    if (data?.user && !data.token) {
-      // Email verification required - user needs to verify email
-      const isWisconsinEmail = email.toLowerCase().endsWith("@wisc.edu")
-
-      if (isWisconsinEmail) {
-        setMessage({
-          type: "success",
-          text: "Success! Check your email (and spam folder) for a confirmation link. ⚠️ Note: @wisc.edu emails may be blocked by the university. We're actively working to fix this issue.",
-        })
-      } else {
-        setMessage({
-          type: "success",
-          text: "Success! Check your email for a confirmation link. If you don't see it, please check your spam folder.",
-        })
-      }
+    if (!res.ok) {
+      setMessage({
+        type: "error",
+        text: data.message || data.error || "Failed to create account. Please try again.",
+      })
       setLoading(false)
-    } else if (data?.user && data.token) {
-      // A session came back, so the server did not require verification.
-      // api-local/auth.ts sets requireEmailVerification, so this branch is
-      // not expected to be reached; it stays as a safe fallback rather than
-      // leaving the user staring at a form that appeared to do nothing.
-      setMessage({ type: "success", text: "Account created successfully!" })
-      setLoading(false)
-      setTimeout(() => {
-        router.push("/")
-      }, 1500)
-    } else {
-      // Fallback case
-      setMessage({ type: "success", text: "Account created successfully!" })
-      setLoading(false)
-      setTimeout(() => {
-        router.push("/")
-      }, 1500)
+      return
     }
+
+    const resent = data.outcome === "VERIFICATION_RESENT"
+    const isWisconsinEmail = email.toLowerCase().endsWith("@wisc.edu")
+    const lead = resent
+      ? "You'd already signed up but hadn't confirmed your email yet — we've sent a new confirmation link."
+      : "Success! Check your email for a confirmation link."
+    const tail = isWisconsinEmail
+      ? " ⚠️ Note: @wisc.edu emails may be blocked by the university. We're actively working to fix this issue."
+      : " If you don't see it, please check your spam folder."
+
+    setMessage({ type: "success", text: lead + tail })
+    setLoading(false)
   }
 
   return (
