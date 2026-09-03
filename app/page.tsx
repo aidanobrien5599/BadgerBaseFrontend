@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import { VerifiedToast } from "@/components/verified-toast"
 import { SearchFilters, type FilterState } from "@/components/search-filters"
 import { ControlBand } from "@/components/control-band"
 import { CourseTable } from "@/components/course-table"
@@ -295,6 +296,7 @@ export default function HomePage() {
 
   return (
     <div>
+      <VerifiedToast />
       {view === "band" && (
         <ControlBand filters={filters} onFiltersChange={setFilters} onSearch={handleSearch} loading={loading} />
       )}
