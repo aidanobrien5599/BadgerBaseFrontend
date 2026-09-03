@@ -233,3 +233,26 @@ describe("/api/auth/[...all] proxy", () => {
     consoleError.mockRestore();
   });
 });
+
+describe("client IP forwarding", () => {
+  test("sets x-client-ip to the first x-forwarded-for entry", async () => {
+    fetchMock.mockResolvedValue(new Response("{}", { status: 200 }));
+    const { GET } = await import("@/app/api/auth/[...all]/route");
+    await GET(new Request("http://localhost/api/auth/get-session", {
+      headers: { "x-forwarded-for": "203.0.113.7, 76.76.21.98" },
+    }));
+    const [, init] = fetchMock.mock.calls[0];
+    expect((init.headers as Headers).get("x-client-ip")).toBe("203.0.113.7");
+  });
+
+  // Otherwise a caller could choose their own rate-limit bucket.
+  test("ignores an inbound x-client-ip rather than trusting it", async () => {
+    fetchMock.mockResolvedValue(new Response("{}", { status: 200 }));
+    const { GET } = await import("@/app/api/auth/[...all]/route");
+    await GET(new Request("http://localhost/api/auth/get-session", {
+      headers: { "x-client-ip": "1.2.3.4", "x-forwarded-for": "203.0.113.7" },
+    }));
+    const [, init] = fetchMock.mock.calls[0];
+    expect((init.headers as Headers).get("x-client-ip")).toBe("203.0.113.7");
+  });
+})
