@@ -31,6 +31,10 @@ import { apiUrl } from "@/lib/api-url"
 // `accept-encoding` is dropped because undici decodes the response body for
 // us — see the response blocklist below.
 const REQUEST_HEADER_BLOCKLIST = new Set([
+  // Never let a caller supply this themselves — we set it below from the
+  // address Vercel observed. Accepting an inbound value would let anyone
+  // pick their own rate-limit bucket.
+  "x-client-ip",
   "accept-encoding",
   "connection",
   "content-length",
@@ -92,6 +96,25 @@ async function proxy(request: Request): Promise<Response> {
   request.headers.forEach((value, key) => {
     if (!REQUEST_HEADER_BLOCKLIST.has(key.toLowerCase())) headers.set(key, value)
   })
+
+  // Hand the upstream one unambiguous client address.
+  //
+  // better-auth reads `x-forwarded-for`, but only trusts it when it holds a
+  // single IP (see getIPFromHeader: `forwardedIps.length !== 1` returns null).
+  // By the time a request reaches the API it has been through Vercel and then
+  // Railway, so that header is a list and better-auth discards it — falling
+  // back to one shared rate-limit bucket for every user, which it warns about
+  // on boot. The alternative, `trustedProxies`, needs Vercel's egress CIDRs,
+  // which are not static.
+  //
+  // The upstream reads `x-client-ip` first (see api-local/auth.ts). Anyone
+  // hitting the API directly could still set it, so this narrows abuse rather
+  // than eliminating it — but a shared bucket protects nobody at all.
+  const clientIp = request.headers
+    .get("x-forwarded-for")
+    ?.split(",")[0]
+    ?.trim()
+  if (clientIp) headers.set("x-client-ip", clientIp)
 
   // Buffered rather than streamed: auth payloads are tiny, and a streaming
   // body would need `duplex: "half"`, which not every fetch implementation
