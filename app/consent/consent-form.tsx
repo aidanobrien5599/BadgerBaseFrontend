@@ -11,7 +11,6 @@ import {
   CardDescription,
   CardFooter,
   CardHeader,
-  CardTitle,
 } from "@/components/ui/card"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 
@@ -52,6 +51,29 @@ function PageShell({ children }: { children: React.ReactNode }) {
   )
 }
 
+// Same visual treatment as components/ui/card.tsx's CardTitle
+// ("text-2xl font-semibold leading-none tracking-tight"), but a real
+// heading element. CardTitle itself renders a <div>, which leaves this --
+// the highest-trust page in the app -- with no heading landmark for a
+// screen-reader user navigating by headings. app/login/page.tsx:126 sets
+// the same precedent (a plain <h1> rather than CardTitle) for its
+// equivalent title.
+function PageTitle({
+  children,
+  className = "",
+}: {
+  children: React.ReactNode
+  className?: string
+}) {
+  return (
+    <h1
+      className={`text-2xl font-semibold leading-none tracking-tight ${className}`.trim()}
+    >
+      {children}
+    </h1>
+  )
+}
+
 export function ConsentForm() {
   const searchParams = useSearchParams()
   const clientIdRaw = searchParams.get("client_id")
@@ -85,6 +107,20 @@ export function ConsentForm() {
         }),
       })
 
+      // The consent endpoint is session-gated, so a lapsed session is a
+      // likely failure here, not an exotic one -- and it surfaces as 401 (or
+      // 403, depending on how better-auth's middleware rejects an absent
+      // session). Telling the student to "try again" in that case is wrong:
+      // an identical retry fails identically. They need to know to sign in
+      // again instead.
+      if (res.status === 401 || res.status === 403) {
+        setSubmitting(null)
+        setError(
+          "Your session has expired. Please sign in again, then restart this request from the app that sent you here."
+        )
+        return
+      }
+
       if (!res.ok) {
         throw new Error(`request failed with status ${res.status}`)
       }
@@ -113,7 +149,7 @@ export function ConsentForm() {
       <PageShell>
         <Card>
           <CardHeader>
-            <CardTitle>This link isn&apos;t valid</CardTitle>
+            <PageTitle>This link isn&apos;t valid</PageTitle>
             <CardDescription>
               This authorization request is missing information needed to
               continue. Go back to the app that sent you here and try again.
@@ -140,9 +176,7 @@ export function ConsentForm() {
               priority
             />
           </div>
-          <CardTitle className="text-center text-2xl">
-            Allow access to your BadgerBase account?
-          </CardTitle>
+          <PageTitle className="text-center">Allow access to your BadgerBase account?</PageTitle>
           <CardDescription className="text-center text-base">
             <span className="font-semibold text-foreground" title={client.href}>
               {client.hostname}
