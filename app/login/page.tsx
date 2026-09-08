@@ -11,6 +11,20 @@ import Link from "next/link"
 import Image from "next/image"
 import { useRouter } from "next/navigation"
 
+// When this page was reached mid OAuth-authorize (the API's mcp() plugin
+// redirects an unauthenticated /authorize request to
+// /login?<signed oauth_query>), a successful sign-in resumes that
+// authorization server-side and returns this shape instead of a normal
+// session response. See lib/auth-client.ts for how oauth_query gets
+// attached to the request in the first place.
+type PendingOAuthRedirect = { redirect: true; url: string }
+
+function pendingOAuthRedirectUrl(data: unknown): string | null {
+  if (typeof data !== "object" || data === null) return null
+  const candidate = data as Partial<PendingOAuthRedirect>
+  return candidate.redirect === true && typeof candidate.url === "string" ? candidate.url : null
+}
+
 export default function LoginPage() {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
@@ -25,7 +39,7 @@ export default function LoginPage() {
     setLoading(true)
     setMessage(null)
 
-    const { error } = await authClient.signIn.email({
+    const { data, error } = await authClient.signIn.email({
       email,
       password,
     })
@@ -45,6 +59,16 @@ export default function LoginPage() {
         text: error.message || "Failed to sign in. Please check your credentials.",
       })
       setLoading(false)
+      return
+    }
+
+    const oauthRedirectUrl = pendingOAuthRedirectUrl(data)
+    if (oauthRedirectUrl) {
+      // Resuming an interrupted OAuth authorization. The target (the
+      // consent screen, or straight back to the client's redirect_uri) is
+      // not guaranteed to be this origin, so this must be a full browser
+      // navigation — router.push silently no-ops across origins.
+      window.location.href = oauthRedirectUrl
       return
     }
 
