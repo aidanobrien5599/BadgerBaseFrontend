@@ -24,6 +24,9 @@ const examplePrompts = [
   "Find open COMP SCI courses with a class GPA above 3.3",
   "Which QR-A courses still have seats?",
   "Compare intermediate STAT courses by GPA",
+  "What are the meeting times and instructors for COMP SCI 400?",
+  "Has a seat opened in any section I'm watching?",
+  "Of the courses I'm watching, which has the highest average GPA?",
 ]
 
 export default function McpPage() {
@@ -46,9 +49,9 @@ export default function McpPage() {
       </section>
 
       {/* The tool */}
-      <SectionHead idx="/01" title="The search_courses tool" />
+      <SectionHead idx="/01" title="The three tools" />
       <p className="text-[13.5px] leading-[1.65] text-muted-foreground max-w-[660px] -mt-2 mb-5">
-        The server exposes exactly one tool, <code className="font-mono text-foreground bg-surface border border-border/70 rounded px-1.5 py-0.5">search_courses</code>, which corresponds to the live catalog data + historic GPA data. That means you currently cannot search for specific sections, filter available time slots, by professor, or search for course or section subscriptions just yet.
+        The server exposes three tools. <code className="font-mono text-foreground bg-surface border border-border/70 rounded px-1.5 py-0.5">search_courses</code> searches the catalog and historic GPA data. <code className="font-mono text-foreground bg-surface border border-border/70 rounded px-1.5 py-0.5">get_course</code> returns one course in full — description, prerequisites, and every section with its seats, instructors and meeting times. <code className="font-mono text-foreground bg-surface border border-border/70 rounded px-1.5 py-0.5">my_subscriptions</code> lists the courses and sections you&rsquo;re watching. What you still cannot do is filter a <em>search</em> by professor or by meeting time — those are section-level filters <code className="font-mono text-foreground bg-surface border border-border/70 rounded px-1.5 py-0.5">search_courses</code> doesn&rsquo;t expose, so ask for a course by name and read its sections instead.
       </p>
       <div className="border border-border/70 rounded-lg overflow-hidden overflow-x-auto bg-surface">
         <table className="w-full text-left border-collapse min-w-[560px]">
@@ -79,7 +82,36 @@ export default function McpPage() {
       </div>
 
       {/* Connecting */}
-      <SectionHead idx="/02" title="Connect it in Claude" />
+      <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="border border-border/70 rounded-lg bg-surface p-5">
+          <div className="font-mono text-[12px] font-bold text-foreground mb-2">get_course</div>
+          <p className="text-[13px] text-muted-foreground leading-[1.6]">
+            Takes a designation like <span className="font-mono text-foreground">COMP SCI 400</span>. Some
+            designations cover several different courses — topics courses and seminars share a code — so
+            it answers with the list of variants and you pick one by title.
+          </p>
+        </div>
+        <div className="border border-border/70 rounded-lg bg-surface p-5">
+          <div className="font-mono text-[12px] font-bold text-foreground mb-2">my_subscriptions</div>
+          <p className="text-[13px] text-muted-foreground leading-[1.6]">
+            Takes no arguments and reads only your own subscriptions. It cannot subscribe or unsubscribe
+            you — nothing the AI does here can change what you&rsquo;re watching.
+          </p>
+        </div>
+      </div>
+
+      {/* Permissions */}
+      <SectionHead idx="/02" title="The two permissions" />
+      <p className="text-[13.5px] leading-[1.65] text-muted-foreground max-w-[660px] -mt-2">
+        The consent screen asks for these separately.{" "}
+        <span className="font-mono text-[12.5px] text-foreground">courses:read</span> covers searching and
+        course detail.{" "}
+        <span className="font-mono text-[12.5px] text-foreground">subscriptions:read</span> covers seeing
+        what you&rsquo;re watching. A connection granted only the first is refused if it asks for your
+        subscriptions, so you can approve search without handing over your watchlist.
+      </p>
+
+      <SectionHead idx="/03" title="Connect it in Claude" />
       <div className="relative ml-3.5 pl-6 border-l border-border/70 grid gap-7">
         {claudeSteps.map((step) => (
           <div key={step.num} className="relative">
@@ -98,7 +130,7 @@ export default function McpPage() {
       </p>
 
       {/* Examples */}
-      <SectionHead idx="/03" title="Things to try asking" />
+      <SectionHead idx="/04" title="Things to try asking" />
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {examplePrompts.map((prompt) => (
           <div key={prompt} className="border border-border/70 rounded-lg bg-surface p-5">
