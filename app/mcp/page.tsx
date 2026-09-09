@@ -1,10 +1,4 @@
-import { CheckCircle2, ShieldCheck } from "lucide-react"
-
-const canDo = [
-  "Search the full UW–Madison course catalog on your behalf",
-  "Filter by subject, level, GPA, status, credits, gen ed, and breadth — the same filters the site uses",
-  "Return results using live catalog data",
-]
+import { CopyServerUrl } from "./copy-url"
 
 const filters = [
   { name: "search_param", meaning: "Free text over course designation, title, and instructor name." },
@@ -48,14 +42,11 @@ export default function McpPage() {
           UW&ndash;Madison course catalog on your behalf, using the same data and filters the site itself uses.
           It requires your BadgerBase account, and you approve access before anything connects.
         </p>
-        <div className="mt-6 inline-flex items-center gap-2 font-mono text-[12.5px] text-foreground bg-surface border border-border/70 rounded-lg px-4 py-2.5">
-          <span className="text-muted-foreground">Server URL</span>
-          <code className="text-primary select-all">https://mcp.badgerbase.app/mcp</code>
-        </div>
+        <CopyServerUrl url="https://mcp.badgerbase.app/mcp" />
       </section>
 
       {/* The tool */}
-      <SectionHead idx="/02" title="The search_courses tool" />
+      <SectionHead idx="/01" title="The search_courses tool" />
       <p className="text-[13.5px] leading-[1.65] text-muted-foreground max-w-[660px] -mt-2 mb-5">
         The server exposes exactly one tool, <code className="font-mono text-foreground bg-surface border border-border/70 rounded px-1.5 py-0.5">search_courses</code>, which corresponds to the live catalog data + historic GPA data. That means you currently cannot search for specific sections, filter available time slots, by professor, or search for course or section subscriptions just yet.
       </p>
@@ -88,7 +79,7 @@ export default function McpPage() {
       </div>
 
       {/* Connecting */}
-      <SectionHead idx="/03" title="Connect it in Claude" />
+      <SectionHead idx="/02" title="Connect it in Claude" />
       <div className="relative ml-3.5 pl-6 border-l border-border/70 grid gap-7">
         {claudeSteps.map((step) => (
           <div key={step.num} className="relative">
@@ -107,7 +98,7 @@ export default function McpPage() {
       </p>
 
       {/* Examples */}
-      <SectionHead idx="/05" title="Things to try asking" />
+      <SectionHead idx="/03" title="Things to try asking" />
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {examplePrompts.map((prompt) => (
           <div key={prompt} className="border border-border/70 rounded-lg bg-surface p-5">
