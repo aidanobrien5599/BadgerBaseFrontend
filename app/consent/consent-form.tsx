@@ -125,15 +125,22 @@ export function ConsentForm() {
         throw new Error(`request failed with status ${res.status}`)
       }
 
-      const data: { redirect_uri?: string } = await res.json()
-      if (!data.redirect_uri) {
-        throw new Error("response did not include a redirect_uri")
+      // better-auth answers this endpoint in two shapes. Its OpenAPI metadata
+      // documents `redirect_uri`, but at runtime `handleRedirect` returns
+      // `{ redirect: true, url }` whenever the request came from fetch or
+      // accepts JSON — which is exactly how this page posts. Reading only
+      // `redirect_uri` therefore showed an error over a request the server
+      // had already approved with a 200. Accept both.
+      const data: { redirect_uri?: string; url?: string } = await res.json()
+      const redirectTo = data.redirect_uri ?? data.url
+      if (!redirectTo) {
+        throw new Error("consent response carried no redirect target")
       }
 
       // The response carries the authorization code (on approve) or the
       // denial back to the client; only a real browser navigation delivers
       // that to the client's own redirect endpoint.
-      window.location.href = data.redirect_uri
+      window.location.href = redirectTo
     } catch {
       setSubmitting(null)
       setError(
