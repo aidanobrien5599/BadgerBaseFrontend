@@ -24,7 +24,12 @@ import { useRouter } from "next/navigation"
 
 interface NotificationButtonProps {
   type: "course" | "section"
-  id: number
+  /**
+   * Sent to the API as-is. Section ids are numeric, but a course_id is a
+   * zero-padded string ("024794") that the /v2 handler matches exactly, so it
+   * must not be coerced through a number on the way here.
+   */
+  id: string | number
   isEnabled: boolean
   courseTitle?: string
   sectionNames?: string[]
