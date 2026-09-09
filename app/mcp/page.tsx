@@ -1,23 +1,9 @@
-import { CheckCircle2, XCircle, ShieldCheck, AlertTriangle } from "lucide-react"
-
-const stats = [
-  { num: "1", label: "Tool exposed" },
-  { num: "0", label: "Write access" },
-  { num: "OAuth", label: "Sign-in required" },
-  { num: "100%", label: "Free" },
-]
+import { CheckCircle2, ShieldCheck } from "lucide-react"
 
 const canDo = [
   "Search the full UW–Madison course catalog on your behalf",
   "Filter by subject, level, GPA, status, credits, gen ed, and breadth — the same filters the site uses",
   "Return results using live catalog data",
-]
-
-const cannotDo = [
-  "See your subscriptions or saved courses",
-  "Change your account, settings, or password",
-  "Send email on your behalf",
-  "Write, modify, or delete anything — access is read-only over public catalog data",
 ]
 
 const filters = [
@@ -68,57 +54,24 @@ export default function McpPage() {
         </div>
       </section>
 
-      {/* Stats band */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 border-b border-border/70">
-        {stats.map((stat, i) => (
-          <div
-            key={stat.label}
-            className={`py-7 px-5 text-center ${i > 0 ? "border-l border-border/70" : ""} ${
-              i >= 2 ? "border-t lg:border-t-0 lg:border-l" : ""
-            } ${i === 2 && "lg:border-l"} ${i === 0 || i === 2 ? "lg:border-l-0" : ""}`}
-          >
-            <div className="font-display text-3xl font-bold text-primary tabular-nums">{stat.num}</div>
-            <div className="font-mono text-[10.5px] tracking-[0.12em] uppercase text-muted-foreground mt-1.5">
-              {stat.label}
-            </div>
-          </div>
-        ))}
-      </div>
-
-      {/* Trust: what it can and cannot do */}
-      <SectionHead idx="/01" title="What it can and can't do" />
+      {/* What it can do */}
+      <SectionHead idx="/01" title="What it can do" />
       <p className="text-[13.5px] leading-[1.65] text-muted-foreground max-w-[660px] -mt-2 mb-5">
-        This is the trust question, so it gets a plain answer: the server can search courses. That's it.
+        The server exposes one thing: course search. Read-only access to the public catalog.
       </p>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div className="border border-border/70 rounded-lg bg-surface p-5">
-          <div className="font-display text-[14.5px] font-bold text-foreground mb-3 flex items-center gap-2">
-            <ShieldCheck className="h-4 w-4 text-success-strong" />
-            It can
-          </div>
-          <ul className="flex flex-col gap-2.5">
-            {canDo.map((item) => (
-              <li key={item} className="flex items-start gap-2 text-[13px] text-text-secondary">
-                <CheckCircle2 className="h-3.5 w-3.5 text-success-strong mt-0.5 shrink-0" />
-                {item}
-              </li>
-            ))}
-          </ul>
+      <div className="border border-border/70 rounded-lg bg-surface p-5 max-w-[660px]">
+        <div className="font-display text-[14.5px] font-bold text-foreground mb-3 flex items-center gap-2">
+          <ShieldCheck className="h-4 w-4 text-success-strong" />
+          It can
         </div>
-        <div className="border border-border/70 rounded-lg bg-surface p-5">
-          <div className="font-display text-[14.5px] font-bold text-foreground mb-3 flex items-center gap-2">
-            <XCircle className="h-4 w-4 text-muted-foreground" />
-            It cannot
-          </div>
-          <ul className="flex flex-col gap-2.5">
-            {cannotDo.map((item) => (
-              <li key={item} className="flex items-start gap-2 text-[13px] text-text-secondary">
-                <XCircle className="h-3.5 w-3.5 text-muted-foreground mt-0.5 shrink-0" />
-                {item}
-              </li>
-            ))}
-          </ul>
-        </div>
+        <ul className="flex flex-col gap-2.5">
+          {canDo.map((item) => (
+            <li key={item} className="flex items-start gap-2 text-[13px] text-text-secondary">
+              <CheckCircle2 className="h-3.5 w-3.5 text-success-strong mt-0.5 shrink-0" />
+              {item}
+            </li>
+          ))}
+        </ul>
       </div>
 
       {/* The tool */}
@@ -177,23 +130,10 @@ export default function McpPage() {
       <SectionHead idx="/04" title="What you're approving" />
       <p className="text-[13.5px] leading-[1.65] text-muted-foreground max-w-[660px] -mt-2">
         After you sign in, BadgerBase shows a consent screen naming the client that's requesting access
-        and exactly what it can do — the same &ldquo;can / cannot&rdquo; breakdown above. Nothing connects until you
+        and exactly what it can do. Nothing connects until you
         approve it, and you can decline. Declining sends you back to the app that asked, with no access
         granted.
       </p>
-
-      <div className="mt-6 rounded-lg border border-border/70 bg-surface p-5 flex gap-3">
-        <AlertTriangle className="h-4 w-4 text-warning shrink-0 mt-0.5" />
-        <div>
-          <div className="font-display text-[13.5px] font-bold text-foreground mb-1">
-            Landed back on the BadgerBase homepage instead of an approval screen?
-          </div>
-          <p className="text-[13px] text-muted-foreground leading-[1.6]">
-            The connection didn&rsquo;t complete. Go back to your AI client and try adding the connector
-            again rather than retrying from this tab.
-          </p>
-        </div>
-      </div>
 
       {/* Examples */}
       <SectionHead idx="/05" title="Things to try asking" />
