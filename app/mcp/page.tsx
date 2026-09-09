@@ -54,31 +54,10 @@ export default function McpPage() {
         </div>
       </section>
 
-      {/* What it can do */}
-      <SectionHead idx="/01" title="What it can do" />
-      <p className="text-[13.5px] leading-[1.65] text-muted-foreground max-w-[660px] -mt-2 mb-5">
-        The server exposes one thing: course search. Read-only access to the public catalog.
-      </p>
-      <div className="border border-border/70 rounded-lg bg-surface p-5 max-w-[660px]">
-        <div className="font-display text-[14.5px] font-bold text-foreground mb-3 flex items-center gap-2">
-          <ShieldCheck className="h-4 w-4 text-success-strong" />
-          It can
-        </div>
-        <ul className="flex flex-col gap-2.5">
-          {canDo.map((item) => (
-            <li key={item} className="flex items-start gap-2 text-[13px] text-text-secondary">
-              <CheckCircle2 className="h-3.5 w-3.5 text-success-strong mt-0.5 shrink-0" />
-              {item}
-            </li>
-          ))}
-        </ul>
-      </div>
-
       {/* The tool */}
       <SectionHead idx="/02" title="The search_courses tool" />
       <p className="text-[13.5px] leading-[1.65] text-muted-foreground max-w-[660px] -mt-2 mb-5">
-        The server exposes exactly one tool, <code className="font-mono text-foreground bg-surface border border-border/70 rounded px-1.5 py-0.5">search_courses</code>.
-        These are its filters:
+        The server exposes exactly one tool, <code className="font-mono text-foreground bg-surface border border-border/70 rounded px-1.5 py-0.5">search_courses</code>, which corresponds to the live catalog data + historic GPA data. That means you currently cannot search for specific sections, filter available time slots, by professor, or search for course or section subscriptions just yet.
       </p>
       <div className="border border-border/70 rounded-lg overflow-hidden overflow-x-auto bg-surface">
         <table className="w-full text-left border-collapse min-w-[560px]">
@@ -123,16 +102,8 @@ export default function McpPage() {
       <p className="text-[13px] leading-[1.65] text-muted-foreground max-w-[660px] mt-6">
         This works with any MCP client that supports Streamable HTTP with OAuth, not just Claude. The
         exact menu names differ by client, but the shape is the same: add a custom connector, give it the
-        server URL above, sign in, and approve.
-      </p>
-
-      {/* Consent */}
-      <SectionHead idx="/04" title="What you're approving" />
-      <p className="text-[13.5px] leading-[1.65] text-muted-foreground max-w-[660px] -mt-2">
-        After you sign in, BadgerBase shows a consent screen naming the client that's requesting access
-        and exactly what it can do. Nothing connects until you
-        approve it, and you can decline. Declining sends you back to the app that asked, with no access
-        granted.
+        server URL above, sign in, and approve. After you sign in, BadgerBase shows a consent screen naming the client that's requesting access
+        and exactly what it can do.
       </p>
 
       {/* Examples */}
