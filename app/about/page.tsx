@@ -11,38 +11,67 @@ const stats = [
 const features = [
   {
     num: "F.01",
-    title: "Smart Search",
-    text: "Type a course, instructor, or department and jump straight to results. Search understands shorthand like \"CS 540\" and \"calculus\".",
+    title: "Search that survives typos",
+    text: "Type a course, an instructor, or a department. Suggestions rank as you type and still match when the spelling is off, so \"comp sci 400\" and \"cs400\" both land in the right place.",
   },
   {
     num: "F.02",
-    title: "Advanced Filtering",
-    text: "Layer filters from GPA and instruction mode to gen eds, subject areas, and prerequisites to narrow the catalog in seconds.",
+    title: "Grades you can filter by",
+    text: "Madgrades history is a filter, not a footnote. Set a floor on cumulative GPA or most recent GPA, require a median grade, or ask for courses where at least a given share of students earned an A.",
   },
   {
     num: "F.03",
-    title: "Instructor Ratings",
-    text: "See Rate My Professor scores, difficulty, and would-take-again rates right inside each section — no tab-hopping.",
+    title: "Professors you can filter by",
+    text: "Rate My Professor quality, difficulty, would-take-again, and rating count all narrow the results — then show up inline on every section, so you never open a second tab to check.",
   },
   {
     num: "F.04",
-    title: "Real-time Data",
-    text: "Live seat counts, waitlists, and section status straight from the university catalog, refreshed as you search.",
+    title: "Sections that fit your week",
+    text: "Paint the hours you are actually free onto a weekly calendar. Every section that meets outside those windows disappears from the results.",
+  },
+  {
+    num: "F.05",
+    title: "Alerts when a seat opens",
+    text: "Watch a whole course or one specific section. The moment a seat frees up or a waitlist moves, an email goes out — and every subscription is managed from your dashboard.",
+  },
+  {
+    num: "F.06",
+    title: "Access from your AI assistant",
+    text: "Point Claude, or any MCP client, at mcp.badgerbase.app/mcp and ask for courses in plain language. Same live catalog, same filters, signed in as you.",
   },
 ]
 
 const filterBlocks = [
   {
-    title: "Course Details",
-    items: ["Course level", "Breadth", "Credits", "Madgrades GPA info"],
+    title: "Course",
+    items: [
+      "Level (Elementary / Intermediate / Advanced)",
+      "Credit range",
+      "Gen ed (COM A, COM B, QR-A, QR-B)",
+      "Breadth — seven subject areas",
+      "No prerequisites, or class standing",
+      "Counts for L&S credit",
+    ],
   },
   {
-    title: "Section Details",
-    items: ["Status (Open / Closed / Waitlist)", "Available seats", "Instruction mode", "Meeting times"],
+    title: "Section & schedule",
+    items: [
+      "Status (Open / Closed / Waitlist)",
+      "Minimum available seats",
+      "Instruction mode",
+      "Weekly availability windows",
+    ],
   },
   {
-    title: "Professor Details",
-    items: ["Rating", "Difficulty", "Number of ratings", "Would take again %"],
+    title: "Grades & professors",
+    items: [
+      "Cumulative GPA / most recent GPA",
+      "Median grade",
+      "Minimum share of A grades",
+      "Professor rating & difficulty",
+      "Would take again %",
+      "Number of ratings",
+    ],
   },
 ]
 
@@ -50,7 +79,7 @@ const steps = [
   {
     num: "STEP 01",
     title: "Search the catalog",
-    text: "Filter 5,243 courses by GPA, breadth, instruction mode, subject area, and more — all in one sidebar.",
+    text: "Narrow 5,243 courses by GPA, grade distribution, breadth, instruction mode, and the hours you are free — all from one sidebar.",
   },
   {
     num: "STEP 02",
@@ -79,18 +108,14 @@ export default function AboutPage() {
           About BadgerBase
         </p>
         <h1 className="font-display text-4xl lg:text-[44px] font-bold leading-[1.04] tracking-[-0.02em] max-w-[640px] text-foreground">
-          The entire UW–Madison catalog, <span className="text-primary">decoded.</span>
+          <span className="text-primary">Stop guessing</span> which classes to take.
         </h1>
         <p className="text-base lg:text-[16.5px] leading-[1.7] text-text-secondary max-w-[660px] mt-5">
-          A comprehensive data aggregator designed to help UW–Madison students find the best courses to fit their
-          needs. Sourcing data from UW&ndash;Madison&rsquo;s live course catalog, Rate My Professor, and Madgrades for
-          an all-in-one course search experience.
+          The registrar tells you when a class meets. It does not tell you the GPA students actually earned, what
+          they thought of the professor, or whether a seat just opened. BadgerBase puts UW&ndash;Madison&rsquo;s live
+          catalog, Madgrades grade history, and Rate My Professor behind one search &mdash; so you can build a
+          schedule without opening five tabs.
         </p>
-        <div className="flex gap-6 mt-6 font-mono text-[11.5px] text-muted-foreground">
-          <span>v2.0</span>
-          <span>Built by students</span>
-          <span>Free forever</span>
-        </div>
       </section>
 
       {/* Stats band */}
