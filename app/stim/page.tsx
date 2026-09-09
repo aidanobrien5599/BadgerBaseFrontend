@@ -91,7 +91,7 @@ interface FilterState {
   median_grade: string
   min_a_percent: string
   min_section_avg_rating: string
-  min_section_avg_difficulty: string
+  max_section_avg_difficulty: string
   min_section_total_ratings: string
   min_section_avg_would_take_again: string
 }
@@ -127,7 +127,7 @@ export default function HomePage() {
     median_grade: "",
     min_a_percent: "",
     min_section_avg_rating: "",
-    min_section_avg_difficulty: "",
+    max_section_avg_difficulty: "",
     min_section_total_ratings: "",
     min_section_avg_would_take_again: "",
   })

@@ -117,7 +117,7 @@ export default function HomePage() {
     median_grade: "",
     min_a_percent: "",
     min_section_avg_rating: "",
-    min_section_avg_difficulty: "",
+    max_section_avg_difficulty: "",
     min_section_total_ratings: "",
     min_section_avg_would_take_again: "",
     no_prereqs: false,
