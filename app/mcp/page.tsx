@@ -1,10 +1,4 @@
-import { CheckCircle2, ShieldCheck } from "lucide-react"
-
-const canDo = [
-  "Search the full UW–Madison course catalog on your behalf",
-  "Filter by subject, level, GPA, status, credits, gen ed, and breadth — the same filters the site uses",
-  "Return results using live catalog data",
-]
+import { CopyServerUrl } from "./copy-url"
 
 const filters = [
   { name: "search_param", meaning: "Free text over course designation, title, and instructor name." },
@@ -51,14 +45,11 @@ export default function McpPage() {
           UW&ndash;Madison course catalog on your behalf, using the same data and filters the site itself uses.
           It requires your BadgerBase account, and you approve access before anything connects.
         </p>
-        <div className="mt-6 inline-flex items-center gap-2 font-mono text-[12.5px] text-foreground bg-surface border border-border/70 rounded-lg px-4 py-2.5">
-          <span className="text-muted-foreground">Server URL</span>
-          <code className="text-primary select-all">https://mcp.badgerbase.app/mcp</code>
-        </div>
+        <CopyServerUrl url="https://mcp.badgerbase.app/mcp" />
       </section>
 
       {/* The tool */}
-      <SectionHead idx="/02" title="The three tools" />
+      <SectionHead idx="/01" title="The three tools" />
       <p className="text-[13.5px] leading-[1.65] text-muted-foreground max-w-[660px] -mt-2 mb-5">
         The server exposes three tools. <code className="font-mono text-foreground bg-surface border border-border/70 rounded px-1.5 py-0.5">search_courses</code> searches the catalog and historic GPA data. <code className="font-mono text-foreground bg-surface border border-border/70 rounded px-1.5 py-0.5">get_course</code> returns one course in full — description, prerequisites, and every section with its seats, instructors and meeting times. <code className="font-mono text-foreground bg-surface border border-border/70 rounded px-1.5 py-0.5">my_subscriptions</code> lists the courses and sections you&rsquo;re watching. What you still cannot do is filter a <em>search</em> by professor or by meeting time — those are section-level filters <code className="font-mono text-foreground bg-surface border border-border/70 rounded px-1.5 py-0.5">search_courses</code> doesn&rsquo;t expose, so ask for a course by name and read its sections instead.
       </p>
@@ -110,7 +101,7 @@ export default function McpPage() {
       </div>
 
       {/* Permissions */}
-      <SectionHead idx="/03" title="The two permissions" />
+      <SectionHead idx="/02" title="The two permissions" />
       <p className="text-[13.5px] leading-[1.65] text-muted-foreground max-w-[660px] -mt-2">
         The consent screen asks for these separately.{" "}
         <span className="font-mono text-[12.5px] text-foreground">courses:read</span> covers searching and
@@ -120,7 +111,7 @@ export default function McpPage() {
         subscriptions, so you can approve search without handing over your watchlist.
       </p>
 
-      <SectionHead idx="/04" title="Connect it in Claude" />
+      <SectionHead idx="/03" title="Connect it in Claude" />
       <div className="relative ml-3.5 pl-6 border-l border-border/70 grid gap-7">
         {claudeSteps.map((step) => (
           <div key={step.num} className="relative">
@@ -139,7 +130,7 @@ export default function McpPage() {
       </p>
 
       {/* Examples */}
-      <SectionHead idx="/05" title="Things to try asking" />
+      <SectionHead idx="/04" title="Things to try asking" />
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {examplePrompts.map((prompt) => (
           <div key={prompt} className="border border-border/70 rounded-lg bg-surface p-5">
