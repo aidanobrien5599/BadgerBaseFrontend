@@ -3,7 +3,10 @@ import { describe, test, expect, vi } from "vitest";
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 
 vi.mock("next/navigation", () => ({
-  useSearchParams: () => new URLSearchParams("client_id=https%3A%2F%2Fclaude.ai%2Fmcp&scope=courses%3Aread"),
+  useSearchParams: () =>
+    new URLSearchParams(
+      "client_id=https%3A%2F%2Fclaude.ai%2Fmcp&scope=courses%3Aread+subscriptions%3Aread"
+    ),
 }));
 
 import ConsentPage from "@/app/consent/page";
@@ -16,13 +19,19 @@ describe("consent page", () => {
 
   test("says what is being granted, in plain words", () => {
     render(<ConsentPage />);
-    expect(screen.getByText(/course/i)).toBeInTheDocument();
+    expect(screen.getAllByText(/course/i).length).toBeGreaterThan(0);
   });
 
   test("offers both approve and deny", () => {
     render(<ConsentPage />);
     expect(screen.getByRole("button", { name: /approve|allow/i })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /deny|cancel/i })).toBeInTheDocument();
+  });
+
+  test("describes both real scopes in plain words", () => {
+    render(<ConsentPage />);
+    expect(screen.getByText(/search uw–madison courses/i)).toBeInTheDocument();
+    expect(screen.getByText(/courses and sections you.re watching/i)).toBeInTheDocument();
   });
 
   // better-auth returns `{ redirect: true, url }` from /oauth2/consent for a

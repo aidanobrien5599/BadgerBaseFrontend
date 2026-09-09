@@ -15,14 +15,14 @@ import {
 import { Alert, AlertDescription } from "@/components/ui/alert"
 
 // Plain-language description of each scope this server can grant. Keyed by
-// the exact scope string better-auth passes through. What a scope CANNOT do
-// is the point of this page, so every entry says both halves.
-const SCOPE_DESCRIPTIONS: Record<string, { can: string; cannot: string }> = {
-  "courses:read": {
-    can: "search UW–Madison courses on your behalf",
-    cannot:
-      "It cannot see your subscriptions, change your account, or send email.",
-  },
+// the exact scope string better-auth passes through.
+const SCOPE_DESCRIPTIONS: Record<string, string> = {
+  "courses:read": "Search UW–Madison courses and see course details on your behalf.",
+  "subscriptions:read": "See which courses and sections you're watching for open seats.",
+  openid: "Confirm who you are.",
+  profile: "See your name.",
+  email: "See your email address.",
+  offline_access: "Stay connected without asking you to sign in again each time.",
 }
 
 /**
@@ -213,10 +213,7 @@ export function ConsentForm() {
                 return (
                   <li key={scope}>
                     {description ? (
-                      <>
-                        <span className="text-foreground">{description.can}</span>.{" "}
-                        {description.cannot}
-                      </>
+                      <span className="text-foreground">{description}</span>
                     ) : (
                       <>Use the &quot;{scope}&quot; permission.</>
                     )}
