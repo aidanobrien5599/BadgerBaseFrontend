@@ -11,8 +11,8 @@ const stats = [
 const features = [
   {
     num: "F.01",
-    title: "Search that survives typos",
-    text: "Type a course, an instructor, or a department. Suggestions rank as you type and still match when the spelling is off, so \"comp sci 400\" and \"cs400\" both land in the right place.",
+    title: "One search, three data sources",
+    text: "“Open QR-A courses above a 3.3 average, taught by someone rated 4 or better, that fit around a Tuesday lab.” That is a single query here. On the university’s own site it is four tabs and a spreadsheet.",
   },
   {
     num: "F.02",
