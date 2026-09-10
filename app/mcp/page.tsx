@@ -9,6 +9,13 @@ const filters = [
   { name: "min_credits / max_credits", meaning: "Credit range for the course." },
   { name: "general_education", meaning: "An exact gen-ed code, e.g. QR-A — not a yes/no flag." },
   { name: "ethnic_studies / humanities / social_science / natural_science", meaning: "Breadth requirement flags." },
+  { name: "min_professor_rating", meaning: "RateMyProfessor rating of the section's instructors, 1–5." },
+  { name: "max_professor_difficulty", meaning: "Difficulty ceiling, 1–5 — nothing harder than this." },
+  { name: "min_professor_ratings_count", meaning: "Only sections whose instructors have at least this many ratings, so one review can't decide it." },
+  { name: "min_would_take_again_percent", meaning: "Would-take-again percentage, 0–100." },
+  { name: "min_open_seats", meaning: "Sections with at least this many seats currently open." },
+  { name: "free_monday … free_friday", meaning: "When you're free that day, e.g. \"13:00-17:00,18:00-20:00\". See the note below — the semantics are stricter than they look." },
+  { name: "sort", meaning: "cumulative_gpa or recent_gpa, highest first." },
   { name: "limit", meaning: "Results per page. Defaults to 10, capped at 25." },
   { name: "page", meaning: "1-based page number, for paging through results." },
 ]
@@ -51,7 +58,7 @@ export default function McpPage() {
       {/* The tool */}
       <SectionHead idx="/01" title="The three tools" />
       <p className="text-[13.5px] leading-[1.65] text-muted-foreground max-w-[660px] -mt-2 mb-5">
-        The server exposes three tools. <code className="font-mono text-foreground bg-surface border border-border/70 rounded px-1.5 py-0.5">search_courses</code> searches the catalog and historic GPA data. <code className="font-mono text-foreground bg-surface border border-border/70 rounded px-1.5 py-0.5">get_course</code> returns one course in full — description, prerequisites, and every section with its seats, instructors and meeting times. <code className="font-mono text-foreground bg-surface border border-border/70 rounded px-1.5 py-0.5">my_subscriptions</code> lists the courses and sections you&rsquo;re watching. What you still cannot do is filter a <em>search</em> by professor or by meeting time — those are section-level filters <code className="font-mono text-foreground bg-surface border border-border/70 rounded px-1.5 py-0.5">search_courses</code> doesn&rsquo;t expose, so ask for a course by name and read its sections instead.
+        The server exposes three tools. <code className="font-mono text-foreground bg-surface border border-border/70 rounded px-1.5 py-0.5">search_courses</code> searches the catalog and historic GPA data. <code className="font-mono text-foreground bg-surface border border-border/70 rounded px-1.5 py-0.5">get_course</code> returns one course in full — description, prerequisites, and every section with its seats, instructors and meeting times. <code className="font-mono text-foreground bg-surface border border-border/70 rounded px-1.5 py-0.5">my_subscriptions</code> lists the courses and sections you&rsquo;re watching. Search now reaches the section-level filters too — professor ratings, open seats, and the times you&rsquo;re free — so it can answer things like &ldquo;an open COMP SCI course with a well-rated professor that fits my Tuesday afternoon.&rdquo;
       </p>
       <div className="border border-border/70 rounded-lg overflow-hidden overflow-x-auto bg-surface">
         <table className="w-full text-left border-collapse min-w-[560px]">
@@ -98,6 +105,19 @@ export default function McpPage() {
             you — nothing the AI does here can change what you&rsquo;re watching.
           </p>
         </div>
+      </div>
+
+      <div className="mt-6 rounded-lg border border-border/70 bg-surface p-5 max-w-[760px]">
+        <div className="font-display text-[13.5px] font-bold text-foreground mb-1.5">
+          How the free_* filters actually work
+        </div>
+        <p className="text-[13px] text-muted-foreground leading-[1.65]">
+          These are the blocks you are <em>free</em>, not the times you want class. A course matches only
+          if one of its sections has <em>every</em> meeting inside your blocks — and a section meeting on a
+          day you didn&rsquo;t mention is excluded outright. So asking for &ldquo;morning classes&rdquo; by
+          giving only <span className="font-mono text-foreground">free_monday</span> will also drop
+          everything that meets Tuesday through Friday. Give every day you could attend.
+        </p>
       </div>
 
       {/* Permissions */}
