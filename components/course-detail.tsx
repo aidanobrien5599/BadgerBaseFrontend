@@ -187,7 +187,7 @@ export function CourseDetail({ course, inline }: { course: CourseDetailData; inl
   const header = inline ? (
     <div>
       <div className="flex items-baseline gap-3 flex-wrap mb-2">
-        <h2 className="font-display font-semibold text-[18px] tracking-[-0.01em] leading-snug text-foreground flex items-center gap-2">
+        <h2 className="font-display font-semibold text-[15px] tracking-[-0.01em] leading-snug text-foreground flex items-center gap-2">
           {course.course_title}
           <span className="relative inline-flex items-center shrink-0 group">
             <span
