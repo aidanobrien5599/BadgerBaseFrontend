@@ -103,6 +103,8 @@ export function NotificationButton({ type, id, isEnabled, courseTitle, sectionNa
   if (loading || !isEnabled) return null
 
   if (compact) {
+    // Sized against the container (the table's status cell), not the viewport: that
+    // cell's width swings with the sidebar, so it is narrower at 1024px than at 900px.
     return (
       <>
         <TooltipProvider delayDuration={200}>
@@ -112,18 +114,18 @@ export function NotificationButton({ type, id, isEnabled, courseTitle, sectionNa
                 onClick={handleSubscribe}
                 disabled={subscribing || subscribed}
                 className={cn(
-                  "group inline-flex items-center gap-[5px] px-2.5 py-[3px] rounded-[4px] border text-[11.5px] font-semibold transition-colors cursor-pointer",
+                  "group inline-flex items-center gap-[3px] @[72px]:gap-[5px] px-1.5 @[72px]:px-2.5 py-[6px] @[72px]:py-[3px] rounded-[4px] border text-[9px] @[72px]:text-[11.5px] font-semibold whitespace-nowrap transition-colors cursor-pointer",
                   subscribed
                     ? "bg-success/10 text-success border-success/30"
                     : "bg-destructive/10 text-destructive border-destructive/30 hover:bg-destructive/[0.14]"
                 )}
               >
                 {subscribing ? (
-                  <>Closed <Loader2 className="h-[13px] w-[13px] animate-spin" /></>
+                  <><span className="sr-only @[54px]:not-sr-only">Closed</span> <Loader2 className="h-[11px] w-[11px] @[72px]:h-[13px] @[72px]:w-[13px] animate-spin" /></>
                 ) : subscribed ? (
-                  <>Subscribed <BellRing className="h-[13px] w-[13px]" /></>
+                  <><span className="sr-only @[99px]:not-sr-only">Subscribed</span> <BellRing className="h-[11px] w-[11px] @[72px]:h-[13px] @[72px]:w-[13px]" /></>
                 ) : (
-                  <>Closed <Bell className="h-[13px] w-[13px] opacity-70 group-hover:opacity-100 transition-opacity" /></>
+                  <><span className="sr-only @[54px]:not-sr-only">Closed</span> <Bell className="h-[11px] w-[11px] @[72px]:h-[13px] @[72px]:w-[13px] opacity-70 group-hover:opacity-100 transition-opacity" /></>
                 )}
               </button>
             </TooltipTrigger>
