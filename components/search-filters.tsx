@@ -35,7 +35,7 @@ export interface FilterState {
   median_grade: string
   min_a_percent: string
   min_section_avg_rating: string
-  min_section_avg_difficulty: string
+  max_section_avg_difficulty: string
   min_section_total_ratings: string
   min_section_avg_would_take_again: string
   no_prereqs: boolean
@@ -103,7 +103,7 @@ export const EMPTY_FILTERS: FilterState = {
   median_grade: "",
   min_a_percent: "",
   min_section_avg_rating: "",
-  min_section_avg_difficulty: "",
+  max_section_avg_difficulty: "",
   min_section_total_ratings: "",
   min_section_avg_would_take_again: "",
   no_prereqs: false,
@@ -555,14 +555,14 @@ export function RmpFilterSection({
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="min_difficulty" className={fieldLabel}>Min Section Difficulty</Label>
+        <Label htmlFor="max_difficulty" className={fieldLabel}>Max Section Difficulty</Label>
         <Input
-          id="min_difficulty"
+          id="max_difficulty"
           type="number"
           step="0.1"
           placeholder="0.0"
-          value={filters.min_section_avg_difficulty}
-          onChange={(e) => updateFilter("min_section_avg_difficulty", e.target.value)}
+          value={filters.max_section_avg_difficulty}
+          onChange={(e) => updateFilter("max_section_avg_difficulty", e.target.value)}
         />
       </div>
 

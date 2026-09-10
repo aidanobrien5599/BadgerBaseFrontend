@@ -56,7 +56,7 @@ export function ControlBand({ filters, onFiltersChange, onSearch, loading }: Con
       median_grade: "",
       min_a_percent: "",
       min_section_avg_rating: "",
-      min_section_avg_difficulty: "",
+      max_section_avg_difficulty: "",
       min_section_total_ratings: "",
       min_section_avg_would_take_again: "",
       no_prereqs: false,
@@ -282,7 +282,7 @@ export function ControlBand({ filters, onFiltersChange, onSearch, loading }: Con
               <div className="flex items-center gap-2.5 flex-wrap">
                 {[
                   { label: "Rating", key: "min_section_avg_rating" as const },
-                  { label: "Difficulty", key: "min_section_avg_difficulty" as const },
+                  { label: "Max Difficulty", key: "max_section_avg_difficulty" as const },
                   { label: "# Ratings", key: "min_section_total_ratings" as const },
                   { label: "WTA%", key: "min_section_avg_would_take_again" as const },
                 ].map(({ label, key }) => (
