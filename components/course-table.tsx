@@ -188,75 +188,79 @@ export function CourseTable({
                     toggleCourse(course.course_id)
                   }
                 }}
+                /* Two grid shapes: below sm the tracks shrink to fit a phone (the row
+                   used to be pinned at min-w-[720px] and scroll sideways, one scroll
+                   container per row). The status track gets the largest share because
+                   its pill is the widest thing in the row. */
                 className={cn(
-                  "grid grid-cols-[44px_minmax(160px,240px)_repeat(5,minmax(0,1fr))_30px] min-w-[720px] items-stretch cursor-pointer transition-colors",
+                  "grid grid-cols-[24px_minmax(100px,1.3fr)_repeat(4,minmax(0,1fr))_minmax(0,1.75fr)_18px] sm:grid-cols-[44px_minmax(160px,240px)_repeat(5,minmax(0,1fr))_30px] items-stretch cursor-pointer transition-colors",
                   isExpanded ? "bg-surface-sunken" : "hover:bg-surface-sunken"
                 )}
               >
                 {/* Row index */}
-                <div className="flex items-center justify-center font-mono text-[11px] font-semibold text-primary border-r border-border/70">
+                <div className="flex items-center justify-center font-mono text-[9px] sm:text-[11px] font-semibold text-primary border-r border-border/70">
                   {rowNumber.toString().padStart(2, "0")}
                 </div>
 
                 {/* Designation + title + instructor */}
-                <div className="flex flex-col justify-center items-center text-center gap-0.5 px-4 border-r border-border/70 min-w-0">
-                  <div className="font-display text-[17px] font-bold tracking-[-0.01em] truncate max-w-full">
+                <div className="flex flex-col justify-center items-center text-center gap-0.5 px-1.5 sm:px-4 border-r border-border/70 min-w-0">
+                  <div className="font-display text-[12px] sm:text-[17px] font-bold tracking-[-0.01em] truncate max-w-full">
                     <span className="text-primary">{designationSubject}</span>{" "}
                     {designationNumber}
                   </div>
-                  <div className="text-[13.5px] text-foreground font-medium leading-snug truncate max-w-full">
+                  <div className="text-[10px] sm:text-[13.5px] text-foreground font-medium leading-snug truncate max-w-full">
                     {course.course_title}
                   </div>
                 </div>
 
                 {/* Credits */}
-                <div className="flex flex-col justify-center items-center text-center px-3 border-r border-border/70">
-                  <span className="font-display text-[18px] font-bold leading-none">
+                <div className="flex flex-col justify-center items-center text-center px-0.5 sm:px-3 border-r border-border/70">
+                  <span className="font-display text-[13px] sm:text-[18px] font-bold leading-none">
                     {course.minimum_credits === course.maximum_credits
                       ? course.minimum_credits
                       : `${course.minimum_credits}-${course.maximum_credits}`}
                   </span>
-                  <span className="font-mono text-[9px] uppercase tracking-[0.12em] text-muted-foreground mt-1">
+                  <span className="font-mono text-[7px] sm:text-[9px] uppercase tracking-[0em] sm:tracking-[0.12em] text-muted-foreground mt-0.5 sm:mt-1">
                     Credits
                   </span>
                 </div>
 
                 {/* Median grade */}
-                <div className="flex flex-col justify-center items-center text-center px-3 border-r border-border/70">
+                <div className="flex flex-col justify-center items-center text-center px-0.5 sm:px-3 border-r border-border/70">
                   {course.median_grade ? (
-                    <span className="font-display text-[18px] font-bold leading-none tabular-nums">
+                    <span className="font-display text-[13px] sm:text-[18px] font-bold leading-none tabular-nums">
                       {course.median_grade}
                     </span>
                   ) : (
-                    <span className="font-mono text-[13px] text-muted-foreground leading-none">N/A</span>
+                    <span className="font-mono text-[10px] sm:text-[13px] text-muted-foreground leading-none">N/A</span>
                   )}
-                  <span className="font-mono text-[9px] uppercase tracking-[0.12em] text-muted-foreground mt-1">
+                  <span className="font-mono text-[7px] sm:text-[9px] uppercase tracking-[0em] sm:tracking-[0.12em] text-muted-foreground mt-0.5 sm:mt-1">
                     Median
                   </span>
                 </div>
 
                 {/* Cumulative GPA */}
-                <div className="flex flex-col justify-center items-center text-center px-3 border-r border-border/70">
-                  <span className="font-display text-[18px] font-bold leading-none tabular-nums">
+                <div className="flex flex-col justify-center items-center text-center px-0.5 sm:px-3 border-r border-border/70">
+                  <span className="font-display text-[13px] sm:text-[18px] font-bold leading-none tabular-nums">
                     {course.cumulative_gpa ? course.cumulative_gpa.toFixed(2) : "N/A"}
                   </span>
-                  <span className="font-mono text-[9px] uppercase tracking-[0.12em] text-muted-foreground mt-1">
+                  <span className="font-mono text-[7px] sm:text-[9px] uppercase tracking-[0em] sm:tracking-[0.12em] text-muted-foreground mt-0.5 sm:mt-1">
                     Cum GPA
                   </span>
                 </div>
 
                 {/* Recent GPA */}
-                <div className="flex flex-col justify-center items-center text-center px-3 border-r border-border/70">
-                  <span className="font-display text-[18px] font-bold leading-none tabular-nums">
+                <div className="flex flex-col justify-center items-center text-center px-0.5 sm:px-3 border-r border-border/70">
+                  <span className="font-display text-[13px] sm:text-[18px] font-bold leading-none tabular-nums">
                     {course.most_recent_gpa ? course.most_recent_gpa.toFixed(2) : "N/A"}
                   </span>
-                  <span className="font-mono text-[9px] uppercase tracking-[0.12em] text-muted-foreground mt-1">
+                  <span className="font-mono text-[7px] sm:text-[9px] uppercase tracking-[0em] sm:tracking-[0.12em] text-muted-foreground mt-0.5 sm:mt-1">
                     Recent
                   </span>
                 </div>
 
                 {/* Status badge — closed courses get a notify button badge */}
-                <div className="flex items-center justify-center px-3">
+                <div className="@container flex items-center justify-center px-1">
                   {deriveStatus(course) === 0 ? (
                     <div onClick={(e) => e.stopPropagation()}>
                       {/* course_id is a zero-padded string ("024794") and the /v2
@@ -270,7 +274,7 @@ export function CourseTable({
                       />
                     </div>
                   ) : (
-                    <Badge variant="outline" className={`${statusBadge.classes} font-semibold text-[11.5px] rounded-[4px]`}>
+                    <Badge variant="outline" className={`${statusBadge.classes} font-semibold text-[9px] @[72px]:text-[11.5px] px-1.5 @[72px]:px-2.5 rounded-[4px]`}>
                       {statusBadge.label}
                     </Badge>
                   )}
@@ -278,7 +282,7 @@ export function CourseTable({
 
                 {/* Chevron */}
                 <div className="flex items-center justify-center">
-                  <ChevronRight className={cn("h-4 w-4 text-muted-foreground transition-transform duration-200", isExpanded && "rotate-90")} />
+                  <ChevronRight className={cn("h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground transition-transform duration-200", isExpanded && "rotate-90")} />
                 </div>
               </div>
               </div>
