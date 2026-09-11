@@ -69,18 +69,7 @@ export function PaginationControls({
 
   const pageNumbers = getPageNumbers()
 
-  const getSortLabel = () => {
-    switch (currentSort) {
-      case "cumulative_gpa":
-        return "Cumulative GPA"
-      case "recent_gpa":
-        return "Recent GPA"
-      default:
-        return "Catalog #"
-    }
-  }
-
-  const pager = (
+  const renderPager = (compact: boolean) => (
     <div className="flex items-center gap-1.5">
       <Button
         variant="outline"
@@ -101,24 +90,31 @@ export function PaginationControls({
         <ChevronLeft className="h-3.5 w-3.5" />
       </Button>
 
-      {pageNumbers.map((page, index) => (
-        <div key={index}>
-          {page === "..." ? (
-            <span className="px-1.5 text-sm text-muted-foreground">...</span>
-          ) : (
-            <Button
-              variant={currentPage === page ? "default" : "outline"}
-              size="sm"
-              onClick={() => onPageChange(page as number)}
-              className={`h-7 min-w-7 px-1 rounded-[5px] font-mono text-xs ${
-                currentPage === page ? "" : "bg-surface border-border/70"
-              }`}
-            >
-              {page}
-            </Button>
-          )}
-        </div>
-      ))}
+      {compact ? (
+        <span className="px-2.5 font-mono text-xs tabular-nums whitespace-nowrap">
+          <span className="font-semibold text-primary">{currentPage}</span>
+          <span className="text-muted-foreground"> / {totalPages}</span>
+        </span>
+      ) : (
+        pageNumbers.map((page, index) => (
+          <div key={index}>
+            {page === "..." ? (
+              <span className="px-1.5 text-sm text-muted-foreground">...</span>
+            ) : (
+              <Button
+                variant={currentPage === page ? "default" : "outline"}
+                size="sm"
+                onClick={() => onPageChange(page as number)}
+                className={`h-7 min-w-7 px-1 rounded-[5px] font-mono text-xs ${
+                  currentPage === page ? "" : "bg-surface border-border/70"
+                }`}
+              >
+                {page}
+              </Button>
+            )}
+          </div>
+        ))
+      )}
 
       <Button
         variant="outline"
@@ -142,15 +138,16 @@ export function PaginationControls({
   )
 
   return (
-    <div className="flex flex-col gap-3 px-6 py-4 border-b border-border/70 bg-surface">
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+    <div className="@container flex flex-col gap-3 px-4 py-3 sm:px-6 sm:py-4 border-b border-border/70 bg-surface">
+      <div className="flex flex-row items-center justify-between gap-3">
         {/* Left: count — cardinal numeral + label + mono sub */}
         <div className="flex items-baseline gap-2.5 flex-wrap">
           <span className="font-display text-sm font-semibold text-primary tabular-nums leading-none">
             {totalCount.toLocaleString()}
           </span>
           <span className="font-display text-sm font-semibold text-foreground">courses</span>
-          <span className="font-mono text-[11px] text-muted-foreground">
+          {/* Redundant with the pager's "n / total" readout once the bar is tight */}
+          <span className="hidden @[900px]:inline font-mono text-[11px] text-muted-foreground">
             {startResult.toLocaleString()}–{endResult.toLocaleString()}
           </span>
         </div>
@@ -178,7 +175,7 @@ export function PaginationControls({
           </div>
 
           <Select value={currentSort} onValueChange={onSortChange}>
-            <SelectTrigger className="h-8 w-[160px] rounded-[5px] bg-surface border-border/70 font-mono text-xs">
+            <SelectTrigger className="h-8 w-[150px] md:w-[160px] rounded-[5px] bg-surface border-border/70 font-mono text-xs">
               <SelectValue placeholder="Sort" />
             </SelectTrigger>
             <SelectContent>
@@ -188,16 +185,14 @@ export function PaginationControls({
             </SelectContent>
           </Select>
 
-          <div className="hidden md:block">{pager}</div>
+          <div className="hidden @[560px]:block @[920px]:hidden">{renderPager(true)}</div>
+          <div className="hidden @[920px]:block">{renderPager(false)}</div>
         </div>
       </div>
 
-      {/* Mobile pager */}
-      <div className="flex md:hidden items-center justify-between gap-2">
-        {pager}
-        <span className="font-mono text-[11px] text-muted-foreground">
-          {getSortLabel()} · page {currentPage}/{totalPages}
-        </span>
+      {/* Phone pager — its own row only when the bar is too narrow to inline it */}
+      <div className="flex @[560px]:hidden items-center justify-center">
+        {renderPager(true)}
       </div>
     </div>
   )
