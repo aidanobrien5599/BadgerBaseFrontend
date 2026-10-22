@@ -13,7 +13,7 @@ export function Footer() {
           {/* Right side - Disclaimers */}
           <div className="text-center md:text-right">
             <p className="font-mono text-[11px] tracking-[0.06em] text-muted-foreground font-medium">
-              Last updated for Fall 2026
+              Last updated for Spring 2027
             </p>
             <p className="font-mono text-[11px] tracking-[0.06em] text-muted-foreground mt-1">
               Not affiliated with UW-Madison • Data from UW-Madison & Madgrades & Rate My Professors
