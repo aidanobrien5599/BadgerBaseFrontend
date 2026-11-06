@@ -73,7 +73,8 @@ export interface WeeklyAvailability {
 export interface SearchFiltersProps {
   filters: FilterState
   onFiltersChange: (filters: FilterState) => void
-  onSearch: () => void
+  /** `searchParam`, when given, overrides `filters.search_param` for this search. */
+  onSearch: (searchParam?: string) => void
   loading: boolean
 }
 
@@ -730,7 +731,7 @@ export function SearchFilters({ filters, onFiltersChange, onSearch, loading }: S
 
       {/* Action Buttons */}
       <div className="space-y-2">
-        <Button onClick={onSearch} disabled={loading} className="w-full">
+        <Button onClick={() => onSearch()} disabled={loading} className="w-full">
           <Search className="h-4 w-4 mr-2" />
           Search Courses
         </Button>
