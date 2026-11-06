@@ -9,8 +9,13 @@ import { cn } from "@/lib/utils"
 export interface SearchAutocompleteProps {
   value: string
   onValueChange: (value: string) => void
-  /** Runs the full filtered query. Called on selection and on bare Enter. */
-  onSearch: () => void
+  /**
+   * Runs the full filtered query. Called on selection and on bare Enter with
+   * the query to search for. Pass it through rather than re-reading `value`
+   * from parent state: on selection, `onValueChange` has only *scheduled* the
+   * update, so the parent's state still holds the partially typed text.
+   */
+  onSearch: (query: string) => void
   id?: string
   placeholder?: string
 }
@@ -83,7 +88,7 @@ export function SearchAutocomplete({
   function select(suggestion: Suggestion) {
     onValueChange(suggestion.value)
     close()
-    onSearch()
+    onSearch(suggestion.value)
   }
 
   function handleKeyDown(event: React.KeyboardEvent<HTMLInputElement>) {
@@ -103,7 +108,7 @@ export function SearchAutocomplete({
         select(suggestions[activeIndex])
       } else {
         close()
-        onSearch()
+        onSearch(value)
       }
       return
     }

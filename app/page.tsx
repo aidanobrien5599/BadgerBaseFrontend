@@ -139,7 +139,7 @@ export default function HomePage() {
     sort: "",
   })
 
-  const searchCourses = async (page = 1) => {
+  const searchCourses = async (page = 1, activeFilters: FilterState = filters) => {
     setLoading(true)
     setError(null)
 
@@ -150,7 +150,7 @@ export default function HomePage() {
       params.append("page", page.toString())
 
       // Add all non-empty filters to params
-      Object.entries(filters).forEach(([key, value]) => {
+      Object.entries(activeFilters).forEach(([key, value]) => {
         if (value && value !== "" && value !== false) {
           if (typeof value === "boolean") {
             params.append(key, "true")
@@ -206,9 +206,13 @@ export default function HomePage() {
     return () => window.removeEventListener("resize", onResize)
   }, [view])
 
-  const handleSearch = () => {
+  // Callers that have just changed the search text (picking an autocomplete
+  // suggestion) pass it in: their setFilters call hasn't re-rendered yet, so
+  // `filters` in this closure still holds the old text.
+  const handleSearch = (searchParam?: string) => {
+    const activeFilters = searchParam === undefined ? filters : { ...filters, search_param: searchParam }
     setCurrentPage(1)
-    searchCourses(1)
+    searchCourses(1, activeFilters)
   }
 
   const handleSortChange = (newSort: string) => {

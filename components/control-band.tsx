@@ -16,7 +16,7 @@ import {
 interface ControlBandProps {
   filters: FilterState
   onFiltersChange: (filters: FilterState) => void
-  onSearch: () => void
+  onSearch: (searchParam?: string) => void
   loading: boolean
 }
 
@@ -174,7 +174,7 @@ export function ControlBand({ filters, onFiltersChange, onSearch, loading }: Con
         </div>
 
         <div className="flex gap-2 shrink-0">
-          <Button onClick={onSearch} disabled={loading} className="flex-1 xl:flex-none xl:w-[110px]">
+          <Button onClick={() => onSearch()} disabled={loading} className="flex-1 xl:flex-none xl:w-[110px]">
             <Search className="h-4 w-4 mr-2" />
             Search
           </Button>
